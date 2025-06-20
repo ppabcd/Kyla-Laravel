@@ -17,13 +17,19 @@ class BanCommand extends BaseCommand
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private BannedService $bannedService
-    ) {}
+    ) {
+    }
 
     public function handle(TelegramContextInterface $context): void
     {
         $message = $context->getMessage();
-        $chatId = $message->chat->id;
-        $text = $message->text ?? '';
+        $chatId = $message['chat']['id'] ?? null;
+
+        if (!$chatId) {
+            $context->reply('❌ Chat ID tidak ditemukan.');
+            return;
+        }
+        $text = $message['text'] ?? '';
 
         // Check if user is admin
         if (!$this->isAdmin($chatId)) {
@@ -71,4 +77,4 @@ class BanCommand extends BaseCommand
         // This would typically get the admin username from the message
         return "Admin ({$chatId})";
     }
-} 
+}

@@ -69,7 +69,7 @@ class BannedService
     /**
      * Unban a user
      */
-    public function unbanUser(User $user, int $unbannedBy, string $reason = null): bool
+    public function unbanUser(User $user, int $unbannedBy, ?string $reason = null): bool
     {
         if (!$user->isBanned()) {
             Log::warning('Attempted to unban non-banned user', ['user_id' => $user->id]);

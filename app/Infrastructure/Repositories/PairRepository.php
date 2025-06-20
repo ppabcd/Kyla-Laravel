@@ -118,7 +118,7 @@ class PairRepository implements PairRepositoryInterface
         ]);
     }
 
-    public function endPair(Pair $pair, int $endedBy, string $reason = null): bool
+    public function endPair(Pair $pair, int $endedBy, ?string $reason = null): bool
     {
         return $this->update($pair, [
             'status' => 'ended',
@@ -407,7 +407,7 @@ class PairRepository implements PairRepositoryInterface
         });
     }
 
-    public function getTotalConversationsCount(int $days = null): int
+    public function getTotalConversationsCount(?int $days = null): int
     {
         return Cache::remember("pairs:total_count:" . ($days ?? 'all'), 300, function () use ($days) {
             $query = Pair::query();

@@ -41,9 +41,9 @@ interface ReportRepositoryInterface
     /**
      * Report Management
      */
-    public function markAsReviewed(Report $report, int $reviewerId, string $actionTaken, string $notes = null): bool;
+    public function markAsReviewed(Report $report, int $reviewerId, string $actionTaken, ?string $notes = null): bool;
     public function resolve(Report $report): bool;
-    public function dismiss(Report $report, string $reason = null): bool;
+    public function dismiss(Report $report, ?string $reason = null): bool;
 
     /**
      * Statistics Operations

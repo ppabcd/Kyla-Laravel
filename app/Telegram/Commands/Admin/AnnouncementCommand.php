@@ -19,8 +19,8 @@ class AnnouncementCommand extends BaseCommand
     public function handle(TelegramContextInterface $context): void
     {
         $message = $context->getMessage();
-        $chatId = $message->chat->id;
-        $text = $message->text ?? '';
+        $chatId = $message['chat']['id'] ?? null;
+        $text = $message['text'] ?? '' ?? '';
 
         // Check if user is admin
         if (!$this->isAdmin($chatId)) {

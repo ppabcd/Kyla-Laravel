@@ -37,6 +37,19 @@ class StartCommand extends BaseCommand
 
     public function handle(TelegramContextInterface $context): void
     {
+        $message = $context->getMessage();
+
+        if (!$message) {
+            return;
+        }
+
+        $chatId = $message['chat']['id'] ?? null;
+        $userId = $message['from']['id'] ?? null;
+
+        if (!$chatId || !$userId) {
+            return;
+        }
+
         try {
             $user = $context->getUserModel();
 

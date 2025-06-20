@@ -10,16 +10,30 @@ class CheckUserMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private UserRepositoryInterface $userRepository
-    ) {}
+    ) {
+    }
 
     public function handle(TelegramContextInterface $context, callable $next): void
     {
         $message = $context->getMessage();
-        $chatId = $message->chat->id;
+
+        if (!$message) {
+            // No message found, skip this middleware
+            $next($context);
+            return;
+        }
+
+        $chatId = $message['chat']['id'] ?? null;
+
+        if (!$chatId) {
+            // No chat ID found, skip this middleware
+            $next($context);
+            return;
+        }
 
         // Check if user exists
         $user = $this->userRepository->findByTelegramId($chatId);
-        
+
         if (!$user) {
             // User doesn't exist, send welcome message
             $this->sendWelcomeMessage($context);
@@ -54,4 +68,4 @@ class CheckUserMiddleware implements MiddlewareInterface
     {
         return app(\App\Telegram\Services\TelegramBotService::class);
     }
-} 
+}

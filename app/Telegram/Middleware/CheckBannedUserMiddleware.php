@@ -10,16 +10,28 @@ class CheckBannedUserMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private UserRepositoryInterface $userRepository
-    ) {}
+    ) {
+    }
 
     public function handle(TelegramContextInterface $context, callable $next): void
     {
         $message = $context->getMessage();
-        $chatId = $message->chat->id;
+
+        if (!$message) {
+            $next($context);
+            return;
+        }
+
+        $chatId = $message['chat']['id'] ?? null;
+
+        if (!$chatId) {
+            $next($context);
+            return;
+        }
 
         // Check if user is banned
         $user = $this->userRepository->findByTelegramId($chatId);
-        
+
         if ($user && $user->is_banned) {
             $context->reply(__('errors.user_banned'));
             return;
@@ -28,4 +40,4 @@ class CheckBannedUserMiddleware implements MiddlewareInterface
         // User is not banned, continue to next middleware/handler
         $next($context);
     }
-} 
+}

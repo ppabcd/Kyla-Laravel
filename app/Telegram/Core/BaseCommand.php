@@ -152,7 +152,7 @@ abstract class BaseCommand implements CommandInterface
     /**
      * Delete message
      */
-    protected function deleteMessage(TelegramContextInterface $context, int $messageId = null): void
+    protected function deleteMessage(TelegramContextInterface $context, ?int $messageId = null): void
     {
         $context->deleteMessage($messageId);
     }
@@ -164,4 +164,4 @@ abstract class BaseCommand implements CommandInterface
     {
         $context->answerCallbackQuery($text, $options);
     }
-} 
+}

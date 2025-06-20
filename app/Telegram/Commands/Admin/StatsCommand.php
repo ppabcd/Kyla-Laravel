@@ -21,7 +21,7 @@ class StatsCommand extends BaseCommand
     public function handle(TelegramContextInterface $context): void
     {
         $message = $context->getMessage();
-        $chatId = $message->chat->id;
+        $chatId = $message['chat']['id'] ?? null;
 
         // Check if user is admin
         if (!$this->isAdmin($chatId)) {

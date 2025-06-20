@@ -34,7 +34,7 @@ interface PairRepositoryInterface
      * Pair Management Operations
      */
     public function startPair(Pair $pair): bool;
-    public function endPair(Pair $pair, int $endedBy, string $reason = null): bool;
+    public function endPair(Pair $pair, int $endedBy, ?string $reason = null): bool;
     public function findExpiredPairs(int $maxDurationMinutes): Collection;
     public function findInactivePairs(int $inactiveMinutes): Collection;
 

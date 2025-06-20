@@ -114,7 +114,7 @@ class ReportRepository implements ReportRepositoryInterface
     /**
      * Report Management
      */
-    public function markAsReviewed(Report $report, int $reviewerId, string $actionTaken, string $notes = null): bool
+    public function markAsReviewed(Report $report, int $reviewerId, string $actionTaken, ?string $notes = null): bool
     {
         return $this->update($report, [
             'status' => 'reviewed',
@@ -132,7 +132,7 @@ class ReportRepository implements ReportRepositoryInterface
         ]);
     }
 
-    public function dismiss(Report $report, string $reason = null): bool
+    public function dismiss(Report $report, ?string $reason = null): bool
     {
         return $this->update($report, [
             'status' => 'dismissed',
@@ -257,7 +257,7 @@ class ReportRepository implements ReportRepositoryInterface
         });
     }
 
-    public function getTotalReportsCount(int $days = null): int
+    public function getTotalReportsCount(?int $days = null): int
     {
         return Cache::remember("reports:total_count:" . ($days ?? 'all'), 300, function () use ($days) {
             $query = Report::query();
@@ -268,7 +268,7 @@ class ReportRepository implements ReportRepositoryInterface
         });
     }
 
-    public function getResolvedReportsCount(int $days = null): int
+    public function getResolvedReportsCount(?int $days = null): int
     {
         return Cache::remember("reports:resolved_count:" . ($days ?? 'all'), 300, function () use ($days) {
             $query = Report::where('status', 'resolved');

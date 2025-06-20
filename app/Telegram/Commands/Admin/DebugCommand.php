@@ -13,7 +13,7 @@ class DebugCommand extends BaseCommand
 
     public function handle(TelegramContextInterface $context): void
     {
-        $chatId = $context->getMessage()->chat->id;
+        $chatId = $context->getChatId();
         if (!$this->isAdmin($chatId)) {
             $context->reply(__('errors.permission_denied'));
             return;

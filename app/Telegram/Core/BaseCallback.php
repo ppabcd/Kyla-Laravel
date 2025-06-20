@@ -139,7 +139,7 @@ abstract class BaseCallback implements CallbackInterface
     /**
      * Delete message
      */
-    protected function deleteMessage(TelegramContextInterface $context, int $messageId = null): void
+    protected function deleteMessage(TelegramContextInterface $context, ?int $messageId = null): void
     {
         $context->deleteMessage($messageId);
     }
@@ -167,4 +167,4 @@ abstract class BaseCallback implements CallbackInterface
     {
         $context->editMessageReplyMarkup($replyMarkup, $options);
     }
-} 
+}

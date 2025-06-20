@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class RejectActionMediaCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['reject-media'];
+    protected string|array $callbackName = ['reject-media'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

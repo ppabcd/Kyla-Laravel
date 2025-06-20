@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class BannedActionTextCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['banned-text'];
+    protected string|array $callbackName = ['banned-text'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

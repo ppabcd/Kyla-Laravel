@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class PendingCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['pending'];
+    protected string|array $callbackName = ['pending'];
 
     public function __construct(
         private UserService $userService,

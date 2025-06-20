@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class CaptchaCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['captcha'];
+    protected string|array $callbackName = ['captcha'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

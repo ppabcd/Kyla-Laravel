@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class DonationCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['donation'];
+    protected string|array $callbackName = ['donation'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

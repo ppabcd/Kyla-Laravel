@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class CancelKeyboardCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['cancel-keyboard'];
+    protected string|array $callbackName = ['cancel-keyboard'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class TopUpCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['topup'];
+    protected string|array $callbackName = ['topup'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

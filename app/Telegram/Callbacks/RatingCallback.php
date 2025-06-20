@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class RatingCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = [
+    protected string|array $callbackName = [
         'thumbs-up',
         'thumbs-down',
         'my-rating'

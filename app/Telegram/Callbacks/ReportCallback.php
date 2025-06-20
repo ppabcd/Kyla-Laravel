@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class ReportCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = [
+    protected string|array $callbackName = [
         'report-action',
         'report-action-porn',
         'report-action-ads',

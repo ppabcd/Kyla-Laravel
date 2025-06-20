@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class RejectActionTextCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['reject-text'];
+    protected string|array $callbackName = ['reject-text'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

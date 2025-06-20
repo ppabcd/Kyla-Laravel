@@ -48,12 +48,12 @@ class CheckUserMiddleware implements MiddlewareInterface
     {
         $keyboard = [
             [
-                ['text' => '🇮🇩 Bahasa Indonesia', 'callback_data' => 'language:id'],
-                ['text' => '🇺🇸 English', 'callback_data' => 'language:en']
+                ['text' => '🇮🇩 Bahasa Indonesia', 'callback_data' => 'lang-id'],
+                ['text' => '🇺🇸 English', 'callback_data' => 'lang-en']
             ],
             [
-                ['text' => '🇲🇾 Bahasa Melayu', 'callback_data' => 'language:ms'],
-                ['text' => '🇮🇳 हिंदी', 'callback_data' => 'language:in']
+                ['text' => '🇲🇾 Bahasa Melayu', 'callback_data' => 'lang-my'],
+                ['text' => '🇮🇳 हिंदी', 'callback_data' => 'lang-in']
             ]
         ];
 

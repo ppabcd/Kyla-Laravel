@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class RetrySubscribeCheckCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['retry-subscribe'];
+    protected string|array $callbackName = ['retry-subscribe'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

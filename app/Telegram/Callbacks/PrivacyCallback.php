@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class PrivacyCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['privacy'];
+    protected string|array $callbackName = ['privacy'];
 
     public function __construct(
         private UserService $userService,

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class InterestCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['interest-male', 'interest-female'];
+    protected string|array $callbackName = ['interest-male', 'interest-female'];
 
     public function __construct(
         private UserService $userService,

@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class SafeModeCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['toggle_safe_mode', 'mode'];
+    protected string|array $callbackName = ['toggle_safe_mode', 'mode'];
 
     public function __construct(
         private UserService $userService,

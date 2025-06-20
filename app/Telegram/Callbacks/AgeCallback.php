@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class AgeCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['age'];
+    protected string|array $callbackName = ['age'];
 
     public function __construct(
         private UserService $userService,

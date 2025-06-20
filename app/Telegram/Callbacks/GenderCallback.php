@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class GenderCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['gender-male', 'gender-female'];
+    protected string|array $callbackName = ['gender-male', 'gender-female'];
 
     public function __construct(
         private UserService $userService,

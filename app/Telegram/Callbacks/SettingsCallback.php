@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class SettingsCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = [
+    protected string|array $callbackName = [
         'settings-notifications',
         'settings-privacy',
         'settings-safe-mode',

@@ -5,7 +5,7 @@ use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Core\TelegramContext;
 class CryptoDonationCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['crypto-donation'];
+    protected string|array $callbackName = ['crypto-donation'];
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {

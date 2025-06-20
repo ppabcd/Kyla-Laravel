@@ -10,7 +10,7 @@ use App\Domain\Repositories\UserRepositoryInterface;
 
 class LocationCallback extends BaseCallback implements CallbackInterface
 {
-    protected array $callbackNames = ['location'];
+    protected string|array $callbackName = ['location'];
 
     public function __construct(
         private UserService $userService,

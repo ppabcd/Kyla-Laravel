@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Telegram\Services\TelegramBotService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\ProcessTelegramUpdateJob;
@@ -39,7 +40,7 @@ class TelegramWebhookController extends Controller
 
             // Get update data
             $update = $request->all();
-            
+
             if (empty($update)) {
                 Log::warning('Empty update received from Telegram');
                 return response('OK', 200);
@@ -78,11 +79,11 @@ class TelegramWebhookController extends Controller
     /**
      * Set webhook URL
      */
-    public function setWebhook(Request $request): Response
+    public function setWebhook(Request $request): JsonResponse
     {
         try {
             $url = $request->input('url');
-            
+
             if (!$url) {
                 return response()->json(['error' => 'URL is required'], 400);
             }
@@ -117,7 +118,7 @@ class TelegramWebhookController extends Controller
     /**
      * Delete webhook
      */
-    public function deleteWebhook(): Response
+    public function deleteWebhook(): JsonResponse
     {
         try {
             $result = $this->telegramService->deleteWebhook(['drop_pending_updates' => true]);
@@ -139,11 +140,11 @@ class TelegramWebhookController extends Controller
     /**
      * Get webhook info
      */
-    public function info(): Response
+    public function info(): JsonResponse
     {
         try {
             $info = $this->telegramService->getWebhookInfo();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $info
@@ -164,11 +165,11 @@ class TelegramWebhookController extends Controller
     /**
      * Get bot info
      */
-    public function botInfo(): Response
+    public function botInfo(): JsonResponse
     {
         try {
             $info = $this->telegramService->getMe();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $info
@@ -189,12 +190,12 @@ class TelegramWebhookController extends Controller
     /**
      * Get registered commands
      */
-    public function commands(): Response
+    public function commands(): JsonResponse
     {
         try {
             $commands = $this->telegramService->getCommands();
             $callbacks = $this->telegramService->getCallbacks();
-            
+
             $commandList = [];
             foreach ($commands as $name => $command) {
                 $commandList[] = [
@@ -213,7 +214,7 @@ class TelegramWebhookController extends Controller
                     'enabled' => $callback->isEnabled()
                 ];
             }
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -239,7 +240,7 @@ class TelegramWebhookController extends Controller
     /**
      * Test webhook endpoint
      */
-    public function test(): Response
+    public function test(): JsonResponse
     {
         try {
             $botInfo = $this->telegramService->getMe();
@@ -269,7 +270,7 @@ class TelegramWebhookController extends Controller
     /**
      * Health check endpoint
      */
-    public function health(): Response
+    public function health(): JsonResponse
     {
         try {
             $botInfo = $this->telegramService->getMe();
@@ -290,7 +291,7 @@ class TelegramWebhookController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Health check failed: ' . $e->getMessage());
-            
+
             return response()->json([
                 'status' => 'unhealthy',
                 'timestamp' => now()->toISOString(),
@@ -302,11 +303,11 @@ class TelegramWebhookController extends Controller
     /**
      * Process update synchronously (for testing)
      */
-    public function processUpdate(Request $request): Response
+    public function processUpdate(Request $request): JsonResponse
     {
         try {
             $update = $request->all();
-            
+
             if (empty($update)) {
                 return response()->json(['error' => 'No update data provided'], 400);
             }
@@ -325,4 +326,4 @@ class TelegramWebhookController extends Controller
             return response()->json(['error' => 'Failed to process update'], 500);
         }
     }
-} 
+}

@@ -8,7 +8,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-use App\Services\CacheService;
+
 use App\Exceptions\CacheException;
 use Carbon\Carbon;
 
@@ -20,11 +20,8 @@ use Carbon\Carbon;
  */
 class UserRepository implements UserRepositoryInterface
 {
-    private CacheService $cacheService;
-
-    public function __construct(CacheService $cacheService)
+    public function __construct()
     {
-        $this->cacheService = $cacheService;
         logger('UserRepository initialized');
     }
 
@@ -410,36 +407,63 @@ class UserRepository implements UserRepositoryInterface
      */
     public function getTotalUsers(): int
     {
-        return Cache::remember('users:total_count', 300, function () {
+        try {
+            return Cache::remember('users:total_count', 300, function () {
+                return User::count();
+            });
+        } catch (\Exception $e) {
+            logger('Cache error in getTotalUsers: ' . $e->getMessage());
             return User::count();
-        });
+        }
     }
 
     public function getActiveUsersCount(int $days = 7): int
     {
-        return Cache::remember("users:active_count:{$days}", 300, function () use ($days) {
+        try {
+            return Cache::remember("users:active_count:{$days}", 300, function () use ($days) {
+                return User::where('last_activity_at', '>=', now()->subDays($days))
+                    ->where('is_banned', false)
+                    ->count();
+            });
+        } catch (\Exception $e) {
+            logger('Cache error in getActiveUsersCount: ' . $e->getMessage());
             return User::where('last_activity_at', '>=', now()->subDays($days))
                 ->where('is_banned', false)
                 ->count();
-        });
+        }
     }
 
     public function getNewUsersCount(int $days = 1): int
     {
-        return Cache::remember("users:new_count:{$days}", 300, function () use ($days) {
+        try {
+            return Cache::remember("users:new_count:{$days}", 300, function () use ($days) {
+                return User::where('created_at', '>=', now()->subDays($days))->count();
+            });
+        } catch (\Exception $e) {
+            logger('Cache error in getNewUsersCount: ' . $e->getMessage());
             return User::where('created_at', '>=', now()->subDays($days))->count();
-        });
+        }
     }
 
-    public function getBannedUsersCount(int $days = null): int
+    public function getBannedUsersCount(?int $days = null): int
     {
-        return Cache::remember("users:banned_count:" . ($days ?? 'all'), 300, function () use ($days) {
+        try {
+            return Cache::remember("users:banned_count:" . ($days ?? 'all'), 300, function () use ($days) {
+                $query = User::where('is_banned', true);
+                if ($days) {
+                    $query->where('banned_at', '>=', now()->subDays($days));
+                }
+                return $query->count();
+            });
+        } catch (\Exception $e) {
+            logger('Cache error in getBannedUsersCount: ' . $e->getMessage());
+            // Fallback to direct database query
             $query = User::where('is_banned', true);
             if ($days) {
                 $query->where('banned_at', '>=', now()->subDays($days));
             }
             return $query->count();
-        });
+        }
     }
 
     public function getPremiumUsersCount(): int

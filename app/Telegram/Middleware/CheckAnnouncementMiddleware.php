@@ -3,13 +3,12 @@
 namespace App\Telegram\Middleware;
 
 use App\Telegram\Contracts\TelegramContextInterface;
-use App\Services\CacheService;
+use Illuminate\Support\Facades\Cache;
 
 class CheckAnnouncementMiddleware implements MiddlewareInterface
 {
-    public function __construct(
-        private CacheService $cacheService
-    ) {
+    public function __construct()
+    {
     }
 
     public function handle(TelegramContextInterface $context, callable $next): void
@@ -24,12 +23,12 @@ class CheckAnnouncementMiddleware implements MiddlewareInterface
         // Check if user should receive announcements
         if ($user->is_get_announcement) {
             $announcementKey = "announcement_shown:{$user->id}";
-            if (!$this->cacheService->has($announcementKey)) {
+            if (!Cache::has($announcementKey)) {
                 // Show announcement message
                 $this->sendAnnouncementMessage($context, $user);
 
                 // Mark announcement as shown (cache for 24 hours)
-                $this->cacheService->put($announcementKey, true, 86400);
+                Cache::put($announcementKey, true, 86400);
                 return;
             }
         }

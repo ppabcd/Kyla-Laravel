@@ -3,13 +3,12 @@
 namespace App\Telegram\Middleware;
 
 use App\Telegram\Contracts\TelegramContextInterface;
-use App\Services\CacheService;
+use Illuminate\Support\Facades\Cache;
 
 class CheckPromotionMiddleware implements MiddlewareInterface
 {
-    public function __construct(
-        private CacheService $cacheService
-    ) {
+    public function __construct()
+    {
     }
 
     public function handle(TelegramContextInterface $context, callable $next): void
@@ -23,12 +22,12 @@ class CheckPromotionMiddleware implements MiddlewareInterface
 
         // Check if user has seen promotion message
         $promotionKey = "promotion_shown:{$user->id}";
-        if (!$this->cacheService->has($promotionKey)) {
+        if (!Cache::has($promotionKey)) {
             // Show promotion message
             $this->sendPromotionMessage($context, $user);
 
             // Mark promotion as shown (cache for 24 hours)
-            $this->cacheService->put($promotionKey, true, 86400);
+            Cache::put($promotionKey, true, 86400);
             return;
         }
 

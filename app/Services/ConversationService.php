@@ -9,7 +9,7 @@ use App\Domain\Repositories\ConversationLogRepositoryInterface;
 use App\Domain\Repositories\RatingRepositoryInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Services\KeyboardService;
-use App\Services\CacheService;
+use Illuminate\Support\Facades\Cache;
 use App\Services\PendingService;
 use App\Enums\InterestEnum;
 use App\Enums\GenderEnum;
@@ -23,7 +23,6 @@ class ConversationService
         private PairPendingRepositoryInterface $pairPendingRepository,
         private ConversationLogRepositoryInterface $conversationLogRepository,
         private RatingRepositoryInterface $ratingRepository,
-        private CacheService $cacheService,
         private KeyboardService $keyboardService,
         private PendingService $pendingService
     ) {
@@ -41,9 +40,11 @@ class ConversationService
             return false;
         }
 
-        // Acquire conversation lock
+        // Acquire conversation lock using Laravel Cache lock
         $lockKey = $this->getConversationLockKey($user->id);
-        if (!$this->cacheService->acquireLock($lockKey, 30)) {
+        $lock = Cache::lock($lockKey, 30);
+
+        if (!$lock->get()) {
             $context->sendMessage(__('messages.conversation.locked', [], $user->language_code ?? 'en'));
             return false;
         }
@@ -58,7 +59,7 @@ class ConversationService
             return $this->attemptPairing($context, $user);
 
         } finally {
-            $this->cacheService->releaseLock($lockKey);
+            $lock->release();
         }
     }
 
@@ -75,7 +76,9 @@ class ConversationService
         }
 
         $lockKey = $this->getConversationStopLockKey($user->id);
-        if (!$this->cacheService->acquireLock($lockKey, 30)) {
+        $lock = Cache::lock($lockKey, 30);
+
+        if (!$lock->get()) {
             $context->sendMessage(__('messages.conversation.locked', [], $user->language_code ?? 'en'));
             return false;
         }
@@ -161,7 +164,7 @@ class ConversationService
             return true;
 
         } finally {
-            $this->cacheService->releaseLock($lockKey);
+            $lock->release();
         }
     }
 
@@ -351,12 +354,12 @@ class ConversationService
      */
     private function removeCache(User $user, ?User $partner = null): void
     {
-        $this->cacheService->delete("enable-media:{$user->id}");
-        $this->cacheService->delete("pair:{$user->id}");
+        Cache::forget("enable-media:{$user->id}");
+        Cache::forget("pair:{$user->id}");
 
         if ($partner) {
-            $this->cacheService->delete("enable-media:{$partner->id}");
-            $this->cacheService->delete("pair:{$partner->id}");
+            Cache::forget("enable-media:{$partner->id}");
+            Cache::forget("pair:{$partner->id}");
         }
     }
 

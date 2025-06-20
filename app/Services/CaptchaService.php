@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Telegram\Services\KeyboardService;
-use App\Services\CacheService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
@@ -12,12 +12,10 @@ use Intervention\Image\Drivers\Gd\Driver;
 class CaptchaService
 {
     private KeyboardService $keyboardService;
-    private CacheService $cacheService;
 
-    public function __construct(KeyboardService $keyboardService, CacheService $cacheService)
+    public function __construct(KeyboardService $keyboardService)
     {
         $this->keyboardService = $keyboardService;
-        $this->cacheService = $cacheService;
     }
 
     public function generateCaptcha(array &$session): void
@@ -135,16 +133,16 @@ class CaptchaService
     {
         // Check if user has been verified recently
         $verifiedKey = "captcha_verified:{$user->id}";
-        if ($this->cacheService->has($verifiedKey)) {
+        if (Cache::has($verifiedKey)) {
             return false;
         }
 
         // Check if user has failed captcha attempts
         $attemptsKey = "captcha_attempts:{$user->id}";
-        $attempts = $this->cacheService->get($attemptsKey, 0);
+        $attempts = Cache::get($attemptsKey, 0);
 
         // Require captcha if user has failed attempts or is new
-        return $attempts > 0 || $user->isNew();
+        return $attempts > 0 || method_exists($user, 'isNew') && $user->isNew();
     }
 
     /**
@@ -156,7 +154,7 @@ class CaptchaService
 
         // Store captcha answer in cache
         $answerKey = "captcha_answer:{$user->id}";
-        $this->cacheService->put($answerKey, $captcha['answer'], 300); // 5 minutes
+        Cache::put($answerKey, $captcha['answer'], 300); // 5 minutes
 
         $keyboard = [
             'inline_keyboard' => [

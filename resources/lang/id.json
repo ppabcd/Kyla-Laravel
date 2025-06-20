@@ -1,0 +1,241 @@
+{
+    "start": "Selamat datang di Kyla Bot!",
+    "help": "Berikut adalah perintah yang bisa kamu gunakan:",
+    "settings.title": "Pengaturan",
+    "language.selector": "Pilih bahasa kamu:",
+    "language.changed": "Bahasa telah diubah!",
+    "profile.title": "Profil Kamu",
+    "profile.status.incomplete": "⚠️ Profil kamu belum lengkap. Silakan lengkapi untuk mulai mencari teman.",
+    "profile.status.complete": "✅ Profil kamu sudah lengkap! Kamu bisa mulai mencari teman.",
+    "balance": "Saldo kamu: :balance koin",
+    "donation": "Dukung Kyla Bot dengan donasi, :name!",
+    "rules": "Aturan Komunitas: Saling menghormati, tidak spam, tidak melakukan pelecehan.",
+    "interest.not_set": "Silakan pilih minat kamu:",
+    "safe_mode.message": "Mode aman saat ini: :mode",
+    "safe_mode.on": "AKTIF (Aman)",
+    "safe_mode.off": "NONAKTIF (Bebas)",
+    "safe_mode.toggle": "Ubah Mode Aman",
+    "safe_mode.change_success": "Mode aman berhasil diperbarui!",
+    "referral.total_referral": "Kamu telah mengundang :totalReferral teman!\nLink referral kamu: :referralLink",
+    "transfer.usage": "Cara pakai: /transfer <userId> <jumlah>",
+    "transfer.invalid_amount": "Jumlah tidak valid. Silakan masukkan angka positif.",
+    "transfer.user_not_found": "User tidak ditemukan.",
+    "transfer.insufficient_balance": "Saldo tidak cukup.",
+    "transfer.success": "Berhasil transfer :amount 💎 ke :username",
+    "transfer.admin_success": "Berhasil transfer :amount 💎 ke :username",
+    "transfer.received": "Kamu menerima :amount 💎 dari :username",
+    "transfer.received_from_admin": "Kamu menerima :amount 💎 dari admin",
+    "transfer.failed": "Transfer gagal. Silakan coba lagi.",
+    "pending.queue_status": "Status antrian: :count item tertunda",
+    "pending.wait_message": "Silakan tunggu sementara kami memproses permintaan Anda.",
+    "pending.no_pending": "Tidak ada item tertunda dalam antrian.",
+    "session.invalidated": "Session telah direset.",
+    "age.ask_age": "Berapa umur kamu?\n\nSilakan masukkan umur kamu (18-65):",
+    "privacy.policy": "🔒 *Kebijakan Privasi*\n\nKami menghargai privasi Anda. Data Anda aman dan tidak akan dibagikan ke pihak ketiga. Untuk detail lebih lanjut, kunjungi website kami atau hubungi support@kyla.my.id.",
+    "report.reason": "Silakan pilih alasan laporan:",
+    "report.reason_porn": "Konten Pornografi",
+    "report.reason_ads": "Iklan/Spam",
+    "report.cancel": "Batal",
+    "report.thank_you": "Terima kasih atas laporan kamu! Tim kami akan segera meninjaunya.",
+    "rating.thank_you": "Terima kasih atas rating kamu!",
+    "rating.my_rating": "Rating kamu: :starRating (:rating/5.00)\nTotal rating: :totalRating",
+    "media.enabled": "Media diaktifkan!",
+    "media.rejected": "Media ditolak.",
+    "text.rejected": "Teks ditolak.",
+    "topup.info": "Isi saldo kamu di sini!",
+    "banned.media": "Kamu diblokir dari mengirim media.",
+    "banned.text": "Kamu diblokir dari mengirim pesan.",
+    "banned.info": "Kamu diblokir dari fitur ini.",
+    "keyboard.cancel": "Aksi dibatalkan.",
+    "captcha.info": "Selesaikan captcha untuk melanjutkan.",
+    "conversation.info": "Info percakapan.",
+    "donation.crypto": "Dukung kami dengan donasi crypto!",
+    "donation.info": "Dukung kami dengan donasi!",
+    "subscribe.retry": "Silakan cek langganan ulang.",
+    "commands": {
+        "start": "Selamat datang di Kyla Bot! 🤖\n\nSaya adalah bot yang akan membantu Anda mencari pasangan dan berkenalan dengan orang baru.\n\nUntuk memulai, silakan pilih bahasa Anda:",
+        "help": "📚 **Bantuan Kyla Bot**\n\n**Perintah Utama:**\n/start - Mulai bot\n/profile - Lihat profil Anda\n/settings - Pengaturan bot\n/search - Cari pasangan\n/balance - Lihat saldo\n/donasi - Donasi\n/feedback - Kirim feedback\n\n**Perintah Admin:**\n/announcement - Buat pengumuman\n/ban - Ban pengguna\n/unban - Unban pengguna\n\nUntuk informasi lebih lanjut, silakan kunjungi @KylaSupport",
+        "profile": "👤 **Profil Anda**\n\n**Nama:** {name}\n**Usia:** {age}\n**Gender:** {gender}\n**Lokasi:** {location}\n**Minat:** {interests}\n**Mode Bot:** {bot_mode}\n**Status:** {status}\n\nGunakan /settings untuk mengubah profil Anda.",
+        "settings": "⚙️ **Pengaturan**\n\nPilih pengaturan yang ingin Anda ubah:",
+        "language": "🌐 **Pilih Bahasa**\n\nPilih bahasa yang ingin Anda gunakan:",
+        "ping": "🏓 Pong! Bot berfungsi dengan baik.",
+        "rules": "📋 **Peraturan Kyla Bot**\n\n1. **Hormati Pengguna Lain** - Jangan kirim konten yang menyinggung atau tidak pantas\n2. **Konten Dewasa** - Konten NSFW hanya diizinkan dalam mode dewasa\n3. **Spam** - Jangan spam atau kirim pesan berulang\n4. **Informasi Pribadi** - Jangan bagikan informasi pribadi orang lain\n5. **Laporan** - Laporkan pengguna yang melanggar peraturan\n\nMelanggar peraturan dapat mengakibatkan ban permanen.",
+        "feedback": "💬 **Kirim Feedback**\n\nSilakan kirim feedback Anda. Feedback Anda akan dikirim ke admin untuk ditinjau.",
+        "test": "🧪 **Test Bot**\n\nBot berfungsi dengan baik! Semua sistem dalam kondisi normal.",
+        "privacy": "🔒 **Kebijakan Privasi**\n\n**Informasi yang Kami Kumpulkan:**\n- Nama pengguna\n- Usia dan gender\n- Lokasi (opsional)\n- Minat\n- Pesan dalam percakapan\n\n**Bagaimana Kami Menggunakan Informasi:**\n- Untuk mencocokkan Anda dengan pengguna lain\n- Untuk meningkatkan layanan\n- Untuk keamanan dan kepatuhan\n\n**Berbagi Informasi:**\nKami tidak membagikan informasi pribadi Anda kepada pihak ketiga tanpa izin Anda.",
+        "balance": "💰 **Saldo Anda**\n\n**Saldo Saat Ini:** {balance} kredit\n\n**Riwayat Transaksi:**\n{transactions}\n\nGunakan /donasi untuk menambah saldo.",
+        "donasi": "💝 **Donasi**\n\nPilih jumlah donasi:\n\n💰 10,000 - Rp 5,000\n💰 25,000 - Rp 10,000\n💰 50,000 - Rp 20,000\n💰 100,000 - Rp 40,000\n💰 250,000 - Rp 100,000\n💰 500,000 - Rp 200,000\n💰 1,000,000 - Rp 400,000",
+        "interest": "�� **Pilih Minat**\n\nPilih minat Anda (pilih semua yang relevan):",
+        "mode": "🤖 **Mode Bot**\n\nPilih mode bot yang ingin Anda gunakan:\n\n**Mode Normal:**\n- Pencarian pasangan normal\n- Konten aman untuk semua usia\n\n**Mode Dewasa:**\n- Pencarian pasangan dewasa\n- Konten NSFW diizinkan\n- Usia minimum 18 tahun",
+        "referral": "👥 **Program Referral**\n\n**Kode Referral Anda:** `{referral_code}`\n\n**Referral Aktif:** {active_referrals}\n**Bonus Terkumpul:** {total_bonus} kredit\n\nBagikan kode referral Anda dengan teman untuk mendapatkan bonus!",
+        "transfer": "💸 **Transfer Kredit**\n\n**Format:** /transfer <user_id> <amount>\n\n**Contoh:** /transfer 123456789 1000\n\n**Saldo Anda:** {balance} kredit",
+        "pending": "⏳ **Permintaan Tertunda**\n\nAnda memiliki {count} permintaan tertunda:\n\n{pending_list}",
+        "invalidate": "🔄 **Sesi Tidak Valid**\n\nSesi Anda telah berakhir. Silakan gunakan /start untuk memulai ulang.",
+        "banhistory": {
+            "empty": "Tidak ada riwayat banned user."
+        },
+        "banned": {
+            "empty": "Tidak ada user yang sedang dibanned."
+        },
+        "claim": {
+            "success": "Claim berhasil!"
+        },
+        "commands": {
+            "list": "📋 **Daftar Command Admin**\n\n/announcement - Buat pengumuman\n/ban - Ban pengguna\n/unban - Unban pengguna\n/stats - Lihat statistik\n/banhistory - Riwayat banned\n/banned - Daftar banned\n/claim - Claim hadiah\n/commands - Daftar command\n/count - Hitung user\n/debug - Debug info\n/encrypt - Encrypt/Decrypt\n/find - Cari user\n/message - Kirim pesan\n/partner - Kelola partner\n/resetaccount - Reset akun\n/wordfilter - Filter kata\n/unmute - Unmute user"
+        },
+        "count": {
+            "result": "📊 **Total User:** {total}"
+        },
+        "debug": {
+            "info": "🔧 **Debug Info**\n\nBot berjalan dengan baik."
+        },
+        "encrypt": {
+            "info": "🔐 **Encrypt/Decrypt**\n\nFitur encrypt/decrypt tersedia."
+        },
+        "find": {
+            "info": "🔍 **Cari User**\n\nFitur pencarian user tersedia."
+        },
+        "message": {
+            "info": "💬 **Kirim Pesan**\n\nFitur kirim pesan ke user tertentu tersedia."
+        },
+        "partner": {
+            "info": "👥 **Kelola Partner**\n\nFitur kelola partner/pairing tersedia."
+        },
+        "resetaccount": {
+            "info": "🔄 **Reset Akun**\n\nFitur reset akun user tersedia."
+        },
+        "wordfilter": {
+            "info": "🚫 **Filter Kata**\n\nFitur kelola filter kata-kata tersedia."
+        },
+        "unmute": {
+            "info": "🔊 **Unmute User**\n\nFitur unmute user tersedia."
+        }
+    },
+    "callbacks": {
+        "gender": {
+            "male": "Laki-laki",
+            "female": "Perempuan",
+            "other": "Lainnya",
+            "selected": "Gender Anda telah diset ke: {gender}"
+        },
+        "interest": {
+            "music": "Musik",
+            "sports": "Olahraga",
+            "travel": "Travel",
+            "food": "Makanan",
+            "movies": "Film",
+            "books": "Buku",
+            "gaming": "Gaming",
+            "art": "Seni",
+            "technology": "Teknologi",
+            "fitness": "Fitness",
+            "selected": "Minat Anda telah diperbarui!"
+        },
+        "language": {
+            "en": "English",
+            "id": "Bahasa Indonesia",
+            "ms": "Bahasa Melayu",
+            "in": "हिंदी",
+            "selected": "Bahasa telah diubah ke: {language}"
+        },
+        "settings": {
+            "profile": "Profil",
+            "language": "Bahasa",
+            "privacy": "Privasi",
+            "notifications": "Notifikasi",
+            "back": "Kembali"
+        },
+        "age": {
+            "invalid": "Usia tidak valid. Silakan masukkan usia antara 13-100 tahun.",
+            "success": "Usia Anda telah diset ke: {age} tahun"
+        },
+        "location": {
+            "request": "Silakan bagikan lokasi Anda untuk mendapatkan pencocokan yang lebih baik:",
+            "success": "Lokasi Anda telah diperbarui!"
+        },
+        "safe_mode": {
+            "enabled": "Mode Aman diaktifkan",
+            "disabled": "Mode Aman dinonaktifkan"
+        },
+        "privacy": {
+            "public": "Publik",
+            "private": "Privat",
+            "friends": "Teman saja"
+        },
+        "report": {
+            "spam": "Spam",
+            "inappropriate": "Konten tidak pantas",
+            "harassment": "Pelecehan",
+            "fake": "Profil palsu",
+            "other": "Lainnya",
+            "success": "Laporan Anda telah dikirim. Terima kasih!"
+        },
+        "rating": {
+            "excellent": "Sangat Baik ⭐⭐⭐⭐⭐",
+            "good": "Baik ⭐⭐⭐⭐",
+            "average": "Cukup ⭐⭐⭐",
+            "poor": "Buruk ⭐⭐",
+            "terrible": "Sangat Buruk ⭐",
+            "thank_you": "Terima kasih atas rating Anda!"
+        },
+        "pending": {
+            "accept": "Terima",
+            "reject": "Tolak",
+            "accepted": "Permintaan diterima!",
+            "rejected": "Permintaan ditolak."
+        },
+        "media": {
+            "enable": "Aktifkan Media",
+            "reject": "Tolak Media",
+            "banned": "User Dibanned",
+            "enabled": "Media diaktifkan",
+            "rejected": "Media ditolak",
+            "banned_user": "User telah dibanned"
+        },
+        "donation": {
+            "crypto": "Crypto",
+            "bank": "Transfer Bank",
+            "ewallet": "E-Wallet",
+            "thank_you": "Terima kasih atas donasi Anda!"
+        },
+        "captcha": {
+            "success": "Captcha berhasil diselesaikan!",
+            "failed": "Captcha gagal. Silakan coba lagi."
+        },
+        "conversation": {
+            "next": "Selanjutnya",
+            "previous": "Sebelumnya",
+            "end": "Akhiri"
+        },
+        "retry": {
+            "subscribe": "Coba Lagi Subscribe"
+        }
+    },
+    "errors": {
+        "invalid_age": "Usia tidak valid. Silakan masukkan usia antara 13-100 tahun.",
+        "invalid_location": "Lokasi tidak valid.",
+        "user_not_found": "User tidak ditemukan.",
+        "insufficient_balance": "Saldo tidak mencukupi.",
+        "already_banned": "User sudah dibanned.",
+        "not_banned": "User tidak dibanned.",
+        "invalid_command": "Perintah tidak valid.",
+        "permission_denied": "Izin ditolak.",
+        "system_error": "Error sistem. Silakan coba lagi nanti.",
+        "user_banned": "🚫 **Akun Anda Dilarang**\n\nAkun Anda telah dilarang dari menggunakan bot ini.\n\nJika Anda merasa ini adalah kesalahan, silakan hubungi admin.",
+        "rate_limit_exceeded": "⚠️ Terlalu banyak permintaan. Silakan tunggu sebentar.",
+        "rate_limit_burst": "⚠️ Terlalu banyak permintaan. Silakan tunggu sebentar.",
+        "command_not_found": "❌ Perintah tidak ditemukan. Ketik /help untuk melihat daftar perintah yang tersedia.",
+        "callback_not_found": "❌ Aksi tidak ditemukan.",
+        "invalid_input": "❌ Input tidak valid. Silakan coba lagi.",
+        "permission_denied": "❌ Anda tidak memiliki izin untuk melakukan aksi ini.",
+        "system_error": "❌ Terjadi kesalahan sistem. Silakan coba lagi nanti."
+    },
+    "success": {
+        "profile_updated": "Profil berhasil diperbarui!",
+        "settings_saved": "Pengaturan disimpan!",
+        "user_banned": "User telah dibanned.",
+        "user_unbanned": "User telah diunban.",
+        "payment_successful": "Pembayaran berhasil!",
+        "feedback_sent": "Feedback berhasil dikirim!"
+    }
+}

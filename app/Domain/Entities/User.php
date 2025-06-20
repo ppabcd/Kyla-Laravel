@@ -144,7 +144,7 @@ class User extends Model
         $this->save();
     }
 
-    public function incrementBalance(float $amount, string $reason = null): void
+    public function incrementBalance(float $amount, ?string $reason = null): void
     {
         $this->balance += $amount;
         $this->save();
@@ -159,7 +159,7 @@ class User extends Model
         ]);
     }
 
-    public function decrementBalance(float $amount, string $reason = null): bool
+    public function decrementBalance(float $amount, ?string $reason = null): bool
     {
         if ($this->balance < $amount) {
             return false;

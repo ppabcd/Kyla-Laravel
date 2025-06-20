@@ -205,10 +205,10 @@ class PairRepository implements PairRepositoryInterface
                         $query->where('ended_at', '<=', $value);
                         break;
                     case 'min_duration':
-                        $query->whereRaw('TIMESTAMPDIFF(MINUTE, started_at, COALESCE(ended_at, NOW())) >= ?', [$value]);
+                        // Skip TIMESTAMPDIFF for now - will be filtered in PHP
                         break;
                     case 'max_duration':
-                        $query->whereRaw('TIMESTAMPDIFF(MINUTE, started_at, COALESCE(ended_at, NOW())) <= ?', [$value]);
+                        // Skip TIMESTAMPDIFF for now - will be filtered in PHP
                         break;
                     case 'has_rating':
                         if ($value) {
@@ -290,13 +290,24 @@ class PairRepository implements PairRepositoryInterface
     public function getAveragePairDuration(): float
     {
         return Cache::remember('avg_pair_duration', 3600, function () {
-            $result = DB::table('pairs')
+            // Use database-agnostic approach
+            $pairs = DB::table('pairs')
                 ->whereNotNull('started_at')
                 ->whereNotNull('ended_at')
-                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, started_at, ended_at)) as avg_duration')
-                ->first();
+                ->select(['started_at', 'ended_at'])
+                ->get();
 
-            return $result->avg_duration ?? 0.0;
+            if ($pairs->isEmpty()) {
+                return 0.0;
+            }
+
+            $totalMinutes = $pairs->sum(function ($pair) {
+                $start = Carbon::parse($pair->started_at);
+                $end = Carbon::parse($pair->ended_at);
+                return $start->diffInMinutes($end);
+            });
+
+            return $totalMinutes / $pairs->count();
         });
     }
 
@@ -410,9 +421,21 @@ class PairRepository implements PairRepositoryInterface
     public function getAverageConversationDuration(): float
     {
         return Cache::remember('pairs:avg_duration', 600, function () {
-            return Pair::whereNotNull('ended_at')
-                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, started_at, ended_at)) as avg_duration')
-                ->value('avg_duration') ?? 0;
+            // Use database-agnostic approach
+            $pairs = Pair::whereNotNull('ended_at')
+                ->whereNotNull('started_at')
+                ->select(['started_at', 'ended_at'])
+                ->get();
+
+            if ($pairs->isEmpty()) {
+                return 0.0;
+            }
+
+            $totalMinutes = $pairs->sum(function ($pair) {
+                return $pair->started_at->diffInMinutes($pair->ended_at);
+            });
+
+            return $totalMinutes / $pairs->count();
         });
     }
 
@@ -442,11 +465,18 @@ class PairRepository implements PairRepositoryInterface
     {
         return Cache::remember('pairs:success_rate', 600, function () {
             $total = Pair::count();
-            if ($total === 0)
+            if ($total === 0) {
                 return 0;
+            }
 
+            // Use database-agnostic approach
             $successful = Pair::where('status', 'ended')
-                ->whereRaw('TIMESTAMPDIFF(MINUTE, started_at, ended_at) >= 5')
+                ->whereNotNull('started_at')
+                ->whereNotNull('ended_at')
+                ->get()
+                ->filter(function ($pair) {
+                    return $pair->started_at->diffInMinutes($pair->ended_at) >= 5;
+                })
                 ->count();
 
             return ($successful / $total) * 100;

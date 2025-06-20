@@ -113,7 +113,7 @@ class Pair extends Model
         $this->save();
     }
 
-    public function end(int $endedBy, string $reason = null): void
+    public function end(int $endedBy, ?string $reason = null): void
     {
         $this->status = 'ended';
         $this->ended_at = now();

@@ -15,15 +15,14 @@ class CheckUserMiddleware implements MiddlewareInterface
 
     public function handle(TelegramContextInterface $context, callable $next): void
     {
-        $message = $context->getMessage();
+        $chatId = null;
 
-        if (!$message) {
-            // No message found, skip this middleware
-            $next($context);
-            return;
+        // Get chat ID from message or callback query
+        if ($message = $context->getMessage()) {
+            $chatId = $message['chat']['id'] ?? null;
+        } elseif ($callbackQuery = $context->getCallbackQuery()) {
+            $chatId = $callbackQuery['message']['chat']['id'] ?? null;
         }
-
-        $chatId = $message['chat']['id'] ?? null;
 
         if (!$chatId) {
             // No chat ID found, skip this middleware
@@ -39,6 +38,9 @@ class CheckUserMiddleware implements MiddlewareInterface
             $this->sendWelcomeMessage($context);
             return;
         }
+
+        // Set user to context for use in commands/callbacks
+        $context->setUser($user);
 
         // User exists, continue to next middleware/handler
         $next($context);

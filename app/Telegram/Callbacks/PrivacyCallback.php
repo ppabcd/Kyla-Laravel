@@ -20,7 +20,7 @@ class PrivacyCallback extends BaseCallback implements CallbackInterface
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {
-        $telegramUser = $context->getFrom();
+        $telegramUser = $context->getUser();
         if (!$telegramUser) {
             $context->reply('❌ Unable to identify user');
             return;

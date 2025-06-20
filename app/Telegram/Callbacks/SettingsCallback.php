@@ -29,7 +29,7 @@ class SettingsCallback extends BaseCallback implements CallbackInterface
 
     {
         try {
-            $telegramUser = $context->getFrom();
+            $telegramUser = $context->getUser();
             if (!$telegramUser) {
                 $context->reply('❌ Unable to identify user');
                 return;

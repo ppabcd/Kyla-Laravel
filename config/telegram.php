@@ -109,17 +109,17 @@ return [
     */
     'auto_registration' => [
         'commands' => [
-            'enabled' => false, // Disabled temporarily
+            'enabled' => true, // Re-enabled
             'namespace' => 'App\\Telegram\\Commands',
             'path' => app_path('Telegram/Commands'),
         ],
         'callbacks' => [
-            'enabled' => false, // Disabled temporarily
+            'enabled' => true, // Re-enabled
             'namespace' => 'App\\Telegram\\Callbacks',
             'path' => app_path('Telegram/Callbacks'),
         ],
         'listeners' => [
-            'enabled' => false, // Disabled temporarily
+            'enabled' => false, // Keep disabled for now
             'namespace' => 'App\\Telegram\\Listeners',
             'path' => app_path('Telegram/Listeners'),
         ],
@@ -142,6 +142,29 @@ return [
         'callbacks' => [
             \App\Telegram\Middleware\CheckUserMiddleware::class,
         ],
+        'per_command' => [
+            'start' => [
+                \App\Telegram\Middleware\CheckGenderMiddleware::class,
+                \App\Telegram\Middleware\CheckInterestMiddleware::class,
+                \App\Telegram\Middleware\CheckBannedUserMiddleware::class,
+                \App\Telegram\Middleware\CheckCaptchaMiddleware::class,
+            ],
+            'search' => [
+                \App\Telegram\Middleware\CheckGenderMiddleware::class,
+                \App\Telegram\Middleware\CheckInterestMiddleware::class,
+                \App\Telegram\Middleware\CheckBannedUserMiddleware::class,
+                \App\Telegram\Middleware\CheckCaptchaMiddleware::class,
+            ],
+            'next' => [
+                \App\Telegram\Middleware\CheckGenderMiddleware::class,
+                \App\Telegram\Middleware\CheckInterestMiddleware::class,
+                \App\Telegram\Middleware\CheckBannedUserMiddleware::class,
+                \App\Telegram\Middleware\CheckCaptchaMiddleware::class,
+            ],
+            'stop' => [
+                \App\Telegram\Middleware\CheckBannedUserMiddleware::class,
+            ],
+        ],
     ],
 
     /*
@@ -156,4 +179,4 @@ return [
         'sessions' => 'telegram_sessions',
         'pairs' => 'telegram_pairs',
     ],
-]; 
+];

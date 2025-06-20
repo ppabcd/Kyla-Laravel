@@ -20,14 +20,7 @@ class StartCommand extends BaseCommand
     protected string $description = 'Start searching for a conversation partner';
     protected string $usage = '/start';
 
-    protected array $middlewares = [
-        CheckGenderMiddleware::class,
-        CheckInterestMiddleware::class,
-        CheckBannedUserMiddleware::class,
-        CheckCaptchaMiddleware::class,
-        CheckPromotionMiddleware::class,
-        CheckAnnouncementMiddleware::class,
-    ];
+    // Middleware handled by TelegramBotService
 
     public function __construct(
         private ConversationService $conversationService,

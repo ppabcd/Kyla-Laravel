@@ -15,9 +15,7 @@ class StopCommand extends BaseCommand
     protected string $description = 'Stop current conversation';
     protected string $usage = '/stop';
 
-    protected array $middlewares = [
-        CheckBannedUserMiddleware::class,
-    ];
+    // Middleware handled by TelegramBotService
 
     public function __construct(
         private ConversationService $conversationService,

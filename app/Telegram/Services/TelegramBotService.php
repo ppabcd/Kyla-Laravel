@@ -33,7 +33,7 @@ class TelegramBotService
     protected function loadGlobalMiddlewares(): void
     {
         $globalMiddlewares = config('telegram.middleware.global', []);
-        
+
         foreach ($globalMiddlewares as $middlewareClass) {
             if (class_exists($middlewareClass)) {
                 $this->globalMiddlewares[] = app($middlewareClass);
@@ -73,20 +73,20 @@ class TelegramBotService
         }
 
         $files = File::allFiles($commandsPath);
-        
+
         foreach ($files as $file) {
             if ($file->getExtension() !== 'php') {
                 continue;
             }
 
             $className = $namespace . '\\' . $file->getBasename('.php');
-            
+
             if (!class_exists($className)) {
                 continue;
             }
 
             $reflection = new ReflectionClass($className);
-            
+
             if ($reflection->isAbstract() || $reflection->isInterface()) {
                 continue;
             }
@@ -96,7 +96,7 @@ class TelegramBotService
             }
 
             $command = app($className);
-            
+
             if (!$command->isEnabled()) {
                 continue;
             }
@@ -125,20 +125,20 @@ class TelegramBotService
         }
 
         $files = File::allFiles($callbacksPath);
-        
+
         foreach ($files as $file) {
             if ($file->getExtension() !== 'php') {
                 continue;
             }
 
             $className = $namespace . '\\' . $file->getBasename('.php');
-            
+
             if (!class_exists($className)) {
                 continue;
             }
 
             $reflection = new ReflectionClass($className);
-            
+
             if ($reflection->isAbstract() || $reflection->isInterface()) {
                 continue;
             }
@@ -148,7 +148,7 @@ class TelegramBotService
             }
 
             $callback = app($className);
-            
+
             if (!$callback->isEnabled()) {
                 continue;
             }
@@ -165,19 +165,31 @@ class TelegramBotService
     public function registerCommand(CommandInterface $command): void
     {
         $commandNames = (array) $command->getCommandName();
-        
+
         foreach ($commandNames as $commandName) {
             $commandName = Str::lower($commandName);
-            
-            // Add global and command middlewares
+
+            // Add global middlewares
             foreach ($this->globalMiddlewares as $middleware) {
                 $command->addMiddleware($middleware);
             }
-            
+
+            // Add general command middlewares
             foreach ($this->commandMiddlewares as $middleware) {
                 $command->addMiddleware($middleware);
             }
-            
+
+            // Add per-command specific middlewares
+            $perCommandMiddlewares = config("telegram.middleware.per_command.{$commandName}", []);
+            foreach ($perCommandMiddlewares as $middlewareClass) {
+                if (class_exists($middlewareClass)) {
+                    $middleware = app($middlewareClass);
+                    if ($middleware instanceof MiddlewareInterface) {
+                        $command->addMiddleware($middleware);
+                    }
+                }
+            }
+
             $this->commands[$commandName] = $command;
         }
 
@@ -193,19 +205,19 @@ class TelegramBotService
     public function registerCallback(CallbackInterface $callback): void
     {
         $callbackNames = (array) $callback->getCallbackName();
-        
+
         foreach ($callbackNames as $callbackName) {
             $callbackName = Str::lower($callbackName);
-            
+
             // Add global and callback middlewares
             foreach ($this->globalMiddlewares as $middleware) {
                 $callback->addMiddleware($middleware);
             }
-            
+
             foreach ($this->callbackMiddlewares as $middleware) {
                 $callback->addMiddleware($middleware);
             }
-            
+
             $this->callbacks[$callbackName] = $callback;
         }
 
@@ -226,7 +238,7 @@ class TelegramBotService
         }
 
         $callback = app($callbackClass);
-        
+
         if (!$callback instanceof CallbackInterface) {
             Log::error('Telegram callback class does not implement CallbackInterface', ['class' => $callbackClass]);
             return;
@@ -246,7 +258,7 @@ class TelegramBotService
         }
 
         $command = app($commandClass);
-        
+
         if (!$command instanceof CommandInterface) {
             Log::error('Telegram command class does not implement CommandInterface', ['class' => $commandClass]);
             return;
@@ -266,14 +278,14 @@ class TelegramBotService
         }
 
         $middleware = app($middlewareClass);
-        
+
         if (!$middleware instanceof MiddlewareInterface) {
             Log::error('Telegram middleware class does not implement MiddlewareInterface', ['class' => $middlewareClass]);
             return;
         }
 
         $this->globalMiddlewares[] = $middleware;
-        
+
         Log::debug('Telegram global middleware registered', ['middleware' => $middlewareClass]);
     }
 
@@ -288,14 +300,14 @@ class TelegramBotService
         }
 
         $middleware = app($middlewareClass);
-        
+
         if (!$middleware instanceof MiddlewareInterface) {
             Log::error('Telegram middleware class does not implement MiddlewareInterface', ['class' => $middlewareClass]);
             return;
         }
 
         $this->commandMiddlewares[] = $middleware;
-        
+
         Log::debug('Telegram command middleware registered', ['middleware' => $middlewareClass]);
     }
 
@@ -310,14 +322,14 @@ class TelegramBotService
         }
 
         $middleware = app($middlewareClass);
-        
+
         if (!$middleware instanceof MiddlewareInterface) {
             Log::error('Telegram middleware class does not implement MiddlewareInterface', ['class' => $middlewareClass]);
             return;
         }
 
         $this->callbackMiddlewares[] = $middleware;
-        
+
         Log::debug('Telegram callback middleware registered', ['middleware' => $middlewareClass]);
     }
 
@@ -328,22 +340,22 @@ class TelegramBotService
     {
         try {
             $context = new TelegramContext($update, config('telegram.bot_token'));
-            
+
             // Check if it's a callback query
             if (isset($update['callback_query'])) {
                 $this->handleCallbackQuery($context);
                 return;
             }
-            
+
             // Check if it's a message with text
             if (isset($update['message']['text'])) {
                 $this->handleMessage($context);
                 return;
             }
-            
+
             // Handle other types of updates
             $this->handleOtherUpdate($context);
-            
+
         } catch (\Exception $e) {
             Log::error('Error handling Telegram update', [
                 'error' => $e->getMessage(),
@@ -359,7 +371,7 @@ class TelegramBotService
     protected function handleMessage(TelegramContextInterface $context): void
     {
         // Run global middlewares first
-        $this->runMiddlewares($this->globalMiddlewares, $context, function() use ($context) {
+        $this->runMiddlewares($this->globalMiddlewares, $context, function () use ($context) {
             $this->handleMessageWithCommandMiddlewares($context);
         });
     }
@@ -370,7 +382,7 @@ class TelegramBotService
     protected function handleMessageWithCommandMiddlewares(TelegramContextInterface $context): void
     {
         // Run command middlewares
-        $this->runMiddlewares($this->commandMiddlewares, $context, function() use ($context) {
+        $this->runMiddlewares($this->commandMiddlewares, $context, function () use ($context) {
             $this->processMessage($context);
         });
     }
@@ -381,7 +393,7 @@ class TelegramBotService
     protected function processMessage(TelegramContextInterface $context): void
     {
         $text = $context->getText();
-        
+
         if (!$text) {
             return;
         }
@@ -389,19 +401,19 @@ class TelegramBotService
         // Check if it's a command (starts with /)
         if (Str::startsWith($text, '/')) {
             $commandName = Str::lower(Str::after($text, '/'));
-            
+
             // Remove bot username if present
             $commandName = Str::before($commandName, '@');
-            
+
             // Remove arguments
             $commandName = Str::before($commandName, ' ');
-            
+
             if (isset($this->commands[$commandName])) {
                 $command = $this->commands[$commandName];
                 $command->execute($context);
                 return;
             }
-            
+
             // Command not found
             Log::warning('Telegram command not found', ['command' => $commandName]);
             $context->sendMessage(__('errors.command_not_found'));
@@ -418,7 +430,7 @@ class TelegramBotService
     protected function handleCallbackQuery(TelegramContextInterface $context): void
     {
         // Run global middlewares first
-        $this->runMiddlewares($this->globalMiddlewares, $context, function() use ($context) {
+        $this->runMiddlewares($this->globalMiddlewares, $context, function () use ($context) {
             $this->handleCallbackQueryWithMiddlewares($context);
         });
     }
@@ -429,7 +441,7 @@ class TelegramBotService
     protected function handleCallbackQueryWithMiddlewares(TelegramContextInterface $context): void
     {
         // Run callback middlewares
-        $this->runMiddlewares($this->callbackMiddlewares, $context, function() use ($context) {
+        $this->runMiddlewares($this->callbackMiddlewares, $context, function () use ($context) {
             $this->processCallbackQuery($context);
         });
     }
@@ -440,7 +452,7 @@ class TelegramBotService
     protected function processCallbackQuery(TelegramContextInterface $context): void
     {
         $callbackData = $context->getCallbackData();
-        
+
         if (!$callbackData) {
             return;
         }
@@ -455,7 +467,7 @@ class TelegramBotService
             $callback->execute($context);
             return;
         }
-        
+
         // Callback not found
         Log::warning('Telegram callback not found', ['callback' => $action]);
         $context->answerCallbackQuery(__('errors.callback_not_found'));
@@ -472,7 +484,7 @@ class TelegramBotService
         }
 
         $index = 0;
-        $runNext = function() use (&$index, $middlewares, $context, $next, &$runNext) {
+        $runNext = function () use (&$index, $middlewares, $context, $next, &$runNext) {
             if ($index >= count($middlewares)) {
                 $next($context);
                 return;
@@ -493,7 +505,7 @@ class TelegramBotService
     protected function handleOtherUpdate(TelegramContextInterface $context): void
     {
         $update = $context->getUpdate();
-        
+
         // Handle different types of updates
         if (isset($update['message']['photo'])) {
             Log::debug('Telegram photo message received');
@@ -572,4 +584,4 @@ class TelegramBotService
         $context = new TelegramContext([], config('telegram.bot_token'));
         return $context->getMe();
     }
-} 
+}

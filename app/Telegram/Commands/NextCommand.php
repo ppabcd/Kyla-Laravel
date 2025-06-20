@@ -20,14 +20,7 @@ class NextCommand extends BaseCommand
     protected string $description = 'End current conversation and search for next partner';
     protected string $usage = '/next';
 
-    protected array $middlewares = [
-        CheckGenderMiddleware::class,
-        CheckInterestMiddleware::class,
-        CheckBannedUserMiddleware::class,
-        CheckCaptchaMiddleware::class,
-        CheckPromotionMiddleware::class,
-        CheckAnnouncementMiddleware::class,
-    ];
+    // Middleware handled by TelegramBotService
 
     public function __construct(
         private ConversationService $conversationService,

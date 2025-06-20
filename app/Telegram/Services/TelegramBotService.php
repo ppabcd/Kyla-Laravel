@@ -457,10 +457,18 @@ class TelegramBotService
             return;
         }
 
-        // Parse callback data (format: action:data)
+        $callbackData = Str::lower($callbackData);
+
+        // First, try exact match for full callback data
+        if (isset($this->callbacks[$callbackData])) {
+            $callback = $this->callbacks[$callbackData];
+            $callback->execute($context);
+            return;
+        }
+
+        // If not found, try parsing as action:data format
         $parts = explode(':', $callbackData, 2);
-        $action = Str::lower($parts[0]);
-        $data = $parts[1] ?? '';
+        $action = $parts[0];
 
         if (isset($this->callbacks[$action])) {
             $callback = $this->callbacks[$action];
@@ -469,7 +477,7 @@ class TelegramBotService
         }
 
         // Callback not found
-        Log::warning('Telegram callback not found', ['callback' => $action]);
+        Log::warning('Telegram callback not found', ['callback' => $callbackData, 'action' => $action]);
         $context->answerCallbackQuery(__('errors.callback_not_found'));
     }
 

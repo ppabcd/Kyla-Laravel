@@ -66,6 +66,15 @@ class UserService
 
     public function updateUserProfile(User $user, array $data): bool
     {
+        // Auto-set gender_icon when gender is provided
+        if (array_key_exists('gender', $data) && ! array_key_exists('gender_icon', $data)) {
+            $data['gender_icon'] = match ($data['gender']) {
+                'male' => '👨',
+                'female' => '👩',
+                default => null,
+            };
+        }
+
         $updated = $this->userRepository->update($user, $data);
 
         if ($updated) {

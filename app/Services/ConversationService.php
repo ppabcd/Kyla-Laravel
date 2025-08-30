@@ -229,7 +229,7 @@ class ConversationService
             'user_id' => $user->id,
             'gender' => $user->gender,
             'interest' => $user->interest,
-            'emoji' => $user->gender_icon,
+            'emoji' => $this->resolveGenderIcon($user),
             'language' => $user->language_code ?? 'en',
             'platform_id' => $user->platform_user_id ?? 0,
             'is_premium' => $user->is_premium ?? false,
@@ -290,7 +290,7 @@ class ConversationService
             // Send messages to both users
             $context->sendMessage(
                 __('messages.pair.created', [
-                    'genderIcon' => $availableMatch->emoji ?? '👤',
+                    'genderIcon' => $this->resolveGenderIcon($partner),
                     'rating' => $this->getStarRating($partnerRating['average'] ?? 0),
                     'totalRating' => $partnerRating['total'] ?? 0,
                 ], $user->language_code ?? 'en'),
@@ -301,7 +301,7 @@ class ConversationService
             TelegramContext::sendMessageToChat(
                 $partner->telegram_id,
                 __('messages.pair.created', [
-                    'genderIcon' => $user->gender_icon ?? '👤',
+                    'genderIcon' => $this->resolveGenderIcon($user),
                     'rating' => $this->getStarRating($userRating['average'] ?? 0),
                     'totalRating' => $userRating['total'] ?? 0,
                 ], $partner->language_code ?? 'en'),
@@ -389,5 +389,18 @@ class ConversationService
         return str_repeat('⭐', (int) $fullStars).
             str_repeat('💫', $halfStar).
             str_repeat('⚪', (int) $emptyStars);
+    }
+
+    private function resolveGenderIcon(User $user): string
+    {
+        if (! empty($user->gender_icon)) {
+            return $user->gender_icon;
+        }
+
+        return match ($user->gender) {
+            'male' => '👨',
+            'female' => '👩',
+            default => '👤',
+        };
     }
 }

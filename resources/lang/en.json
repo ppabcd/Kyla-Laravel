@@ -52,5 +52,9 @@
     "conversation.info": "Conversation info.",
     "donation.crypto": "Support us with crypto donation!",
     "donation.info": "Support us with a donation!",
-    "subscribe.retry": "Please retry subscription check."
+    "subscribe.retry": "Please retry subscription check.",
+    "errors": {
+        "rate_limit_exceeded": "⏸️ Please wait a moment before trying again.",
+        "rate_limit_burst": "⏸️ Too many requests. Please wait a few seconds and try again."
+    }
 }

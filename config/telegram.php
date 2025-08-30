@@ -31,6 +31,8 @@ return [
     // Rate Limiting
     'rate_limit' => [
         'enabled' => env('TELEGRAM_RATE_LIMIT_ENABLED', true),
+        'burst_enabled' => env('TELEGRAM_RATE_LIMIT_BURST_ENABLED', true),
+        'per_second_enabled' => env('TELEGRAM_RATE_LIMIT_PER_SECOND_ENABLED', true),
         'max_requests_per_minute' => env('TELEGRAM_RATE_LIMIT_MAX_REQUESTS', 30),
     ],
 
@@ -98,7 +100,7 @@ return [
             'inline_query',
             'chosen_inline_result',
             'pre_checkout_query',
-            'shipping_query'
+            'shipping_query',
         ],
     ],
 

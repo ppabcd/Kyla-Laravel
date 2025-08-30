@@ -4,12 +4,10 @@ namespace App\Domain\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Carbon\Carbon;
 
 /**
  * User Domain Entity
- * 
+ *
  * This entity represents a user in the domain layer,
  * following Clean Architecture principles.
  */
@@ -57,7 +55,7 @@ class User extends Model
         'rating_sum',
         'rating_count',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     protected $casts = [
@@ -84,20 +82,19 @@ class User extends Model
         'total_messages_sent' => 'integer',
         'total_time_chatting' => 'integer',
         'rating_sum' => 'decimal:2',
-        'rating_count' => 'integer'
+        'rating_count' => 'integer',
     ];
 
     protected $hidden = [
         'location_latitude',
         'location_longitude',
         'banned_reason',
-        'settings'
+        'settings',
     ];
 
     /**
      * Business Logic Methods
      */
-
     public function isPremium(): bool
     {
         return $this->is_premium &&
@@ -122,10 +119,11 @@ class User extends Model
 
     public function canMatch(): bool
     {
-        return !$this->isBanned() &&
-            !$this->isSoftBanned() &&
-            $this->verification_status === 'verified' &&
-            $this->visibility;
+        return ! $this->isBanned() &&
+            ! $this->isSoftBanned() &&
+            $this->gender &&
+            $this->interest &&
+            ! $this->is_searching; // Not currently searching for another match
     }
 
     public function getAverageRating(): float
@@ -135,6 +133,17 @@ class User extends Model
         }
 
         return round($this->rating_sum / $this->rating_count, 2);
+    }
+
+    public function isInConversation(): bool
+    {
+        // Consider pairs where this user is either `user_id` or `partner_id`
+        return Pair::where('status', 'active')
+            ->where(function ($query) {
+                $query->where('user_id', $this->id)
+                    ->orWhere('partner_id', $this->id);
+            })
+            ->exists();
     }
 
     public function addRating(float $rating): void
@@ -155,7 +164,7 @@ class User extends Model
             'amount' => $amount,
             'previous_balance' => $this->balance - $amount,
             'current_balance' => $this->balance,
-            'description' => $reason ?? 'Balance increment'
+            'description' => $reason ?? 'Balance increment',
         ]);
     }
 
@@ -175,7 +184,7 @@ class User extends Model
             'amount' => $amount,
             'previous_balance' => $previousBalance,
             'current_balance' => $this->balance,
-            'description' => $reason ?? 'Balance decrement'
+            'description' => $reason ?? 'Balance decrement',
         ]);
 
         return true;
@@ -220,13 +229,13 @@ class User extends Model
 
     public function getFullName(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     public function getDisplayName(): string
     {
         return $this->username
-            ? '@' . $this->username
+            ? '@'.$this->username
             : $this->getFullName();
     }
 
@@ -237,7 +246,7 @@ class User extends Model
 
     public function distanceTo(User $otherUser): ?float
     {
-        if (!$this->hasLocation() || !$otherUser->hasLocation()) {
+        if (! $this->hasLocation() || ! $otherUser->hasLocation()) {
             return null;
         }
 
@@ -264,7 +273,6 @@ class User extends Model
     /**
      * Relationships
      */
-
     public function conversationLogs(): HasMany
     {
         return $this->hasMany(ConversationLog::class, 'user_id');

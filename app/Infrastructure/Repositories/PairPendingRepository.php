@@ -3,12 +3,12 @@
 namespace App\Infrastructure\Repositories;
 
 use App\Domain\Repositories\PairPendingRepositoryInterface;
+use App\Models\PairPending;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Pair Pending Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of PairPendingRepositoryInterface
  */
 class PairPendingRepository implements PairPendingRepositoryInterface
@@ -18,27 +18,22 @@ class PairPendingRepository implements PairPendingRepositoryInterface
      */
     public function findById(int $id): ?object
     {
-        return DB::table('pair_pendings')->where('id', $id)->first();
+        return PairPending::find($id);
     }
 
     public function create(array $data): object
     {
-        $id = DB::table('pair_pendings')->insertGetId($data);
-        return $this->findById($id);
+        return PairPending::create($data);
     }
 
     public function update(object $pairPending, array $data): bool
     {
-        return DB::table('pair_pendings')
-            ->where('id', $pairPending->id)
-            ->update($data) > 0;
+        return $pairPending->update($data);
     }
 
     public function delete(object $pairPending): bool
     {
-        return DB::table('pair_pendings')
-            ->where('id', $pairPending->id)
-            ->delete() > 0;
+        return $pairPending->delete();
     }
 
     /**
@@ -46,23 +41,17 @@ class PairPendingRepository implements PairPendingRepositoryInterface
      */
     public function findByUserId(int $userId): ?object
     {
-        return DB::table('pair_pendings')
-            ->where('user_id', $userId)
-            ->first();
+        return PairPending::where('user_id', $userId)->first();
     }
 
     public function findPendingPairs(): Collection
     {
-        return collect(DB::table('pair_pendings')
-            ->orderBy('created_at', 'ASC')
-            ->get());
+        return PairPending::orderBy('created_at', 'ASC')->get();
     }
 
     public function clearUserPendingPair(int $userId): bool
     {
-        return DB::table('pair_pendings')
-            ->where('user_id', $userId)
-            ->delete() > 0;
+        return PairPending::where('user_id', $userId)->delete() > 0;
     }
 
     /**
@@ -70,14 +59,26 @@ class PairPendingRepository implements PairPendingRepositoryInterface
      */
     public function findNextPendingPair(int $userId): ?object
     {
-        return DB::table('pair_pendings')
-            ->where('user_id', '!=', $userId)
+        return PairPending::where('user_id', '!=', $userId)
             ->orderBy('created_at', 'ASC')
             ->first();
     }
 
     public function countPendingPairs(): int
     {
-        return DB::table('pair_pendings')->count();
+        return PairPending::count();
+    }
+
+    public function findAvailableMatch(string $userGender, string $targetGender): ?object
+    {
+        return PairPending::where('gender', $targetGender)
+            ->where('interest', $userGender)
+            ->orderBy('created_at', 'ASC')
+            ->first();
+    }
+
+    public function deleteByUserId(int $userId): bool
+    {
+        return PairPending::where('user_id', $userId)->delete() > 0;
     }
 }

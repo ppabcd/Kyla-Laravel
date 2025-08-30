@@ -2,18 +2,18 @@
 
 namespace App\Application\Services;
 
-use App\Domain\Entities\User;
 use App\Domain\Entities\Pair;
-use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
+use App\Domain\Repositories\UserRepositoryInterface;
 use App\Telegram\Services\TelegramBotService;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Matching Service
- * 
+ *
  * Application service responsible for user matching logic
  * Following Single Responsibility Principle and Clean Architecture
  */
@@ -24,16 +24,16 @@ class MatchingService
         private PairRepositoryInterface $pairRepository,
         private UserService $userService,
         private TelegramBotService $telegramService
-    ) {
-    }
+    ) {}
 
     /**
      * Find a suitable match for a user
      */
     public function findMatch(User $user): ?User
     {
-        if (!$user->canMatch()) {
+        if (! $user->canMatch()) {
             Log::warning('User cannot match', ['user_id' => $user->id]);
+
             return null;
         }
 
@@ -42,8 +42,9 @@ class MatchingService
         if ($activePair) {
             Log::info('User already has active pair', [
                 'user_id' => $user->id,
-                'pair_id' => $activePair->id
+                'pair_id' => $activePair->id,
             ]);
+
             return null;
         }
 
@@ -52,6 +53,7 @@ class MatchingService
 
         if ($potentialMatches->isEmpty()) {
             Log::info('No potential matches found', ['user_id' => $user->id]);
+
             return null;
         }
 
@@ -64,7 +66,7 @@ class MatchingService
         Log::info('Match found', [
             'user_id' => $user->id,
             'match_id' => $bestMatch->id,
-            'score' => $bestMatch->match_score ?? 0
+            'score' => $bestMatch->match_score ?? 0,
         ]);
 
         return $bestMatch;
@@ -76,11 +78,12 @@ class MatchingService
     public function createPair(User $user, User $partner): ?Pair
     {
         // Validate both users can match
-        if (!$user->canMatch() || !$partner->canMatch()) {
+        if (! $user->canMatch() || ! $partner->canMatch()) {
             Log::warning('One or both users cannot match', [
                 'user_id' => $user->id,
-                'partner_id' => $partner->id
+                'partner_id' => $partner->id,
             ]);
+
             return null;
         }
 
@@ -91,8 +94,9 @@ class MatchingService
         ) {
             Log::warning('One or both users already have active pairs', [
                 'user_id' => $user->id,
-                'partner_id' => $partner->id
+                'partner_id' => $partner->id,
             ]);
+
             return null;
         }
 
@@ -100,16 +104,12 @@ class MatchingService
         $pair = $this->pairRepository->createPair($user, $partner);
         $this->pairRepository->startPair($pair);
 
-        // Update user statistics
-        $user->total_matches++;
-        $partner->total_matches++;
-        $user->save();
-        $partner->save();
+        // User statistics tracking removed - column doesn't exist in database
 
         Log::info('Pair created', [
             'pair_id' => $pair->id,
             'user_id' => $user->id,
-            'partner_id' => $partner->id
+            'partner_id' => $partner->id,
         ]);
 
         return $pair;
@@ -118,10 +118,11 @@ class MatchingService
     /**
      * End a pair
      */
-    public function endPair(Pair $pair, int $endedBy, string $reason = null): bool
+    public function endPair(Pair $pair, int $endedBy, ?string $reason = null): bool
     {
-        if (!$pair->isActive()) {
+        if (! $pair->isActive()) {
             Log::warning('Attempted to end non-active pair', ['pair_id' => $pair->id]);
+
             return false;
         }
 
@@ -132,7 +133,7 @@ class MatchingService
                 'pair_id' => $pair->id,
                 'ended_by' => $endedBy,
                 'reason' => $reason,
-                'duration_minutes' => $pair->getDuration()
+                'duration_minutes' => $pair->getDuration(),
             ]);
 
             // Clear match caches
@@ -141,6 +142,48 @@ class MatchingService
         }
 
         return $success;
+    }
+
+    /**
+     * Get conversation partner for a user
+     */
+    public function getConversationPartner(User $user): ?User
+    {
+        $activePair = $this->pairRepository->findActivePairByUserId($user->id);
+
+        if (! $activePair) {
+            return null;
+        }
+
+        return $activePair->getOtherUser($user->id);
+    }
+
+    /**
+     * Get conversation ID for a pair
+     */
+    public function getConversationId(User $user, User $partner): ?string
+    {
+        $activePair = $this->pairRepository->findActivePairByUserId($user->id);
+
+        if (! $activePair || ! $activePair->hasUser($partner->id)) {
+            return null;
+        }
+
+        return $activePair->id.'_'.$activePair->created_at->timestamp;
+    }
+
+    /**
+     * End conversation for a user
+     */
+    public function endConversation(User $user): bool
+    {
+        $activePair = $this->pairRepository->findActivePairByUserId($user->id);
+
+        if (! $activePair) {
+            return false;
+        }
+
+        return $this->endPair($activePair, $user->id, 'user_ended');
     }
 
     /**
@@ -160,7 +203,7 @@ class MatchingService
                     ? ($stats['pairs_with_ratings'] / $stats['total_pairs']) * 100
                     : 0,
                 'average_rating' => $stats['average_rating'],
-                'active_users_available' => $this->userRepository->findUsersForMatching('', '', 0, 1000)->count()
+                'active_users_available' => $this->userRepository->findUsersForMatching('', '', 0, 1000)->count(),
             ];
         });
     }
@@ -183,7 +226,7 @@ class MatchingService
                 : 0,
             'match_rate' => $userStats['total_users'] > 0
                 ? ($stats['active_pairs'] / $userStats['total_users']) * 100
-                : 0
+                : 0,
         ];
     }
 
@@ -195,11 +238,11 @@ class MatchingService
         return Cache::remember("users_ready_for_matching:{$limit}", 300, function () use ($limit) {
             return $this->userRepository->searchUsers([
                 'visibility' => true,
-                'is_banned' => false
+                'is_banned' => false,
             ], 1, $limit)->getCollection()
                 ->filter(function ($user) {
                     return $user->canMatch() &&
-                        !$this->pairRepository->findActivePairByUserId($user->id);
+                        ! $this->pairRepository->findActivePairByUserId($user->id);
                 });
         });
     }
@@ -220,7 +263,7 @@ class MatchingService
 
             $match = $this->findMatch($user);
 
-            if ($match && !$processed->contains($match->id)) {
+            if ($match && ! $processed->contains($match->id)) {
                 $pair = $this->createPair($user, $match);
 
                 if ($pair) {
@@ -233,7 +276,7 @@ class MatchingService
 
         Log::info('Auto-matching completed', [
             'pairs_created' => $pairsCreated,
-            'users_processed' => $processed->count()
+            'users_processed' => $processed->count(),
         ]);
 
         return $pairsCreated;
@@ -320,6 +363,7 @@ class MatchingService
         return $potentialMatches->map(function ($match) use ($user) {
             $score = $this->calculateMatchScore($user, $match);
             $match->match_score = $score;
+
             return $match;
         })->sortByDesc('match_score');
     }
@@ -371,7 +415,7 @@ class MatchingService
     private function clearMatchCaches(int $userId): void
     {
         Cache::forget("potential_matches:user:{$userId}");
-        Cache::forget("users_ready_for_matching:100");
+        Cache::forget('users_ready_for_matching:100');
         Cache::forget('matching_statistics');
     }
 }

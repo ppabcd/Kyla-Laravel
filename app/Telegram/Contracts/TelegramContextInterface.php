@@ -283,4 +283,4 @@ interface TelegramContextInterface
      * Close
      */
     public function close(): array;
-} 
+}

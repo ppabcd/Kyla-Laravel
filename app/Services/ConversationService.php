@@ -2,19 +2,17 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Domain\Repositories\PairRepositoryInterface;
-use App\Domain\Repositories\PairPendingRepositoryInterface;
+use App\Domain\Entities\User;
 use App\Domain\Repositories\ConversationLogRepositoryInterface;
+use App\Domain\Repositories\PairPendingRepositoryInterface;
+use App\Domain\Repositories\PairRepositoryInterface;
 use App\Domain\Repositories\RatingRepositoryInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\TelegramContext;
 use App\Telegram\Services\KeyboardService;
 use Illuminate\Support\Facades\Cache;
-use App\Services\PendingService;
-use App\Enums\InterestEnum;
-use App\Enums\GenderEnum;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ConversationService
 {
@@ -25,8 +23,7 @@ class ConversationService
         private RatingRepositoryInterface $ratingRepository,
         private KeyboardService $keyboardService,
         private PendingService $pendingService
-    ) {
-    }
+    ) {}
 
     /**
      * Start a new conversation
@@ -35,8 +32,9 @@ class ConversationService
     {
         $user = $context->getUserModel();
 
-        if (!$user) {
+        if (! $user) {
             $context->sendMessage('❌ User not found');
+
             return false;
         }
 
@@ -44,8 +42,9 @@ class ConversationService
         $lockKey = $this->getConversationLockKey($user->id);
         $lock = Cache::lock($lockKey, 30);
 
-        if (!$lock->get()) {
+        if (! $lock->get()) {
             $context->sendMessage(__('messages.conversation.locked', [], $user->language_code ?? 'en'));
+
             return false;
         }
 
@@ -70,23 +69,25 @@ class ConversationService
     {
         $user = $context->getUserModel();
 
-        if (!$user) {
+        if (! $user) {
             $context->sendMessage('❌ User not found');
+
             return false;
         }
 
         $lockKey = $this->getConversationStopLockKey($user->id);
         $lock = Cache::lock($lockKey, 30);
 
-        if (!$lock->get()) {
+        if (! $lock->get()) {
             $context->sendMessage(__('messages.conversation.locked', [], $user->language_code ?? 'en'));
+
             return false;
         }
 
         try {
             // Check for pending pair first
             $pendingPairs = $this->pairPendingRepository->findByUserId($user->id);
-            if (!empty($pendingPairs)) {
+            if (! empty($pendingPairs)) {
                 $this->pairPendingRepository->deleteByUserId($user->id);
                 $context->sendMessage(
                     __('messages.pending_pair.deleted', [], $user->language_code ?? 'en'),
@@ -96,16 +97,17 @@ class ConversationService
                 if ($callback) {
                     return $callback();
                 }
+
                 return true;
             }
 
             // Check for active pair
             $activePair = $this->pairRepository->findActivePairByUserId($user->id);
             if ($activePair) {
-                $partner = $activePair->getPartner($user);
+                $partner = $activePair->getOtherUser($user->id);
 
                 // End the pair
-                $this->pairRepository->endPair($activePair->id, 'user_stop');
+                $this->pairRepository->endPair($activePair, $user->id, 'user_stop');
 
                 // Send messages to both users
                 $context->sendMessage(
@@ -114,8 +116,8 @@ class ConversationService
                 );
 
                 if ($partner) {
-                    // Send message to partner via Telegram API
-                    $this->sendMessageToUser(
+                    // Send message to partner using their language preference
+                    TelegramContext::sendMessageToChat(
                         $partner->telegram_id,
                         __('messages.pair.deleted', [], $partner->language_code ?? 'en'),
                         ['reply_markup' => $this->keyboardService->getSearchWithReportKeyboard()]
@@ -129,29 +131,30 @@ class ConversationService
                 $this->createConversationLog([
                     'userId' => $user->id,
                     'chatId' => $context->getChatId(),
-                    'messageId' => null,
+                    'messageId' => time() + $user->id,
                     'convId' => $activePair->id,
-                    'timestamp' => $activePair->created_at->timestamp
+                    'timestamp' => $activePair->created_at->timestamp,
                 ]);
 
                 if ($partner) {
                     $this->createConversationLog([
                         'userId' => $partner->id,
                         'chatId' => $partner->telegram_id,
-                        'messageId' => null,
+                        'messageId' => time() + $partner->id,
                         'convId' => $activePair->id,
-                        'timestamp' => $activePair->created_at->timestamp
+                        'timestamp' => $activePair->created_at->timestamp,
                     ]);
                 }
 
                 if ($callback) {
                     return $callback();
                 }
+
                 return true;
             }
 
             // No active conversation
-            if (!$callback) {
+            if (! $callback) {
                 $context->sendMessage(
                     __('messages.conversation.not_exists', [], $user->language_code ?? 'en'),
                     ['reply_markup' => $this->keyboardService->getSearchKeyboard()]
@@ -161,6 +164,7 @@ class ConversationService
             if ($callback) {
                 return $callback();
             }
+
             return true;
 
         } finally {
@@ -190,16 +194,18 @@ class ConversationService
                 __('messages.pair.exists', [], $user->language_code ?? 'en'),
                 ['reply_markup' => $this->keyboardService->getConversationKeyboard()]
             );
+
             return true;
         }
 
         // Check for pending pair
         $pendingPairs = $this->pairPendingRepository->findByUserId($user->id);
-        if (!empty($pendingPairs)) {
+        if (! empty($pendingPairs)) {
             $context->sendMessage(
                 __('messages.pending_pair.exists', [], $user->language_code ?? 'en'),
                 ['reply_markup' => $this->keyboardService->getSearchingKeyboard()]
             );
+
             return true;
         }
 
@@ -224,8 +230,10 @@ class ConversationService
             'gender' => $user->gender,
             'interest' => $user->interest,
             'emoji' => $user->gender_icon,
-            'created_at' => now(),
-            'updated_at' => now()
+            'language' => $user->language_code ?? 'en',
+            'platform_id' => $user->platform_user_id ?? 0,
+            'is_premium' => $user->is_premium ?? false,
+            'is_safe_mode' => $user->is_safe_mode ?? false,
         ]);
 
         $context->sendMessage(
@@ -256,13 +264,16 @@ class ConversationService
         try {
             DB::beginTransaction();
 
-            // Create pair
+            // Create pair (always put smaller ID in user_id, larger ID in partner_id)
+            $userId = min($user->id, $availableMatch->user_id);
+            $partnerId = max($user->id, $availableMatch->user_id);
+
             $pair = $this->pairRepository->create([
-                'first_user_id' => $user->id,
-                'second_user_id' => $availableMatch->user_id,
+                'user_id' => $userId,
+                'partner_id' => $partnerId,
                 'status' => 'active',
-                'created_at' => now(),
-                'updated_at' => now()
+                'active' => 1,
+                'started_at' => now(),
             ]);
 
             // Remove from pending queue
@@ -281,22 +292,24 @@ class ConversationService
                 __('messages.pair.created', [
                     'genderIcon' => $availableMatch->emoji ?? '👤',
                     'rating' => $this->getStarRating($partnerRating['average'] ?? 0),
-                    'totalRating' => $partnerRating['total'] ?? 0
+                    'totalRating' => $partnerRating['total'] ?? 0,
                 ], $user->language_code ?? 'en'),
                 ['reply_markup' => $this->keyboardService->getConversationKeyboard()]
             );
 
-            $this->sendMessageToUser(
+            // Send message to partner using their language preference
+            TelegramContext::sendMessageToChat(
                 $partner->telegram_id,
                 __('messages.pair.created', [
                     'genderIcon' => $user->gender_icon ?? '👤',
                     'rating' => $this->getStarRating($userRating['average'] ?? 0),
-                    'totalRating' => $userRating['total'] ?? 0
+                    'totalRating' => $userRating['total'] ?? 0,
                 ], $partner->language_code ?? 'en'),
                 ['reply_markup' => $this->keyboardService->getConversationKeyboard()]
             );
 
             DB::commit();
+
             return true;
 
         } catch (\Exception $e) {
@@ -304,10 +317,11 @@ class ConversationService
             Log::error('Failed to create pair', [
                 'user_id' => $user->id,
                 'partner_id' => $availableMatch->user_id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             $context->sendMessage('❌ Failed to create match. Please try again.');
+
             return false;
         }
     }
@@ -335,7 +349,7 @@ class ConversationService
     {
         $conversationId = null;
         if (isset($data['convId']) && isset($data['timestamp'])) {
-            $conversationId = $data['timestamp'] . '_' . $data['convId'];
+            $conversationId = $data['timestamp'].'_'.$data['convId'];
         }
 
         $this->conversationLogRepository->create([
@@ -345,7 +359,7 @@ class ConversationService
             'conv_id' => $conversationId,
             'is_action' => 0,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
     }
 
@@ -364,20 +378,6 @@ class ConversationService
     }
 
     /**
-     * Send message to user via Telegram API
-     */
-    private function sendMessageToUser(string $telegramId, string $message, array $options = []): void
-    {
-        // This should be implemented based on your Telegram bot client
-        // For now, just log it
-        Log::info('Sending message to user', [
-            'telegram_id' => $telegramId,
-            'message' => $message,
-            'options' => $options
-        ]);
-    }
-
-    /**
      * Get star rating string
      */
     private function getStarRating(float $rating): string
@@ -386,8 +386,8 @@ class ConversationService
         $halfStar = ($rating - $fullStars) >= 0.5 ? 1 : 0;
         $emptyStars = 5 - $fullStars - $halfStar;
 
-        return str_repeat('⭐', (int) $fullStars) .
-            str_repeat('💫', $halfStar) .
+        return str_repeat('⭐', (int) $fullStars).
+            str_repeat('💫', $halfStar).
             str_repeat('⚪', (int) $emptyStars);
     }
 }

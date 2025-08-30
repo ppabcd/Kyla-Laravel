@@ -442,7 +442,7 @@ class TelegramBotService
         }
 
         // Handle regular text messages using MessageListener
-        $messageListener = app(\App\Telegram\Listeners\MessageListener::class);
+        $messageListener = app(MessageListener::class);
         $messageListener->handleTextMessage($context);
     }
 
@@ -551,7 +551,7 @@ class TelegramBotService
     protected function handleOtherUpdate(TelegramContextInterface $context): void
     {
         // Use MessageListener to handle media and other message types
-        $messageListener = app(\App\Telegram\Listeners\MessageListener::class);
+        $messageListener = app(MessageListener::class);
 
         $update = $context->getUpdate();
         $message = $update['message'] ?? null;
@@ -572,6 +572,7 @@ class TelegramBotService
             isset($message['animation']);
 
         if ($hasMedia) {
+            Log::debug('Media message received', ['message' => $message]);
             $messageListener->handleMediaMessage($context);
 
             return;

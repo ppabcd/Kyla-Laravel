@@ -132,6 +132,7 @@ ID: `:id`',
 ⚠️ Prohibited sending sexual content in the chat',
         'deleted' => 'This chat has been concluded
 Type /search to look for more chats',
+        'inactive' => 'Your partner seems inactive. You can send /next to look for a new partner or keep waiting.',
         'exists' => 'You are already in a chat
 Type /stop to stop the chat',
     ],

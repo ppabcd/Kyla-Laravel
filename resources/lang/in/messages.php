@@ -93,6 +93,7 @@ ID: `:id`',
 ⚠️ Chat mein yaun samagri bhejna mana hai',
         'deleted' => 'Baatcheet samapt ho gayi hai
 /search likh kar doosre baatcheet shuru karein',
+        'inactive' => 'Aapka saathi nishkriya lag raha hai. Aap /next likhkar naya saathi khoj sakte hain ya pratiksha kar sakte hain.',
         'exists' => 'Aap vartamaan mein baatcheet mein hain',
     ],
 

@@ -127,6 +127,7 @@ ID: `:id`',
 ⚠️ Dilarang mengirimkan konten seksual di chat',
         'deleted' => 'Percakapan telah dihentikan
 Tulis /search untuk melakukan obrolan lainnya',
+        'inactive' => 'Partner kamu sepertinya tidak aktif. Kamu bisa kirim /next untuk mencari partner baru atau tetap menunggu.',
         'exists' => 'Kamu sedang berada di percakapan',
     ],
 

@@ -177,6 +177,7 @@ class TelegramServiceProvider extends ServiceProvider
 
         // Media Callbacks
         $telegramService->registerCallbackByName('enable_media', EnableMediaCallback::class);
+        $telegramService->registerCallbackByName('enable_media_confirm', EnableMediaCallback::class);
         $telegramService->registerCallbackByName('reject_action_media', RejectActionMediaCallback::class);
         $telegramService->registerCallbackByName('reject_action_text', RejectActionTextCallback::class);
         $telegramService->registerCallbackByName('top_up', TopUpCallback::class);

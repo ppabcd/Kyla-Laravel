@@ -137,8 +137,12 @@ class User extends Model
 
     public function isInConversation(): bool
     {
-        return $this->pairs()
-            ->where('status', 'active')
+        // Consider pairs where this user is either `user_id` or `partner_id`
+        return Pair::where('status', 'active')
+            ->where(function ($query) {
+                $query->where('user_id', $this->id)
+                    ->orWhere('partner_id', $this->id);
+            })
             ->exists();
     }
 

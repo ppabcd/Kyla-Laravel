@@ -7,6 +7,7 @@ use App\Application\Services\UserService;
 use App\Domain\Entities\User;
 use App\Infrastructure\Repositories\ConversationLogRepository;
 use App\Telegram\Services\KeyboardService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class MessageListener
@@ -64,8 +65,8 @@ class MessageListener
                 return $this->handlePartnerNotFound($user);
             }
 
-            // Check if partner is still active
-            if ($partner->isBanned() || ! $partner->isActive()) {
+            // Check if partner is banned
+            if ($partner->isBanned()) {
                 return $this->handleInactivePartner($user, $partner);
             }
 
@@ -163,11 +164,13 @@ class MessageListener
                 return $this->handlePartnerNotFound($user);
             }
 
-            // Check if partner has safe mode enabled
-            if (isset($partner->safe_mode) && $partner->safe_mode) {
+            // Check if partner has safe mode enabled, unless temporary media is enabled for this conversation
+            $tempMediaEnabled = (bool) Cache::get("enable-media:{$partner->id}", false);
+            if ((isset($partner->safe_mode) && $partner->safe_mode) && ! $tempMediaEnabled) {
                 return [
                     'chat_id' => $user->telegram_id,
                     'text' => __('messages.safe_mode.restricted', [], $user->language ?? 'en'),
+                    'reply_markup' => $this->keyboardService->getSafeModeKeyboard(),
                 ];
             }
 

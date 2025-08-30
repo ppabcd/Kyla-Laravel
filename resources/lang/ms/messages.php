@@ -91,6 +91,7 @@ ID: `:id`',
 ⚠️ Penghantaran kandungan seksual dilarang dalam chat',
         'deleted' => 'Perbualan telah dihentikan
 Taip /search untuk memulai obrolan lain',
+        'inactive' => 'Rakan anda kelihatan tidak aktif. Anda boleh taip /next untuk mencari rakan baru atau terus menunggu.',
         'exists' => 'Anda sedang berada dalam perbualan',
     ],
 

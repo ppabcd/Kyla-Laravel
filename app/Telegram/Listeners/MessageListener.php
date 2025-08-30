@@ -3,9 +3,12 @@
 namespace App\Telegram\Listeners;
 
 use App\Domain\Entities\User;
+use App\Domain\Repositories\PairRepositoryInterface;
 use App\Infrastructure\Repositories\UserRepository;
 use App\Listeners\MessageListener as AppMessageListener;
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Services\KeyboardService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -15,14 +18,22 @@ class MessageListener
 
     private UserRepository $userRepository;
 
+    private PairRepositoryInterface $pairRepository;
+
+    private KeyboardService $keyboardService;
+
     private string $botToken;
 
     public function __construct(
         AppMessageListener $messageListener,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        PairRepositoryInterface $pairRepository,
+        KeyboardService $keyboardService
     ) {
         $this->messageListener = $messageListener;
         $this->userRepository = $userRepository;
+        $this->pairRepository = $pairRepository;
+        $this->keyboardService = $keyboardService;
         $this->botToken = config('telegram.bot_token');
     }
 
@@ -33,6 +44,19 @@ class MessageListener
     {
         try {
             $user = $context->getUserModel();
+
+            // Fallback: resolve user from Telegram payload when middleware did not set it
+            if (! $user) {
+                $tgUser = $context->getUser();
+                $telegramId = $tgUser['id'] ?? null;
+                if ($telegramId) {
+                    $resolved = $this->userRepository->findByTelegramId($telegramId);
+                    if ($resolved) {
+                        $context->setUser($resolved);
+                        $user = $resolved;
+                    }
+                }
+            }
 
             if (! $user) {
                 Log::warning('No user found in context for text message');
@@ -80,6 +104,19 @@ class MessageListener
     {
         try {
             $user = $context->getUserModel();
+
+            // Fallback: resolve user from Telegram payload when middleware did not set it
+            if (! $user) {
+                $tgUser = $context->getUser();
+                $telegramId = $tgUser['id'] ?? null;
+                if ($telegramId) {
+                    $resolved = $this->userRepository->findByTelegramId($telegramId);
+                    if ($resolved) {
+                        $context->setUser($resolved);
+                        $user = $resolved;
+                    }
+                }
+            }
 
             if (! $user) {
                 Log::warning('No user found in context for media message');
@@ -174,6 +211,27 @@ class MessageListener
      */
     private function handlePrivateMessage(User $user, TelegramContextInterface $context): void
     {
+        // Soft notice if partner appears inactive (do not end conversation)
+        try {
+            $pair = $this->pairRepository->findActivePairByUserId($user->id);
+            if ($pair) {
+                $partner = $pair->getOtherUser($user->id);
+                if ($partner && method_exists($partner, 'isActive') && ! $partner->isActive()) {
+                    $noticeKey = 'inactive-notice:'.$pair->id;
+                    if (Cache::add($noticeKey, true, now()->addMinutes(10))) {
+                        $context->reply(
+                            __('messages.pair.inactive', [], $user->language_code ?? 'en'),
+                            [
+                                'reply_markup' => $this->keyboardService->getNextSearchKeyboard(),
+                            ]
+                        );
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::debug('Failed sending inactive partner notice', ['error' => $e->getMessage()]);
+        }
+
         $contextArray = $context->getUpdate();
         $response = $this->messageListener->handleTextMessage($user, $contextArray);
 

@@ -2,67 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Telegram\Services\TelegramBotService;
-use App\Telegram\Commands\StartCommand;
-use App\Telegram\Commands\HelpCommand;
-use App\Telegram\Commands\NextCommand;
-use App\Telegram\Commands\StopCommand;
-use App\Telegram\Commands\ProfileCommand;
-use App\Telegram\Commands\SettingsCommand;
-use App\Telegram\Commands\LanguageCommand;
-use App\Telegram\Commands\PingCommand;
-use App\Telegram\Commands\RulesCommand;
-use App\Telegram\Commands\FeedbackCommand;
-use App\Telegram\Commands\TestCommand;
-use App\Telegram\Commands\PrivacyCommand;
-use App\Telegram\Commands\BalanceCommand;
-use App\Telegram\Commands\DonasiCommand;
-use App\Telegram\Commands\InterestCommand;
-use App\Telegram\Commands\ModeCommand;
-use App\Telegram\Commands\ReferralCommand;
-use App\Telegram\Commands\TransferCommand;
-use App\Telegram\Commands\PendingCommand;
-use App\Telegram\Commands\InvalidateSessionCommand;
-use App\Telegram\Commands\TestMiddlewareCommand;
-
-// Admin Commands
-use App\Telegram\Commands\Admin\AnnouncementCommand;
-use App\Telegram\Commands\Admin\BanCommand;
-use App\Telegram\Commands\Admin\UnbanCommand;
-use App\Telegram\Commands\Admin\StatsCommand;
-use App\Telegram\Commands\Admin\BanHistoryCommand;
-use App\Telegram\Commands\Admin\BannedCommand;
-use App\Telegram\Commands\Admin\ClaimCommand;
-use App\Telegram\Commands\Admin\CommandsCommand;
-use App\Telegram\Commands\Admin\CountCommand;
-use App\Telegram\Commands\Admin\DebugCommand;
-use App\Telegram\Commands\Admin\EncryptDecryptCommand;
-use App\Telegram\Commands\Admin\FindCommand;
-use App\Telegram\Commands\Admin\MessageCommand;
-use App\Telegram\Commands\Admin\PartnerCommand;
-use App\Telegram\Commands\Admin\ResetAccountCommand;
-use App\Telegram\Commands\Admin\WordFilterCommand;
-use App\Telegram\Commands\Admin\UnmuteCommand;
-
-// Callbacks
-use App\Telegram\Callbacks\HelpCallback;
-use App\Telegram\Callbacks\ProfileCallback;
-use App\Telegram\Callbacks\GenderCallback;
-use App\Telegram\Callbacks\InterestCallback;
-use App\Telegram\Callbacks\LanguageCallback;
-use App\Telegram\Callbacks\SettingsCallback;
 use App\Telegram\Callbacks\AgeCallback;
-use App\Telegram\Callbacks\LocationCallback;
-use App\Telegram\Callbacks\SafeModeCallback;
-use App\Telegram\Callbacks\PrivacyCallback;
-use App\Telegram\Callbacks\ReportCallback;
-use App\Telegram\Callbacks\RatingCallback;
-use App\Telegram\Callbacks\PendingCallback;
-use App\Telegram\Callbacks\EnableMediaCallback;
-use App\Telegram\Callbacks\RejectActionMediaCallback;
-use App\Telegram\Callbacks\RejectActionTextCallback;
-use App\Telegram\Callbacks\TopUpCallback;
+use App\Telegram\Callbacks\BalanceCallback;
 use App\Telegram\Callbacks\BannedActionMediaCallback;
 use App\Telegram\Callbacks\BannedActionTextCallback;
 use App\Telegram\Callbacks\BannedCallback;
@@ -71,12 +12,73 @@ use App\Telegram\Callbacks\CaptchaCallback;
 use App\Telegram\Callbacks\ConversationCallback;
 use App\Telegram\Callbacks\CryptoDonationCallback;
 use App\Telegram\Callbacks\DonationCallback;
+use App\Telegram\Callbacks\EnableMediaCallback;
+use App\Telegram\Callbacks\GenderCallback;
+use App\Telegram\Callbacks\HelpCallback;
+use App\Telegram\Callbacks\InterestCallback;
+use App\Telegram\Callbacks\LanguageCallback;
+use App\Telegram\Callbacks\LocationCallback;
+use App\Telegram\Callbacks\NextCallback;
+use App\Telegram\Callbacks\PendingCallback;
+use App\Telegram\Callbacks\PrivacyCallback;
+use App\Telegram\Callbacks\ProfileCallback;
+use App\Telegram\Callbacks\QueueStatusCallback;
+use App\Telegram\Callbacks\RatingCallback;
+use App\Telegram\Callbacks\RejectActionMediaCallback;
+// Admin Commands
+use App\Telegram\Callbacks\RejectActionTextCallback;
+use App\Telegram\Callbacks\ReportCallback;
 use App\Telegram\Callbacks\RetrySubscribeCheckCallback;
-
-// Middleware
-use App\Telegram\Middleware\CheckUserMiddleware;
+use App\Telegram\Callbacks\SafeModeCallback;
+use App\Telegram\Callbacks\SearchCallback;
+use App\Telegram\Callbacks\SettingsCallback;
+use App\Telegram\Callbacks\StopCallback;
+use App\Telegram\Callbacks\TopUpCallback;
+use App\Telegram\Commands\Admin\AnnouncementCommand;
+use App\Telegram\Commands\Admin\BanCommand;
+use App\Telegram\Commands\Admin\BanHistoryCommand;
+use App\Telegram\Commands\Admin\BannedCommand;
+use App\Telegram\Commands\Admin\ClaimCommand;
+use App\Telegram\Commands\Admin\CommandsCommand;
+use App\Telegram\Commands\Admin\CountCommand;
+use App\Telegram\Commands\Admin\DebugCommand;
+use App\Telegram\Commands\Admin\EncryptDecryptCommand;
+// Callbacks
+use App\Telegram\Commands\Admin\FindCommand;
+use App\Telegram\Commands\Admin\MessageCommand;
+use App\Telegram\Commands\Admin\PartnerCommand;
+use App\Telegram\Commands\Admin\ResetAccountCommand;
+use App\Telegram\Commands\Admin\StatsCommand;
+use App\Telegram\Commands\Admin\UnbanCommand;
+use App\Telegram\Commands\Admin\UnmuteCommand;
+use App\Telegram\Commands\Admin\WordFilterCommand;
+use App\Telegram\Commands\BalanceCommand;
+use App\Telegram\Commands\DonasiCommand;
+use App\Telegram\Commands\FeedbackCommand;
+use App\Telegram\Commands\HelpCommand;
+use App\Telegram\Commands\InterestCommand;
+use App\Telegram\Commands\InvalidateSessionCommand;
+use App\Telegram\Commands\LanguageCommand;
+use App\Telegram\Commands\ModeCommand;
+use App\Telegram\Commands\NextCommand;
+use App\Telegram\Commands\PendingCommand;
+use App\Telegram\Commands\PingCommand;
+use App\Telegram\Commands\PrivacyCommand;
+use App\Telegram\Commands\ProfileCommand;
+use App\Telegram\Commands\ReferralCommand;
+use App\Telegram\Commands\RulesCommand;
+use App\Telegram\Commands\SettingsCommand;
+use App\Telegram\Commands\StartCommand;
+use App\Telegram\Commands\StopCommand;
+use App\Telegram\Commands\TestCommand;
+use App\Telegram\Commands\TestMiddlewareCommand;
+use App\Telegram\Commands\TransferCommand;
 use App\Telegram\Middleware\CheckBannedUserMiddleware;
+use App\Telegram\Middleware\CheckUserMiddleware;
+// Middleware
 use App\Telegram\Middleware\LoggingMiddleware;
+use App\Telegram\Services\TelegramBotService;
+use Illuminate\Support\ServiceProvider;
 
 class TelegramServiceProvider extends ServiceProvider
 {
@@ -86,7 +88,7 @@ class TelegramServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(TelegramBotService::class, function ($app) {
-            return new TelegramBotService();
+            return new TelegramBotService;
         });
     }
 
@@ -154,6 +156,11 @@ class TelegramServiceProvider extends ServiceProvider
         // System Callbacks
         $telegramService->registerCallbackByName('help', HelpCallback::class);
         $telegramService->registerCallbackByName('profile', ProfileCallback::class);
+        $telegramService->registerCallbackByName('search', SearchCallback::class);
+        $telegramService->registerCallbackByName('next', NextCallback::class);
+        $telegramService->registerCallbackByName('stop', StopCallback::class);
+        $telegramService->registerCallbackByName('balance', BalanceCallback::class);
+        $telegramService->registerCallbackByName('queue_status', QueueStatusCallback::class);
 
         // User Callbacks
         $telegramService->registerCallbackByName('gender', GenderCallback::class);
@@ -195,4 +202,4 @@ class TelegramServiceProvider extends ServiceProvider
         $telegramService->registerGlobalMiddleware(CheckUserMiddleware::class);
         $telegramService->registerGlobalMiddleware(CheckBannedUserMiddleware::class);
     }
-} 
+}

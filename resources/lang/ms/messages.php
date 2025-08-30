@@ -26,9 +26,7 @@ Sekatan yang diberikan adalah secara banned mengikut pelanggaran yang dilakukan.
 Terima kasih',
 
     'interest' => [
-        'not_set' => 'Mari pilih teman yang sesuai dengan kriteria kamu.
-Pilih di sebelah kiri jika hanya ingin berbicara dengan lawan jenis.
-Pilih di sebelah kanan jika ingin berbicara dengan semua orang.',
+        'not_set' => '💬 Nak berbual dengan siapa?',
         'warning' => 'Anda baru saja memilih ketertarikan dengan gender lelaki atau perempuan. Jenis ketertarikan ini mempunyai kelemahan dalam waktu pencarian. Anda boleh mengubah ketertarikan anda ke semua orang untuk dapat mencari kawan lebih cepat.
 Taip /interest untuk mengubah ketertarikan anda.',
         'set' => 'Ketertarikan berhasil diubah.
@@ -36,8 +34,7 @@ Anda boleh mengubahnya kembali dengan menaip /interest.',
     ],
 
     'gender' => [
-        'not_set' => 'Sila pilih jantina anda supaya orang lain dapat mengetahuinya.
-(Jantina tidak boleh diubah selepas proses ini).',
+        'not_set' => '👤 Apa jantina anda?',
         'set_basic' => 'Jantina anda telah berjaya diubah.',
         'set' => 'Jantina anda telah berjaya diubah. Mari pilih teman yang sesuai dengan kriteria kamu.
 Pilih di sebelah kiri jika hanya ingin berbicara dengan lawan jenis.

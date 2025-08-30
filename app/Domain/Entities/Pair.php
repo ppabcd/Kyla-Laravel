@@ -3,11 +3,10 @@
 namespace App\Domain\Entities;
 
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 /**
  * Pair Domain Entity
- * 
+ *
  * Represents a matching pair between two users
  */
 class Pair extends Model
@@ -18,30 +17,22 @@ class Pair extends Model
         'user_id',
         'partner_id',
         'status',
+        'active',
         'started_at',
         'ended_at',
-        'ended_by',
-        'end_reason',
-        'rating_user',
-        'rating_partner',
-        'conversation_count',
-        'last_message_at',
-        'created_at',
-        'updated_at'
+        'ended_by_user_id',
+        'ended_reason',
+        'metadata',
     ];
 
     protected $casts = [
         'user_id' => 'integer',
         'partner_id' => 'integer',
+        'active' => 'boolean',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
-        'ended_by' => 'integer',
-        'rating_user' => 'decimal:2',
-        'rating_partner' => 'decimal:2',
-        'conversation_count' => 'integer',
-        'last_message_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'ended_by_user_id' => 'integer',
+        'metadata' => 'json',
     ];
 
     /**
@@ -77,16 +68,17 @@ class Pair extends Model
 
     public function isPending(): bool
     {
-        return $this->status === 'pending';
+        return false; // No longer using pending status
     }
 
     public function getDuration(): ?int
     {
-        if (!$this->started_at) {
+        if (! $this->started_at) {
             return null;
         }
 
         $endTime = $this->ended_at ?? now();
+
         return $this->started_at->diffInMinutes($endTime);
     }
 
@@ -135,6 +127,7 @@ class Pair extends Model
         }
 
         $this->save();
+
         return true;
     }
 

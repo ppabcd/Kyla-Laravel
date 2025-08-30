@@ -5,15 +5,15 @@ namespace App\Infrastructure\Repositories;
 use App\Domain\Entities\Pair;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Pair Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of PairRepositoryInterface
  */
 class PairRepository implements PairRepositoryInterface
@@ -32,6 +32,7 @@ class PairRepository implements PairRepositoryInterface
     {
         $pair = Pair::create($data);
         $this->clearPairCaches($pair);
+
         return $pair;
     }
 
@@ -101,9 +102,9 @@ class PairRepository implements PairRepositoryInterface
         return $this->create([
             'user_id' => $user->id,
             'partner_id' => $partner->id,
-            'status' => 'pending',
+            'status' => 'active',
+            'active' => true,
             'started_at' => now(),
-            'conversation_count' => 0
         ]);
     }
 
@@ -114,7 +115,7 @@ class PairRepository implements PairRepositoryInterface
     {
         return $this->update($pair, [
             'status' => 'active',
-            'started_at' => now()
+            'started_at' => now(),
         ]);
     }
 
@@ -122,9 +123,10 @@ class PairRepository implements PairRepositoryInterface
     {
         return $this->update($pair, [
             'status' => 'ended',
+            'active' => false,
             'ended_at' => now(),
-            'ended_by' => $endedBy,
-            'end_reason' => $reason
+            'ended_by_user_id' => $endedBy,
+            'ended_reason' => $reason,
         ]);
     }
 
@@ -304,6 +306,7 @@ class PairRepository implements PairRepositoryInterface
             $totalMinutes = $pairs->sum(function ($pair) {
                 $start = Carbon::parse($pair->started_at);
                 $end = Carbon::parse($pair->ended_at);
+
                 return $start->diffInMinutes($end);
             });
 
@@ -320,7 +323,7 @@ class PairRepository implements PairRepositoryInterface
                 'ended_pairs' => Pair::where('status', 'ended')->count(),
                 'average_duration_minutes' => $this->getAveragePairDuration(),
                 'pairs_with_ratings' => Pair::whereNotNull('ended_at')->count(),
-                'average_rating' => 0.0 // Placeholder - ratings system not implemented yet
+                'average_rating' => 0.0, // Placeholder - ratings system not implemented yet
             ];
         });
     }
@@ -332,7 +335,7 @@ class PairRepository implements PairRepositoryInterface
     {
         return $this->update($pair, [
             'conversation_count' => $pair->conversation_count + 1,
-            'last_message_at' => now()
+            'last_message_at' => now(),
         ]);
     }
 
@@ -361,7 +364,7 @@ class PairRepository implements PairRepositoryInterface
                 'status' => 'ended',
                 'ended_at' => now(),
                 'ended_by' => $endedBy,
-                'end_reason' => $reason
+                'end_reason' => $reason,
             ]);
 
         // Clear caches
@@ -409,11 +412,12 @@ class PairRepository implements PairRepositoryInterface
 
     public function getTotalConversationsCount(?int $days = null): int
     {
-        return Cache::remember("pairs:total_count:" . ($days ?? 'all'), 300, function () use ($days) {
+        return Cache::remember('pairs:total_count:'.($days ?? 'all'), 300, function () use ($days) {
             $query = Pair::query();
             if ($days) {
                 $query->where('created_at', '>=', now()->subDays($days));
             }
+
             return $query->count();
         });
     }

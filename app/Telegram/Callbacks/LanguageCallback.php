@@ -2,11 +2,12 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
-use App\Telegram\Contracts\CallbackInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Services\OnboardingService;
+use App\Telegram\Contracts\CallbackInterface;
+use App\Telegram\Core\BaseCallback;
+use App\Telegram\Core\TelegramContext;
 use Illuminate\Support\Facades\Log;
 
 class LanguageCallback extends BaseCallback implements CallbackInterface
@@ -15,16 +16,17 @@ class LanguageCallback extends BaseCallback implements CallbackInterface
 
     public function __construct(
         private UserService $userService,
-        private UserRepositoryInterface $userRepository
-    ) {
-    }
+        private UserRepositoryInterface $userRepository,
+        private OnboardingService $onboardingService
+    ) {}
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
     {
         try {
             $telegramUser = $context->getUser();
-            if (!$telegramUser) {
+            if (! $telegramUser) {
                 $context->reply('❌ Unable to identify user');
+
                 return;
             }
 
@@ -32,13 +34,15 @@ class LanguageCallback extends BaseCallback implements CallbackInterface
 
             if ($callbackData === 'lang-contribute') {
                 $this->contributeLanguage($context);
+
                 return;
             }
 
             $languageData = $this->extractLanguageFromCallback($callbackData);
 
-            if (!$languageData) {
+            if (! $languageData) {
                 $context->reply('❌ Invalid language selection');
+
                 return;
             }
 
@@ -47,17 +51,21 @@ class LanguageCallback extends BaseCallback implements CallbackInterface
 
             // Update user language
             $success = $this->userService->updateUserProfile($user, [
-                'language_code' => $languageData['language']
+                'language_code' => $languageData['language'],
             ]);
 
             if ($success) {
-                $context->reply("✅ Language changed to: " . strtoupper($languageData['language']));
+                $context->reply('✅ Language changed to: '.strtoupper($languageData['language']));
 
                 Log::info('User updated language', [
                     'user_id' => $user->id,
                     'language' => $languageData['language'],
-                    'country' => $languageData['country']
+                    'country' => $languageData['country'],
                 ]);
+
+                // Automatically guide user to next step in onboarding
+                $updatedUser = $this->userService->findOrCreateUser($telegramUser);
+                $this->onboardingService->guideUserToNextStep($context, $updatedUser);
             } else {
                 $context->reply('❌ Failed to update language. Please try again.');
             }
@@ -65,7 +73,7 @@ class LanguageCallback extends BaseCallback implements CallbackInterface
         } catch (\Exception $e) {
             Log::error('Error in LanguageCallback', [
                 'error' => $e->getMessage(),
-                'user_id' => $telegramUser['id'] ?? null
+                'user_id' => $telegramUser['id'] ?? null,
             ]);
 
             $context->reply('❌ An error occurred. Please try again later.');
@@ -85,32 +93,32 @@ class LanguageCallback extends BaseCallback implements CallbackInterface
 
     private function contributeLanguage(TelegramContext $context): void
     {
-        $message = "🌍 **Contribute Translation**\n\n" .
-            "We're always looking for help to translate Kyla Bot into more languages!\n\n" .
-            "If you'd like to contribute translations, please:\n" .
-            "1. Join our translation team\n" .
-            "2. Help translate strings to your language\n" .
-            "3. Test the translations\n\n" .
-            "Contact us at: support@kyla.my.id\n\n" .
-            "Thank you for helping make Kyla Bot accessible to more people! 🙏";
+        $message = "🌍 **Contribute Translation**\n\n".
+            "We're always looking for help to translate Kyla Bot into more languages!\n\n".
+            "If you'd like to contribute translations, please:\n".
+            "1. Join our translation team\n".
+            "2. Help translate strings to your language\n".
+            "3. Test the translations\n\n".
+            "Contact us at: support@kyla.my.id\n\n".
+            'Thank you for helping make Kyla Bot accessible to more people! 🙏';
 
         $keyboard = [
             [
-                ['text' => '🔗 Join Translation Team', 'url' => 'https://t.me/kyla_translation']
+                ['text' => '🔗 Join Translation Team', 'url' => 'https://t.me/kyla_translation'],
             ],
             [
-                ['text' => '📧 Contact Support', 'url' => 'mailto:support@kyla.my.id']
+                ['text' => '📧 Contact Support', 'url' => 'mailto:support@kyla.my.id'],
             ],
             [
-                ['text' => '🔙 Back', 'callback_data' => 'profile-back']
-            ]
+                ['text' => '🔙 Back', 'callback_data' => 'profile-back'],
+            ],
         ];
 
         $context->reply($message, [
             'reply_markup' => [
-                'inline_keyboard' => $keyboard
+                'inline_keyboard' => $keyboard,
             ],
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 }

@@ -2,22 +2,27 @@
 
 namespace App\Telegram\Services;
 
-use App\Telegram\Contracts\CommandInterface;
 use App\Telegram\Contracts\CallbackInterface;
+use App\Telegram\Contracts\CommandInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Core\TelegramContext;
+use App\Telegram\Listeners\MessageListener;
 use App\Telegram\Middleware\MiddlewareInterface;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ReflectionClass;
 
 class TelegramBotService
 {
     protected array $commands = [];
+
     protected array $callbacks = [];
+
     protected array $globalMiddlewares = [];
+
     protected array $commandMiddlewares = [];
+
     protected array $callbackMiddlewares = [];
 
     public function __construct()
@@ -60,15 +65,16 @@ class TelegramBotService
      */
     protected function autoRegisterCommands(): void
     {
-        if (!config('telegram.auto_registration.commands.enabled', true)) {
+        if (! config('telegram.auto_registration.commands.enabled', true)) {
             return;
         }
 
         $commandsPath = config('telegram.auto_registration.commands.path', app_path('Telegram/Commands'));
         $namespace = config('telegram.auto_registration.commands.namespace', 'App\\Telegram\\Commands');
 
-        if (!File::exists($commandsPath)) {
+        if (! File::exists($commandsPath)) {
             Log::warning('Telegram commands directory does not exist', ['path' => $commandsPath]);
+
             return;
         }
 
@@ -79,9 +85,9 @@ class TelegramBotService
                 continue;
             }
 
-            $className = $namespace . '\\' . $file->getBasename('.php');
+            $className = $namespace.'\\'.$file->getBasename('.php');
 
-            if (!class_exists($className)) {
+            if (! class_exists($className)) {
                 continue;
             }
 
@@ -91,13 +97,13 @@ class TelegramBotService
                 continue;
             }
 
-            if (!$reflection->implementsInterface(CommandInterface::class)) {
+            if (! $reflection->implementsInterface(CommandInterface::class)) {
                 continue;
             }
 
             $command = app($className);
 
-            if (!$command->isEnabled()) {
+            if (! $command->isEnabled()) {
                 continue;
             }
 
@@ -112,15 +118,16 @@ class TelegramBotService
      */
     protected function autoRegisterCallbacks(): void
     {
-        if (!config('telegram.auto_registration.callbacks.enabled', true)) {
+        if (! config('telegram.auto_registration.callbacks.enabled', true)) {
             return;
         }
 
         $callbacksPath = config('telegram.auto_registration.callbacks.path', app_path('Telegram/Callbacks'));
         $namespace = config('telegram.auto_registration.callbacks.namespace', 'App\\Telegram\\Callbacks');
 
-        if (!File::exists($callbacksPath)) {
+        if (! File::exists($callbacksPath)) {
             Log::warning('Telegram callbacks directory does not exist', ['path' => $callbacksPath]);
+
             return;
         }
 
@@ -131,9 +138,9 @@ class TelegramBotService
                 continue;
             }
 
-            $className = $namespace . '\\' . $file->getBasename('.php');
+            $className = $namespace.'\\'.$file->getBasename('.php');
 
-            if (!class_exists($className)) {
+            if (! class_exists($className)) {
                 continue;
             }
 
@@ -143,13 +150,13 @@ class TelegramBotService
                 continue;
             }
 
-            if (!$reflection->implementsInterface(CallbackInterface::class)) {
+            if (! $reflection->implementsInterface(CallbackInterface::class)) {
                 continue;
             }
 
             $callback = app($className);
 
-            if (!$callback->isEnabled()) {
+            if (! $callback->isEnabled()) {
                 continue;
             }
 
@@ -195,7 +202,7 @@ class TelegramBotService
 
         Log::debug('Telegram command registered', [
             'command' => $commandNames,
-            'description' => $command->getDescription()
+            'description' => $command->getDescription(),
         ]);
     }
 
@@ -223,7 +230,7 @@ class TelegramBotService
 
         Log::debug('Telegram callback registered', [
             'callback' => $callbackNames,
-            'description' => $callback->getDescription()
+            'description' => $callback->getDescription(),
         ]);
     }
 
@@ -232,15 +239,17 @@ class TelegramBotService
      */
     public function registerCallbackByName(string $callbackName, string $callbackClass): void
     {
-        if (!class_exists($callbackClass)) {
+        if (! class_exists($callbackClass)) {
             Log::error('Telegram callback class not found', ['class' => $callbackClass]);
+
             return;
         }
 
         $callback = app($callbackClass);
 
-        if (!$callback instanceof CallbackInterface) {
+        if (! $callback instanceof CallbackInterface) {
             Log::error('Telegram callback class does not implement CallbackInterface', ['class' => $callbackClass]);
+
             return;
         }
 
@@ -252,15 +261,17 @@ class TelegramBotService
      */
     public function registerCommandByClass(string $commandClass): void
     {
-        if (!class_exists($commandClass)) {
+        if (! class_exists($commandClass)) {
             Log::error('Telegram command class not found', ['class' => $commandClass]);
+
             return;
         }
 
         $command = app($commandClass);
 
-        if (!$command instanceof CommandInterface) {
+        if (! $command instanceof CommandInterface) {
             Log::error('Telegram command class does not implement CommandInterface', ['class' => $commandClass]);
+
             return;
         }
 
@@ -272,15 +283,17 @@ class TelegramBotService
      */
     public function registerGlobalMiddleware(string $middlewareClass): void
     {
-        if (!class_exists($middlewareClass)) {
+        if (! class_exists($middlewareClass)) {
             Log::error('Telegram middleware class not found', ['class' => $middlewareClass]);
+
             return;
         }
 
         $middleware = app($middlewareClass);
 
-        if (!$middleware instanceof MiddlewareInterface) {
+        if (! $middleware instanceof MiddlewareInterface) {
             Log::error('Telegram middleware class does not implement MiddlewareInterface', ['class' => $middlewareClass]);
+
             return;
         }
 
@@ -294,15 +307,17 @@ class TelegramBotService
      */
     public function registerCommandMiddleware(string $middlewareClass): void
     {
-        if (!class_exists($middlewareClass)) {
+        if (! class_exists($middlewareClass)) {
             Log::error('Telegram middleware class not found', ['class' => $middlewareClass]);
+
             return;
         }
 
         $middleware = app($middlewareClass);
 
-        if (!$middleware instanceof MiddlewareInterface) {
+        if (! $middleware instanceof MiddlewareInterface) {
             Log::error('Telegram middleware class does not implement MiddlewareInterface', ['class' => $middlewareClass]);
+
             return;
         }
 
@@ -316,15 +331,17 @@ class TelegramBotService
      */
     public function registerCallbackMiddleware(string $middlewareClass): void
     {
-        if (!class_exists($middlewareClass)) {
+        if (! class_exists($middlewareClass)) {
             Log::error('Telegram middleware class not found', ['class' => $middlewareClass]);
+
             return;
         }
 
         $middleware = app($middlewareClass);
 
-        if (!$middleware instanceof MiddlewareInterface) {
+        if (! $middleware instanceof MiddlewareInterface) {
             Log::error('Telegram middleware class does not implement MiddlewareInterface', ['class' => $middlewareClass]);
+
             return;
         }
 
@@ -344,12 +361,14 @@ class TelegramBotService
             // Check if it's a callback query
             if (isset($update['callback_query'])) {
                 $this->handleCallbackQuery($context);
+
                 return;
             }
 
             // Check if it's a message with text
             if (isset($update['message']['text'])) {
                 $this->handleMessage($context);
+
                 return;
             }
 
@@ -360,7 +379,7 @@ class TelegramBotService
             Log::error('Error handling Telegram update', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'update' => $update
+                'update' => $update,
             ]);
         }
     }
@@ -394,7 +413,7 @@ class TelegramBotService
     {
         $text = $context->getText();
 
-        if (!$text) {
+        if (! $text) {
             return;
         }
 
@@ -411,17 +430,20 @@ class TelegramBotService
             if (isset($this->commands[$commandName])) {
                 $command = $this->commands[$commandName];
                 $command->execute($context);
+
                 return;
             }
 
             // Command not found
             Log::warning('Telegram command not found', ['command' => $commandName]);
             $context->sendMessage(__('errors.command_not_found'));
+
             return;
         }
 
-        // Handle regular text messages (could be used for conversations, etc.)
-        Log::debug('Telegram text message received', ['text' => $text]);
+        // Handle regular text messages using MessageListener
+        $messageListener = app(\App\Telegram\Listeners\MessageListener::class);
+        $messageListener->handleTextMessage($context);
     }
 
     /**
@@ -453,31 +475,45 @@ class TelegramBotService
     {
         $callbackData = $context->getCallbackData();
 
-        if (!$callbackData) {
+        if (! $callbackData) {
+            Log::debug('No callback data found');
+
             return;
         }
 
+        Log::debug('Processing callback query', ['original_data' => $callbackData]);
+
         $callbackData = Str::lower($callbackData);
+        Log::debug('Lowercase callback data', ['callback_data' => $callbackData]);
 
         // First, try exact match for full callback data
         if (isset($this->callbacks[$callbackData])) {
+            Log::debug('Found exact match callback', ['callback' => $callbackData, 'class' => get_class($this->callbacks[$callbackData])]);
             $callback = $this->callbacks[$callbackData];
             $callback->execute($context);
+
             return;
         }
 
         // If not found, try parsing as action:data format
         $parts = explode(':', $callbackData, 2);
         $action = $parts[0];
+        Log::debug('Trying action parsing', ['action' => $action, 'parts' => $parts]);
 
         if (isset($this->callbacks[$action])) {
+            Log::debug('Found action match callback', ['action' => $action, 'class' => get_class($this->callbacks[$action])]);
             $callback = $this->callbacks[$action];
             $callback->execute($context);
+
             return;
         }
 
         // Callback not found
-        Log::warning('Telegram callback not found', ['callback' => $callbackData, 'action' => $action]);
+        Log::warning('Telegram callback not found', [
+            'callback' => $callbackData,
+            'action' => $action,
+            'available_callbacks' => array_keys($this->callbacks),
+        ]);
         $context->answerCallbackQuery(__('errors.callback_not_found'));
     }
 
@@ -488,6 +524,7 @@ class TelegramBotService
     {
         if (empty($middlewares)) {
             $next($context);
+
             return;
         }
 
@@ -495,6 +532,7 @@ class TelegramBotService
         $runNext = function () use (&$index, $middlewares, $context, $next, &$runNext) {
             if ($index >= count($middlewares)) {
                 $next($context);
+
                 return;
             }
 
@@ -512,33 +550,45 @@ class TelegramBotService
      */
     protected function handleOtherUpdate(TelegramContextInterface $context): void
     {
-        $update = $context->getUpdate();
+        // Use MessageListener to handle media and other message types
+        $messageListener = app(\App\Telegram\Listeners\MessageListener::class);
 
-        // Handle different types of updates
-        if (isset($update['message']['photo'])) {
-            Log::debug('Telegram photo message received');
-            // Handle photo
-        } elseif (isset($update['message']['document'])) {
-            Log::debug('Telegram document message received');
-            // Handle document
-        } elseif (isset($update['message']['video'])) {
-            Log::debug('Telegram video message received');
-            // Handle video
-        } elseif (isset($update['message']['audio'])) {
-            Log::debug('Telegram audio message received');
-            // Handle audio
-        } elseif (isset($update['message']['voice'])) {
-            Log::debug('Telegram voice message received');
-            // Handle voice
-        } elseif (isset($update['message']['location'])) {
-            Log::debug('Telegram location message received');
-            // Handle location
-        } elseif (isset($update['message']['contact'])) {
-            Log::debug('Telegram contact message received');
-            // Handle contact
-        } else {
-            Log::debug('Telegram unknown update type received', ['update' => $update]);
+        $update = $context->getUpdate();
+        $message = $update['message'] ?? null;
+
+        if (! $message) {
+            Log::debug('No message found in update', ['update' => $update]);
+
+            return;
         }
+
+        // Handle media messages
+        $hasMedia = isset($message['photo']) ||
+            isset($message['video']) ||
+            isset($message['document']) ||
+            isset($message['audio']) ||
+            isset($message['voice']) ||
+            isset($message['sticker']) ||
+            isset($message['animation']);
+
+        if ($hasMedia) {
+            $messageListener->handleMediaMessage($context);
+
+            return;
+        }
+
+        // Handle other message types (location, contact, etc.)
+        if (isset($message['location']) || isset($message['contact'])) {
+            $messageListener->handleOtherMessage($context);
+
+            return;
+        }
+
+        // Log unknown update types
+        Log::debug('Telegram unknown update type received', [
+            'message_keys' => array_keys($message),
+            'update_keys' => array_keys($update),
+        ]);
     }
 
     /**
@@ -563,6 +613,7 @@ class TelegramBotService
     public function setWebhook(string $url, array $options = []): array
     {
         $context = new TelegramContext([], config('telegram.bot_token'));
+
         return $context->setWebhook($url, $options);
     }
 
@@ -572,6 +623,7 @@ class TelegramBotService
     public function getWebhookInfo(): array
     {
         $context = new TelegramContext([], config('telegram.bot_token'));
+
         return $context->getWebhookInfo();
     }
 
@@ -581,6 +633,7 @@ class TelegramBotService
     public function deleteWebhook(array $options = []): array
     {
         $context = new TelegramContext([], config('telegram.bot_token'));
+
         return $context->deleteWebhook($options);
     }
 
@@ -590,6 +643,7 @@ class TelegramBotService
     public function getMe(): array
     {
         $context = new TelegramContext([], config('telegram.bot_token'));
+
         return $context->getMe();
     }
 }

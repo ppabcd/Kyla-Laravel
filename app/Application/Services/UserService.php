@@ -3,24 +3,23 @@
 namespace App\Application\Services;
 
 use App\Domain\Entities\User;
-use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\Repositories\PairRepositoryInterface;
-use Illuminate\Support\Facades\Log;
+use App\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class UserService
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private PairRepositoryInterface $pairRepository
-    ) {
-    }
+    ) {}
 
     public function findOrCreateUser(array $telegramData): User
     {
         $user = $this->userRepository->findByTelegramId($telegramData['id']);
 
-        if (!$user) {
+        if (! $user) {
             $user = $this->userRepository->create([
                 'telegram_id' => $telegramData['id'],
                 'first_name' => $telegramData['first_name'] ?? '',
@@ -31,8 +30,8 @@ class UserService
                 'settings' => [
                     'notifications' => true,
                     'privacy' => 'public',
-                    'safe_mode' => true
-                ]
+                    'safe_mode' => true,
+                ],
             ]);
 
             Log::info('New user created', ['telegram_id' => $telegramData['id']]);
@@ -41,6 +40,28 @@ class UserService
         }
 
         return $user;
+    }
+
+    public function updateLastActivity(int $userId): bool
+    {
+        $user = $this->userRepository->findById($userId);
+
+        if (! $user) {
+            return false;
+        }
+
+        return $this->userRepository->updateLastActivity($user);
+    }
+
+    public function updateUser(int $userId, array $data): bool
+    {
+        $user = $this->userRepository->findById($userId);
+
+        if (! $user) {
+            return false;
+        }
+
+        return $this->userRepository->update($user, $data);
     }
 
     public function updateUserProfile(User $user, array $data): bool
@@ -59,7 +80,7 @@ class UserService
     {
         $updated = $this->userRepository->update($user, [
             'is_banned' => true,
-            'banned_reason' => $reason
+            'banned_reason' => $reason,
         ]);
 
         if ($updated) {
@@ -72,7 +93,7 @@ class UserService
             $this->clearUserCache($user);
             Log::warning('User banned', [
                 'user_id' => $user->id,
-                'reason' => $reason
+                'reason' => $reason,
             ]);
         }
 
@@ -83,7 +104,7 @@ class UserService
     {
         $updated = $this->userRepository->update($user, [
             'is_banned' => false,
-            'banned_reason' => null
+            'banned_reason' => null,
         ]);
 
         if ($updated) {
@@ -100,14 +121,14 @@ class UserService
 
         $updated = $this->userRepository->update($user, [
             'is_premium' => true,
-            'premium_expires_at' => $expiresAt
+            'premium_expires_at' => $expiresAt,
         ]);
 
         if ($updated) {
             $this->clearUserCache($user);
             Log::info('User upgraded to premium', [
                 'user_id' => $user->id,
-                'expires_at' => $expiresAt
+                'expires_at' => $expiresAt,
             ]);
         }
 
@@ -184,7 +205,7 @@ class UserService
             'is_premium' => $user->isPremium(),
             'is_banned' => $user->is_banned,
             'last_activity' => $user->last_activity_at,
-            'created_at' => $user->created_at
+            'created_at' => $user->created_at,
         ];
     }
 
@@ -197,7 +218,7 @@ class UserService
                 'premium_users' => $this->userRepository->countPremiumUsers(),
                 'banned_users' => $this->userRepository->countBannedUsers(),
                 'users_today' => $this->userRepository->countUsersRegisteredToday(),
-                'premium_percentage' => $this->calculatePremiumPercentage()
+                'premium_percentage' => $this->calculatePremiumPercentage(),
             ];
         });
     }
@@ -210,6 +231,7 @@ class UserService
         }
 
         $premiumUsers = $this->userRepository->countPremiumUsers();
+
         return ($premiumUsers / $totalUsers) * 100;
     }
 

@@ -29,9 +29,7 @@ Jika kamu melanggar aturan tersebut, kami dapat melakukan tindakan banned sesuai
 Terima kasih dan selamat menggunakan Kyla Chat',
 
     'interest' => [
-        'not_set' => 'Pilih teman yang sesuai dulu yuk sama kriteria kamu.
-Pilih sebelah kiri jika hanya ingin berbicara dengan lawan jenis.
-Pilih sebelah kanan jika ingin berbicara semua orang',
+        'not_set' => '💬 Mau ngobrol sama siapa?',
         'warning' => 'Kamu baru saja memilih interest dengan gender pria maupun wanita. Interest jenis ini memiliki kelemahan pada waktu pencarian. Kamu bisa mengubah interest kamu ke semua orang untuk bisa mencari teman lebih cepat.
 Tulis /interest untuk mengganti interest',
         'set' => 'Interest berhasil diubah.
@@ -51,8 +49,7 @@ Mari undang lebih banyak teman untuk menggunakan bot ini dengan menggunakan link
     ],
 
     'gender' => [
-        'not_set' => 'Silakan pilih identitas gender Anda.
-Pilihan ini akan membantu orang lain dalam berinteraksi dengan Anda. Perlu diperhatikan bahwa identitas gender yang Anda pilih tidak dapat diubah setelah proses ini selesai.',
+        'not_set' => '👤 Apa gender kamu?',
         'set_basic' => 'Gender kamu berhasil diubah.',
         'set' => 'Gender kamu berhasil diubah. Pilih teman yang sesuai dulu yuk sama kriteria kamu.
 Pilih sebelah kiri jika hanya ingin berbicara dengan lawan jenis.

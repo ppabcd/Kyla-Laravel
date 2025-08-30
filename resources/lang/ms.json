@@ -128,7 +128,9 @@
         "not_banned": "Pengguna tidak dilarang.",
         "invalid_command": "Perintah tidak sah.",
         "permission_denied": "Kebenaran ditolak.",
-        "system_error": "Ralat sistem. Sila cuba lagi nanti."
+        "system_error": "Ralat sistem. Sila cuba lagi nanti.",
+        "rate_limit_exceeded": "⏸️ Tunggu sekejap, kemudian cuba lagi.",
+        "rate_limit_burst": "⏸️ Terlalu pantas! Tunggu beberapa saat lalu cuba lagi."
     },
     "success": {
         "profile_updated": "Profil dikemas kini dengan jayanya!",

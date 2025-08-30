@@ -28,9 +28,7 @@ Yadi aap in niyamon ka ullanghan karte hain, to hum aapko prati-bandhit kar sakt
 Dhanyavaad aur Kyla Chat ka aanand uthayein',
 
     'interest' => [
-        'not_set' => 'Pehle yukti ke anusaar sahi dost chunne ki koshish karen.
-Yadi aap keval vipreet ling se baat karna chahte hain to bayi taraf chune.
-Yadi aap sabhi se baat karna chahte hain to daayi taraf chune.',
+        'not_set' => '💬 Aap kis se baat karna chahte hain?',
         'warning' => 'Aapne abhi purush ya mahila dono ke sath ruchi ka chayan kiya hai. Is prakar ki ruchi se khojne mein samay lag sakta hai. Aap apni ruchi ko sabhi ke liye badal kar jaldi dost khoj sakte hain.
 Ruchi badalne ke liye /interest likhe',
         'set' => 'Ruchi safaltapurvak badal di gayi hai.
@@ -38,7 +36,7 @@ Aap ise phir se /interest likhkar badal sakte hain',
     ],
 
     'gender' => [
-        'not_set' => 'Taaki anya log aapko jaan sakein, kripya apna ling chune. (Is process ke baad ling badla nahi ja sakta).',
+        'not_set' => '👤 Aapka ling kya hai?',
         'set_basic' => 'Aapka ling safaltapurvak badal diya gaya hai.',
         'set' => 'Aapka ling safaltapurvak badal diya gaya hai. Pehle yukti ke anusaar sahi dost chunne ki koshish karen.
 Yadi aap keval vipreet ling se baat karna chahte hain to bayi taraf chune.

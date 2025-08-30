@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('pair_pendings', function (Blueprint $table) {
             $table->id();
-            $table->string('id_pair', 255)->unique();
+            $table->unsignedBigInteger('user_id');
             $table->integer('gender')->nullable();
             $table->integer('interest')->nullable();
             $table->text('emoji')->nullable();
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('is_safe_mode')->nullable();
             $table->timestamps();
 
-            $table->index('id_pair', 'pair_pendings_id_uindex');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->index(['gender', 'interest']);
             $table->index('is_premium');
         });
@@ -30,4 +30,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('pair_pendings');
     }
-}; 
+};

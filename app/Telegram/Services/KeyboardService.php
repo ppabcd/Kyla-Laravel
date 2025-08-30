@@ -2,11 +2,10 @@
 
 namespace App\Telegram\Services;
 
-use App\Services\ArxistService;
-use App\Enums\GenderEnum;
 use App\Enums\BanExplicitTypeEnum;
+use App\Enums\KeyboardButtonEnum;
 use App\Helpers\CodeHelper;
-use App\Enums\InterestEnum;
+use App\Services\ArxistService;
 
 class KeyboardService
 {
@@ -25,12 +24,12 @@ class KeyboardService
             'inline_keyboard' => [
                 [
                     ['text' => '💰 Arxist', 'web_app' => ['url' => $url]],
-                    ['text' => '💰 Arxist', 'url' => $url]
+                    ['text' => '💰 Arxist', 'url' => $url],
                 ],
                 [
-                    ['text' => '₿ Cryptocurrencies ⟠', 'callback_data' => 'crypto-donation']
-                ]
-            ]
+                    ['text' => '₿ Cryptocurrencies ⟠', 'callback_data' => 'crypto-donation'],
+                ],
+            ],
         ];
     }
 
@@ -40,8 +39,8 @@ class KeyboardService
             'inline_keyboard' => [
                 [['text' => $translations['btn.donation'] ?? '💰 Donation', 'callback_data' => 'donasi']],
                 [['text' => $translations['btn.top_up'] ?? '💎 Top Up', 'callback_data' => 'topup']],
-                [['text' => $translations['btn.priority_search'] ?? '🚀 Priority Search', 'callback_data' => 'priority-search']]
-            ]
+                [['text' => $translations['btn.priority_search'] ?? '🚀 Priority Search', 'callback_data' => 'priority-search']],
+            ],
         ];
     }
 
@@ -49,8 +48,8 @@ class KeyboardService
     {
         return [
             'inline_keyboard' => [
-                [['text' => $translations['btn.search_general_gender'] ?? '🔍 Search All', 'callback_data' => 'general-search']]
-            ]
+                [['text' => $translations['btn.search_general_gender'] ?? '🔍 Search All', 'callback_data' => 'general-search']],
+            ],
         ];
     }
 
@@ -59,25 +58,41 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [
-                    ['text' => '♂️ Male', 'callback_data' => 'gender:' . GenderEnum::MALE->value],
-                    ['text' => '♀️ Female', 'callback_data' => 'gender:' . GenderEnum::FEMALE->value]
-                ]
-            ]
+                    KeyboardButtonEnum::GENDER_MALE->toButton(),
+                    KeyboardButtonEnum::GENDER_FEMALE->toButton(),
+                ],
+            ],
         ];
     }
 
-    public function getInterestKeyboard(): array
+    public function getInterestKeyboard($user = null): array
     {
+        $keyboard = [];
+
+        // Only show opposite gender option if user gender is set, in one row
+        if ($user && $user->gender) {
+            if ($user->gender === 'male') {
+                $keyboard[] = [
+                    KeyboardButtonEnum::INTEREST_FEMALE->toButton(),
+                    KeyboardButtonEnum::INTEREST_ALL->toButton(),
+                ];
+            } elseif ($user->gender === 'female') {
+                $keyboard[] = [
+                    KeyboardButtonEnum::INTEREST_MALE->toButton(),
+                    KeyboardButtonEnum::INTEREST_ALL->toButton(),
+                ];
+            }
+        } else {
+            // Fallback to both options if user gender is not set (shouldn't normally happen)
+            $keyboard[] = [
+                KeyboardButtonEnum::INTEREST_MALE->toButton(),
+                KeyboardButtonEnum::INTEREST_FEMALE->toButton(),
+                KeyboardButtonEnum::INTEREST_ALL->toButton(),
+            ];
+        }
+
         return [
-            'inline_keyboard' => [
-                [
-                    ['text' => '♂️ Interested in Male', 'callback_data' => 'interest:' . InterestEnum::MALE->value],
-                    ['text' => '♀️ Interested in Female', 'callback_data' => 'interest:' . InterestEnum::FEMALE->value]
-                ],
-                [
-                    ['text' => '👥 Interested in All', 'callback_data' => 'interest:' . InterestEnum::ALL->value]
-                ]
-            ]
+            'inline_keyboard' => $keyboard,
         ];
     }
 
@@ -86,44 +101,40 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [['text' => $translations['btn.cross_gender'] ?? '👥 Cross Gender', 'callback_data' => 'change_interest_all']],
-                [['text' => $translations['btn.location'] ?? '📍 Location', 'callback_data' => 'location']]
-            ]
+                [['text' => $translations['btn.location'] ?? '📍 Location', 'callback_data' => 'location']],
+            ],
         ];
     }
 
     public function getSearchKeyboard(): array
     {
         return [
-            'keyboard' => [
+            'inline_keyboard' => [
                 [
-                    ['text' => '🔍 Search'],
-                    ['text' => '⚙️ Settings']
+                    KeyboardButtonEnum::SEARCH->toButton(),
+                    KeyboardButtonEnum::SETTINGS->toButton(),
                 ],
                 [
-                    ['text' => '💰 Balance'],
-                    ['text' => '📞 Help']
-                ]
+                    KeyboardButtonEnum::BALANCE->toButton(),
+                    KeyboardButtonEnum::HELP->toButton(),
+                ],
             ],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => false
         ];
     }
 
     public function getSearchWithReportKeyboard(): array
     {
         return [
-            'keyboard' => [
+            'inline_keyboard' => [
                 [
-                    ['text' => '🔍 Search Again'],
-                    ['text' => '📝 Report Last Chat']
+                    ['text' => '🔍 Search Again', 'callback_data' => 'search'],
+                    ['text' => '📝 Report Last Chat', 'callback_data' => 'report_last'],
                 ],
                 [
-                    ['text' => '⭐ Rate Last Chat'],
-                    ['text' => '⚙️ Settings']
-                ]
+                    ['text' => '⭐ Rate Last Chat', 'callback_data' => 'rate_last'],
+                    ['text' => '⚙️ Settings', 'callback_data' => 'settings'],
+                ],
             ],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => false
         ];
     }
 
@@ -131,8 +142,8 @@ class KeyboardService
     {
         return [
             'inline_keyboard' => [
-                [['text' => $translations['btn.ask_enable_media'] ?? '📸 Enable Media', 'callback_data' => 'enable_media']]
-            ]
+                [['text' => $translations['btn.ask_enable_media'] ?? '📸 Enable Media', 'callback_data' => 'enable_media']],
+            ],
         ];
     }
 
@@ -141,8 +152,8 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [['text' => $translations['btn.confirm_enable_media'] ?? '✅ Confirm Enable Media', 'callback_data' => 'enable_media_confirm']],
-                [['text' => $translations['btn.activate_unsafe'] ?? '⚠️ Activate Unsafe', 'callback_data' => 'toggle_safe_mode']]
-            ]
+                [['text' => $translations['btn.activate_unsafe'] ?? '⚠️ Activate Unsafe', 'callback_data' => 'toggle_safe_mode']],
+            ],
         ];
     }
 
@@ -153,26 +164,24 @@ class KeyboardService
 
         return [
             'inline_keyboard' => [
-                [['text' => $buttonText, 'callback_data' => 'toggle_safe_mode']]
-            ]
+                [['text' => $buttonText, 'callback_data' => 'toggle_safe_mode']],
+            ],
         ];
     }
 
     public function getNextSearchKeyboard(): array
     {
         return [
-            'keyboard' => [
+            'inline_keyboard' => [
                 [
-                    ['text' => '⏭️ Next'],
-                    ['text' => '⏹️ Stop']
+                    ['text' => '⏭️ Next', 'callback_data' => 'next'],
+                    ['text' => '⏹️ Stop', 'callback_data' => 'stop'],
                 ],
                 [
-                    ['text' => '🎁 Send Gift'],
-                    ['text' => '📝 Report']
-                ]
+                    ['text' => '🎁 Send Gift', 'callback_data' => 'send_gift'],
+                    ['text' => '📝 Report', 'callback_data' => 'report'],
+                ],
             ],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => false
         ];
     }
 
@@ -186,8 +195,8 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [['text' => $translations[$type] ?? '🔓 Unban', 'callback_data' => 'self-unban']],
-                [['text' => $translations['btn.ban_reason'] ?? '❓ Ban Reason', 'callback_data' => 'ban-reason']]
-            ]
+                [['text' => $translations['btn.ban_reason'] ?? '❓ Ban Reason', 'callback_data' => 'ban-reason']],
+            ],
         ];
     }
 
@@ -196,15 +205,32 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [
-                    ['text' => $translations['language.english'] ?? '🇺🇸 English', 'callback_data' => 'lang-en'],
-                    ['text' => $translations['language.indonesia'] ?? '🇮🇩 Indonesia', 'callback_data' => 'lang-id']
+                    [
+                        'text' => $translations['language.english'] ?? KeyboardButtonEnum::LANGUAGE_ENGLISH->getText(),
+                        'callback_data' => KeyboardButtonEnum::LANGUAGE_ENGLISH->getCallbackData(),
+                    ],
+                    [
+                        'text' => $translations['language.indonesia'] ?? KeyboardButtonEnum::LANGUAGE_INDONESIA->getText(),
+                        'callback_data' => KeyboardButtonEnum::LANGUAGE_INDONESIA->getCallbackData(),
+                    ],
                 ],
                 [
-                    ['text' => $translations['language.malaysia'] ?? '🇲🇾 Malaysia', 'callback_data' => 'lang-my'],
-                    ['text' => $translations['language.hindi'] ?? '🇮🇳 Hindi', 'callback_data' => 'lang-in']
+                    [
+                        'text' => $translations['language.malaysia'] ?? KeyboardButtonEnum::LANGUAGE_MALAYSIA->getText(),
+                        'callback_data' => KeyboardButtonEnum::LANGUAGE_MALAYSIA->getCallbackData(),
+                    ],
+                    [
+                        'text' => $translations['language.hindi'] ?? KeyboardButtonEnum::LANGUAGE_HINDI->getText(),
+                        'callback_data' => KeyboardButtonEnum::LANGUAGE_HINDI->getCallbackData(),
+                    ],
                 ],
-                [['text' => $translations['language.contribute'] ?? '🤝 Contribute', 'callback_data' => 'lang-contribute']]
-            ]
+                [
+                    [
+                        'text' => $translations['language.contribute'] ?? KeyboardButtonEnum::LANGUAGE_CONTRIBUTE->getText(),
+                        'callback_data' => KeyboardButtonEnum::LANGUAGE_CONTRIBUTE->getCallbackData(),
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -214,9 +240,9 @@ class KeyboardService
             'inline_keyboard' => [
                 [
                     ['text' => '🚫 Ban', 'callback_data' => 'ban-media'],
-                    ['text' => '❌ Reject', 'callback_data' => 'reject-media']
-                ]
-            ]
+                    ['text' => '❌ Reject', 'callback_data' => 'reject-media'],
+                ],
+            ],
         ];
     }
 
@@ -226,9 +252,9 @@ class KeyboardService
             'inline_keyboard' => [
                 [
                     ['text' => '🚫 Ban', 'callback_data' => 'ban-text'],
-                    ['text' => '❌ Reject', 'callback_data' => 'reject-text']
-                ]
-            ]
+                    ['text' => '❌ Reject', 'callback_data' => 'reject-text'],
+                ],
+            ],
         ];
     }
 
@@ -239,10 +265,10 @@ class KeyboardService
                 [['text' => $translations['btn.stop'] ?? '⏹️ Stop', 'callback_data' => 'stop']],
                 [
                     ['text' => $translations['btn.donation'] ?? '💰 Donation', 'callback_data' => 'donasi'],
-                    ['text' => $translations['btn.priority_search'] ?? '🚀 Priority Search', 'callback_data' => 'priority-search']
+                    ['text' => $translations['btn.priority_search'] ?? '🚀 Priority Search', 'callback_data' => 'priority-search'],
                 ],
-                [['text' => $translations['btn.check_queue'] ?? '📊 Check Queue', 'callback_data' => 'pending']]
-            ]
+                [['text' => $translations['btn.check_queue'] ?? '📊 Check Queue', 'callback_data' => 'pending']],
+            ],
         ];
     }
 
@@ -268,8 +294,8 @@ class KeyboardService
             'inline_keyboard' => [
                 [['text' => $translations['btn.porn'] ?? '🔞 Porn', 'callback_data' => 'report-action-porn']],
                 [['text' => $translations['btn.ads'] ?? '📢 Ads', 'callback_data' => 'report-action-ads']],
-                [['text' => $translations['btn.cancel'] ?? '❌ Cancel', 'callback_data' => 'report-action-cancel']]
-            ]
+                [['text' => $translations['btn.cancel'] ?? '❌ Cancel', 'callback_data' => 'report-action-cancel']],
+            ],
         ];
     }
 
@@ -278,17 +304,17 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [
-                    ['text' => '👤 Profile', 'callback_data' => 'settings:profile'],
-                    ['text' => '🌐 Language', 'callback_data' => 'settings:language']
+                    KeyboardButtonEnum::SETTINGS_PROFILE->toButton(),
+                    KeyboardButtonEnum::SETTINGS_LANGUAGE->toButton(),
                 ],
                 [
-                    ['text' => '🔒 Privacy', 'callback_data' => 'settings:privacy'],
-                    ['text' => '🔧 Preferences', 'callback_data' => 'settings:preferences']
+                    KeyboardButtonEnum::SETTINGS_PRIVACY->toButton(),
+                    KeyboardButtonEnum::SETTINGS_PREFERENCES->toButton(),
                 ],
                 [
-                    ['text' => '🔙 Back to Menu', 'callback_data' => 'menu:main']
-                ]
-            ]
+                    KeyboardButtonEnum::MENU_MAIN->toButton(),
+                ],
+            ],
         ];
     }
 
@@ -296,62 +322,56 @@ class KeyboardService
     {
         return [
             'inline_keyboard' => [
-                [['text' => $translations['btn.cancel'] ?? '❌ Cancel', 'callback_data' => 'cancel']]
-            ]
+                [['text' => $translations['btn.cancel'] ?? '❌ Cancel', 'callback_data' => 'cancel']],
+            ],
         ];
     }
 
     public function getConversationKeyboard(): array
     {
         return [
-            'keyboard' => [
+            'inline_keyboard' => [
                 [
-                    ['text' => '⏭️ Next'],
-                    ['text' => '⏹️ Stop']
+                    ['text' => '⏭️ Next', 'callback_data' => 'next'],
+                    ['text' => '⏹️ Stop', 'callback_data' => 'stop'],
                 ],
                 [
-                    ['text' => '📝 Report'],
-                    ['text' => '⚙️ Settings']
-                ]
+                    ['text' => '📝 Report', 'callback_data' => 'report'],
+                    ['text' => '⚙️ Settings', 'callback_data' => 'settings'],
+                ],
             ],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => false
         ];
     }
 
     public function getSearchingKeyboard(): array
     {
         return [
-            'keyboard' => [
+            'inline_keyboard' => [
                 [
-                    ['text' => '⏹️ Stop Search'],
-                    ['text' => '📊 Queue Status']
+                    ['text' => '⏹️ Stop Search', 'callback_data' => 'stop'],
+                    ['text' => '📊 Queue Status', 'callback_data' => 'queue_status'],
                 ],
                 [
-                    ['text' => '⚙️ Settings'],
-                    ['text' => '📞 Help']
-                ]
+                    ['text' => '⚙️ Settings', 'callback_data' => 'settings'],
+                    ['text' => '📞 Help', 'callback_data' => 'help'],
+                ],
             ],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => false
         ];
     }
 
     public function getRetryKeyboard(): array
     {
         return [
-            'keyboard' => [
+            'inline_keyboard' => [
                 [
-                    ['text' => '🔄 Try Again'],
-                    ['text' => '⚙️ Settings']
+                    ['text' => '🔄 Try Again', 'callback_data' => 'retry'],
+                    ['text' => '⚙️ Settings', 'callback_data' => 'settings'],
                 ],
                 [
-                    ['text' => '💰 Balance'],
-                    ['text' => '📞 Help']
-                ]
+                    ['text' => '💰 Balance', 'callback_data' => 'balance'],
+                    ['text' => '📞 Help', 'callback_data' => 'help'],
+                ],
             ],
-            'resize_keyboard' => true,
-            'one_time_keyboard' => false
         ];
     }
 
@@ -360,18 +380,18 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [
-                    ['text' => '⭐', 'callback_data' => 'rating:1'],
-                    ['text' => '⭐⭐', 'callback_data' => 'rating:2'],
-                    ['text' => '⭐⭐⭐', 'callback_data' => 'rating:3']
+                    KeyboardButtonEnum::RATING_1->toButton(),
+                    KeyboardButtonEnum::RATING_2->toButton(),
+                    KeyboardButtonEnum::RATING_3->toButton(),
                 ],
                 [
-                    ['text' => '⭐⭐⭐⭐', 'callback_data' => 'rating:4'],
-                    ['text' => '⭐⭐⭐⭐⭐', 'callback_data' => 'rating:5']
+                    KeyboardButtonEnum::RATING_4->toButton(),
+                    KeyboardButtonEnum::RATING_5->toButton(),
                 ],
                 [
-                    ['text' => '⏭️ Skip Rating', 'callback_data' => 'rating:skip']
-                ]
-            ]
+                    KeyboardButtonEnum::RATING_SKIP->toButton(),
+                ],
+            ],
         ];
     }
 
@@ -380,18 +400,54 @@ class KeyboardService
         return [
             'inline_keyboard' => [
                 [
-                    ['text' => '🔞 Inappropriate Content', 'callback_data' => 'report:inappropriate'],
-                    ['text' => '🤖 Spam/Bot', 'callback_data' => 'report:spam']
+                    KeyboardButtonEnum::REPORT_INAPPROPRIATE->toButton(),
+                    KeyboardButtonEnum::REPORT_SPAM->toButton(),
                 ],
                 [
-                    ['text' => '😡 Harassment', 'callback_data' => 'report:harassment'],
-                    ['text' => '💔 Fake Profile', 'callback_data' => 'report:fake']
+                    KeyboardButtonEnum::REPORT_HARASSMENT->toButton(),
                 ],
                 [
-                    ['text' => '🚫 Other', 'callback_data' => 'report:other'],
-                    ['text' => '❌ Cancel', 'callback_data' => 'report:cancel']
-                ]
-            ]
+                    KeyboardButtonEnum::REPORT_OTHER->toButton(),
+                    KeyboardButtonEnum::REPORT_CANCEL->toButton(),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Helper method to create single button keyboard
+     */
+    public function createSingleButtonKeyboard(KeyboardButtonEnum $button): array
+    {
+        return [
+            'inline_keyboard' => [
+                [$button->toButton()],
+            ],
+        ];
+    }
+
+    /**
+     * Helper method to create horizontal button row keyboard
+     */
+    public function createHorizontalKeyboard(KeyboardButtonEnum ...$buttons): array
+    {
+        return [
+            'inline_keyboard' => [
+                array_map(fn ($button) => $button->toButton(), $buttons),
+            ],
+        ];
+    }
+
+    /**
+     * Helper method to create vertical button keyboard
+     */
+    public function createVerticalKeyboard(KeyboardButtonEnum ...$buttons): array
+    {
+        return [
+            'inline_keyboard' => array_map(
+                fn ($button) => [$button->toButton()],
+                $buttons
+            ),
         ];
     }
 }

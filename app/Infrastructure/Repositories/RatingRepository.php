@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Rating Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of RatingRepositoryInterface
  */
 class RatingRepository implements RatingRepositoryInterface
@@ -24,6 +24,7 @@ class RatingRepository implements RatingRepositoryInterface
     public function create(array $data): object
     {
         $id = DB::table('ratings')->insertGetId($data);
+
         return $this->findById($id);
     }
 
@@ -65,6 +66,11 @@ class RatingRepository implements RatingRepositoryInterface
             ->avg('rating');
 
         return $average ? (float) $average : 0.0;
+    }
+
+    public function getAverageRatingByUserId(int $userId): float
+    {
+        return $this->getAverageRating($userId);
     }
 
     /**

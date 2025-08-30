@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Log;
 class TelegramContext implements TelegramContextInterface
 {
     protected array $update;
+
     protected string $botToken;
+
     protected $userModel = null;
 
     public function __construct(array $update, string $botToken)
@@ -38,7 +40,7 @@ class TelegramContext implements TelegramContextInterface
         if ($message = $this->getMessage()) {
             return $message['chat'] ?? null;
         }
-        
+
         if ($callbackQuery = $this->getCallbackQuery()) {
             return $callbackQuery['message']['chat'] ?? null;
         }
@@ -51,7 +53,7 @@ class TelegramContext implements TelegramContextInterface
         if ($message = $this->getMessage()) {
             return $message['from'] ?? null;
         }
-        
+
         if ($callbackQuery = $this->getCallbackQuery()) {
             return $callbackQuery['from'] ?? null;
         }
@@ -72,6 +74,7 @@ class TelegramContext implements TelegramContextInterface
     public function getChatType(): ?string
     {
         $chat = $this->getChat();
+
         return $chat['type'] ?? null;
     }
 
@@ -83,18 +86,21 @@ class TelegramContext implements TelegramContextInterface
     public function isGroup(): bool
     {
         $chatType = $this->getChatType();
+
         return $chatType === 'group' || $chatType === 'supergroup';
     }
 
     public function getText(): ?string
     {
         $message = $this->getMessage();
+
         return $message['text'] ?? null;
     }
 
     public function getCallbackData(): ?string
     {
         $callbackQuery = $this->getCallbackQuery();
+
         return $callbackQuery['data'] ?? null;
     }
 
@@ -103,7 +109,7 @@ class TelegramContext implements TelegramContextInterface
         if ($message = $this->getMessage()) {
             return $message['message_id'] ?? null;
         }
-        
+
         if ($callbackQuery = $this->getCallbackQuery()) {
             return $callbackQuery['message']['message_id'] ?? null;
         }
@@ -114,12 +120,14 @@ class TelegramContext implements TelegramContextInterface
     public function getChatId(): ?int
     {
         $chat = $this->getChat();
+
         return $chat['id'] ?? null;
     }
 
     public function getUserId(): ?int
     {
         $user = $this->getUser();
+
         return $user['id'] ?? null;
     }
 
@@ -153,8 +161,8 @@ class TelegramContext implements TelegramContextInterface
                 'keyboard' => $keyboard,
                 'resize_keyboard' => true,
                 'one_time_keyboard' => false,
-                'selective' => false
-            ])
+                'selective' => false,
+            ]),
         ], $options);
 
         return $this->makeRequest('sendMessage', $data);
@@ -166,8 +174,8 @@ class TelegramContext implements TelegramContextInterface
             'chat_id' => $this->getChatId(),
             'text' => $text,
             'reply_markup' => json_encode([
-                'inline_keyboard' => $keyboard
-            ])
+                'inline_keyboard' => $keyboard,
+            ]),
         ], $options);
 
         return $this->makeRequest('sendMessage', $data);
@@ -177,7 +185,7 @@ class TelegramContext implements TelegramContextInterface
     {
         $data = [
             'chat_id' => $this->getChatId(),
-            'message_id' => $messageId ?? $this->getMessageId()
+            'message_id' => $messageId ?? $this->getMessageId(),
         ];
 
         return $this->makeRequest('deleteMessage', $data);
@@ -186,7 +194,7 @@ class TelegramContext implements TelegramContextInterface
     public function answerCallbackQuery(string $text = '', array $options = []): array
     {
         $callbackQuery = $this->getCallbackQuery();
-        if (!$callbackQuery) {
+        if (! $callbackQuery) {
             throw new \Exception('No callback query found');
         }
 
@@ -520,39 +528,61 @@ class TelegramContext implements TelegramContextInterface
         return $this->makeRequest('close');
     }
 
-    protected function makeRequest(string $method, array $data = []): array
+    /**
+     * Send message to specific chat ID (static method for external use)
+     */
+    public static function sendMessageToChat(string $chatId, string $text, array $options = []): array
+    {
+        $botToken = config('telegram.bot_token');
+        $data = array_merge([
+            'chat_id' => $chatId,
+            'text' => $text,
+        ], $options);
+
+        return self::makeStaticRequest($botToken, 'sendMessage', $data);
+    }
+
+    /**
+     * Static method for making Telegram API requests
+     */
+    protected static function makeStaticRequest(string $botToken, string $method, array $data = []): array
     {
         try {
-            $response = Http::post("https://api.telegram.org/bot{$this->botToken}/{$method}", $data);
-            
+            $response = Http::post("https://api.telegram.org/bot{$botToken}/{$method}", $data);
+
             if ($response->successful()) {
                 return $response->json();
             } else {
-                Log::error('Telegram API request failed', [
+                Log::error('Telegram API request failed (static)', [
                     'method' => $method,
                     'data' => $data,
                     'response' => $response->body(),
-                    'status' => $response->status()
+                    'status' => $response->status(),
                 ]);
-                
+
                 return [
                     'ok' => false,
                     'error_code' => $response->status(),
-                    'description' => 'HTTP request failed'
+                    'description' => 'HTTP request failed',
                 ];
             }
         } catch (\Exception $e) {
-            Log::error('Telegram API request exception', [
+            Log::error('Telegram API request exception (static)', [
                 'method' => $method,
                 'data' => $data,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return [
                 'ok' => false,
                 'error_code' => 0,
-                'description' => $e->getMessage()
+                'description' => $e->getMessage(),
             ];
         }
     }
-} 
+
+    protected function makeRequest(string $method, array $data = []): array
+    {
+        return self::makeStaticRequest($this->botToken, $method, $data);
+    }
+}

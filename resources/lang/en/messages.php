@@ -29,9 +29,7 @@ The sanctions given are in the form of being banned according to the violation(s
 Thank you',
 
     'interest' => [
-        'not_set' => 'Please pick your interests.
-Pick the left side if you only want to chat with the opposite sex.
-Pick the right side if you want to chat with all sexes',
+        'not_set' => '💬 Who would you like to chat with?',
         'warning' => 'Picking the opposite sex as an interest may result in a longer search time.
 Type /interest to change your interest',
         'set' => 'Interest successfully changed.
@@ -50,8 +48,7 @@ Let\'s invite more friends to use this bot using the link below.
     ],
 
     'gender' => [
-        'not_set' => 'Choose your gender so that others can know it.
-(Gender cannot be changed after this process)',
+        'not_set' => '👤 What\'s your gender?',
         'set_basic' => 'Gender has been set.',
         'set' => 'Gender has been set. Please pick your interests.
 Pick the left side if you only want to chat with the opposite sex.
@@ -329,5 +326,8 @@ Here you can find a partner based on your love profile.',
     'onboarding' => [
         'ask_name' => 'What is your name?',
         'ask_age' => 'How old are you?',
+        'complete' => '🎉 Great! Your profile is now complete!
+
+You can now start searching for conversations.',
     ],
 ];

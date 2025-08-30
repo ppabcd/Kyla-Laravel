@@ -2,40 +2,53 @@
 
 namespace App\Telegram\Middleware;
 
-use App\Telegram\Contracts\TelegramContextInterface;
 use App\Domain\Repositories\UserRepositoryInterface;
-use Illuminate\Support\Facades\Log;
+use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Services\KeyboardService;
 
 class CheckUserMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository
-    ) {
-    }
+        private UserRepositoryInterface $userRepository,
+        private KeyboardService $keyboardService
+    ) {}
 
     public function handle(TelegramContextInterface $context, callable $next): void
     {
-        $chatId = null;
+        $telegramUserId = null;
 
-        // Get chat ID from message or callback query
+        // Get telegram user ID from message or callback query
         if ($message = $context->getMessage()) {
-            $chatId = $message['chat']['id'] ?? null;
+            $telegramUserId = $message['from']['id'] ?? null;
         } elseif ($callbackQuery = $context->getCallbackQuery()) {
-            $chatId = $callbackQuery['message']['chat']['id'] ?? null;
+            $telegramUserId = $callbackQuery['from']['id'] ?? null;
         }
 
-        if (!$chatId) {
-            // No chat ID found, skip this middleware
+        if (! $telegramUserId) {
+            // No telegram user ID found, skip this middleware
             $next($context);
+
             return;
         }
 
         // Check if user exists
-        $user = $this->userRepository->findByTelegramId($chatId);
+        $user = $this->userRepository->findByTelegramId($telegramUserId);
 
-        if (!$user) {
+        if (! $user) {
+            // For callback queries related to language selection, let the callback handle user creation
+            if ($callbackQuery = $context->getCallbackQuery()) {
+                $callbackData = $callbackQuery['data'] ?? '';
+                if (str_starts_with($callbackData, 'lang-')) {
+                    // Skip welcome message for language callbacks, let callback handle it
+                    $next($context);
+
+                    return;
+                }
+            }
+
             // User doesn't exist, send welcome message
             $this->sendWelcomeMessage($context);
+
             return;
         }
 
@@ -48,21 +61,8 @@ class CheckUserMiddleware implements MiddlewareInterface
 
     private function sendWelcomeMessage(TelegramContextInterface $context): void
     {
-        $keyboard = [
-            [
-                ['text' => '🇮🇩 Bahasa Indonesia', 'callback_data' => 'lang-id'],
-                ['text' => '🇺🇸 English', 'callback_data' => 'lang-en']
-            ],
-            [
-                ['text' => '🇲🇾 Bahasa Melayu', 'callback_data' => 'lang-my'],
-                ['text' => '🇮🇳 हिंदी', 'callback_data' => 'lang-in']
-            ]
-        ];
-
-        $context->reply(__('commands.start'), [
-            'reply_markup' => [
-                'inline_keyboard' => $keyboard
-            ]
+        $context->reply(__('start'), [
+            'reply_markup' => $this->keyboardService->getLanguageKeyboard(),
         ]);
     }
 

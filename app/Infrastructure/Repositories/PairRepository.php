@@ -19,6 +19,18 @@ use Illuminate\Support\Facades\DB;
 class PairRepository implements PairRepositoryInterface
 {
     /**
+     * Normalize booleans to SQL literals for cross-DB compatibility
+     */
+    private function normalizeBooleans(array $data): array
+    {
+        if (array_key_exists('active', $data)) {
+            $data['active'] = $data['active'] ? DB::raw('true') : DB::raw('false');
+        }
+
+        return $data;
+    }
+
+    /**
      * Basic CRUD Operations
      */
     public function findById(int $id): ?Pair
@@ -30,7 +42,7 @@ class PairRepository implements PairRepositoryInterface
 
     public function create(array $data): Pair
     {
-        $pair = Pair::create($data);
+        $pair = Pair::create($this->normalizeBooleans($data));
         $this->clearPairCaches($pair);
 
         return $pair;
@@ -38,7 +50,7 @@ class PairRepository implements PairRepositoryInterface
 
     public function update(Pair $pair, array $data): bool
     {
-        $updated = $pair->update($data);
+        $updated = $pair->update($this->normalizeBooleans($data));
 
         if ($updated) {
             $this->clearPairCaches($pair);

@@ -22,3 +22,21 @@ it('uses SQL boolean false when ending a pair', function () {
 
     expect($result)->toBeTrue();
 });
+
+it('normalizes active boolean on update to SQL expression', function () {
+    $pair = Mockery::mock(App\Domain\Entities\Pair::class);
+
+    $pair->shouldReceive('update')
+        ->once()
+        ->with(Mockery::on(function (array $data) {
+            expect($data['active'])->toBeInstanceOf(Expression::class);
+
+            return true;
+        }))
+        ->andReturn(true);
+
+    $repo = new PairRepository;
+    $result = $repo->update($pair, ['active' => true]);
+
+    expect($result)->toBeTrue();
+});

@@ -123,7 +123,8 @@ class PairRepository implements PairRepositoryInterface
     {
         return $this->update($pair, [
             'status' => 'ended',
-            'active' => false,
+            // Ensure PostgreSQL receives a boolean literal, not an integer
+            'active' => DB::raw('false'),
             'ended_at' => now(),
             'ended_by_user_id' => $endedBy,
             'ended_reason' => $reason,

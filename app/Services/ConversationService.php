@@ -272,7 +272,7 @@ class ConversationService
                 'user_id' => $userId,
                 'partner_id' => $partnerId,
                 'status' => 'active',
-                'active' => 1,
+                'active' => true,
                 'started_at' => now(),
             ]);
 

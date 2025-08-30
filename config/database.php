@@ -95,6 +95,12 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            // When using PgBouncer in transaction pooling, server-side prepared
+            // statements can cause "prepared statement does not exist" errors.
+            // Use client-side (emulated) prepares to remain compatible.
+            'options' => extension_loaded('pdo_pgsql') ? [
+                PDO::ATTR_EMULATE_PREPARES => true,
+            ] : [],
         ],
 
         'sqlsrv' => [

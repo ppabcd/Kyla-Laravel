@@ -2,11 +2,10 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\CommandInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CommandInterface;
+use App\Telegram\Core\BaseCommand;
 
 class PendingCommand extends BaseCommand implements CommandInterface
 {
@@ -18,25 +17,25 @@ class PendingCommand extends BaseCommand implements CommandInterface
     ) {}
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
-
     {
-        $telegramUser = $context->getFrom();
-        if (!$telegramUser) {
+        $telegramUser = $context->getUser();
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
 
         $user = $this->userService->findOrCreateUser($telegramUser);
-        
+
         // Get pending count (simplified implementation)
         $pendingCount = $this->getPendingCount($user);
-        
+
         $message = __('pending.queue_status', ['count' => $pendingCount]);
-        
+
         if ($pendingCount > 0) {
-            $message .= "\n\n" . __('pending.wait_message');
+            $message .= "\n\n".__('pending.wait_message');
         } else {
-            $message .= "\n\n" . __('pending.no_pending');
+            $message .= "\n\n".__('pending.no_pending');
         }
 
         $context->reply($message);
@@ -48,4 +47,4 @@ class PendingCommand extends BaseCommand implements CommandInterface
         // For now, return a mock value
         return rand(0, 10);
     }
-} 
+}

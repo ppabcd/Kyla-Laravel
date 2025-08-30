@@ -2,13 +2,12 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\CommandInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
-use Illuminate\Support\Facades\Log;
+use App\Telegram\Contracts\CommandInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCommand;
+use Illuminate\Support\Facades\Log;
 
 class BalanceCommand extends BaseCommand implements CommandInterface
 {
@@ -22,23 +21,24 @@ class BalanceCommand extends BaseCommand implements CommandInterface
     public function handle(TelegramContextInterface $context): void
     {
         try {
-            $telegramUser = $context->getFrom();
-            if (!$telegramUser) {
+            $telegramUser = $context->getUser();
+            if (! $telegramUser) {
                 $context->reply('❌ Unable to identify user');
+
                 return;
             }
 
             // Find or create user
             $user = $this->userService->findOrCreateUser($telegramUser);
-            
+
             $this->showBalance($context, $user);
 
         } catch (\Exception $e) {
             Log::error('Error in BalanceCommand', [
                 'error' => $e->getMessage(),
-                'user_id' => $telegramUser['id'] ?? null
+                'user_id' => $telegramUser['id'] ?? null,
             ]);
-            
+
             $context->reply('❌ An error occurred while loading balance.');
         }
     }
@@ -46,10 +46,10 @@ class BalanceCommand extends BaseCommand implements CommandInterface
     private function showBalance(TelegramContextInterface $context, $user): void
     {
         $balance = $user->balance ?? 0;
-        
+
         $message = "💰 **Your Balance**\n\n";
         $message .= "Current balance: **{$balance} coins**\n\n";
-        
+
         if ($balance > 0) {
             $message .= "You can use your coins to:\n";
             $message .= "• Get priority matching\n";
@@ -66,26 +66,26 @@ class BalanceCommand extends BaseCommand implements CommandInterface
         $keyboard = [
             [
                 ['text' => '💳 Buy Coins', 'callback_data' => 'balance-buy'],
-                ['text' => '🎁 Send Gift', 'callback_data' => 'balance-gift']
+                ['text' => '🎁 Send Gift', 'callback_data' => 'balance-gift'],
             ],
             [
                 ['text' => '🎯 Priority Match', 'callback_data' => 'balance-priority'],
-                ['text' => '📊 Transaction History', 'callback_data' => 'balance-history']
+                ['text' => '📊 Transaction History', 'callback_data' => 'balance-history'],
             ],
             [
                 ['text' => '🎁 Daily Reward', 'callback_data' => 'balance-daily'],
-                ['text' => '👥 Refer Friends', 'callback_data' => 'balance-referral']
+                ['text' => '👥 Refer Friends', 'callback_data' => 'balance-referral'],
             ],
             [
-                ['text' => '🔙 Back to Menu', 'callback_data' => 'menu-back']
-            ]
+                ['text' => '🔙 Back to Menu', 'callback_data' => 'menu-back'],
+            ],
         ];
 
         $context->reply($message, [
             'reply_markup' => [
-                'inline_keyboard' => $keyboard
+                'inline_keyboard' => $keyboard,
             ],
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
-} 
+}

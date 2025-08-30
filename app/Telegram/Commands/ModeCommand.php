@@ -2,11 +2,10 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\CommandInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CommandInterface;
+use App\Telegram\Core\BaseCommand;
 
 class ModeCommand extends BaseCommand implements CommandInterface
 {
@@ -19,9 +18,10 @@ class ModeCommand extends BaseCommand implements CommandInterface
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
     {
-        $telegramUser = $context->getFrom();
-        if (!$telegramUser) {
+        $telegramUser = $context->getUser();
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
         $user = $this->userService->findOrCreateUser($telegramUser);
@@ -30,16 +30,16 @@ class ModeCommand extends BaseCommand implements CommandInterface
         $message = __('safe_mode.message', ['mode' => $modeText]);
         $keyboard = [
             [
-                ['text' => __('safe_mode.toggle'), 'callback_data' => 'safe-mode-toggle']
+                ['text' => __('safe_mode.toggle'), 'callback_data' => 'safe-mode-toggle'],
             ],
             [
-                ['text' => '🔙 Back', 'callback_data' => 'settings-back']
-            ]
+                ['text' => '🔙 Back', 'callback_data' => 'settings-back'],
+            ],
         ];
         $context->reply($message, [
             'reply_markup' => [
-                'inline_keyboard' => $keyboard
-            ]
+                'inline_keyboard' => $keyboard,
+            ],
         ]);
     }
-} 
+}

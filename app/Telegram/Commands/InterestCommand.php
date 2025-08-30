@@ -19,7 +19,7 @@ class InterestCommand extends BaseCommand implements CommandInterface
 
     public function handle(TelegramContextInterface $context): void
     {
-        $telegramUser = $context->getFrom();
+        $telegramUser = $context->getUser();
         if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
 

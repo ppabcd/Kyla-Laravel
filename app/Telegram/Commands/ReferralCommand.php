@@ -2,11 +2,11 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\CommandInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CommandInterface;
+use App\Telegram\Core\BaseCommand;
+use App\Telegram\Core\TelegramContext;
 
 class ReferralCommand extends BaseCommand implements CommandInterface
 {
@@ -19,9 +19,10 @@ class ReferralCommand extends BaseCommand implements CommandInterface
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
     {
-        $telegramUser = $context->getFrom();
-        if (!$telegramUser) {
+        $telegramUser = $context->getUser();
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
         $user = $this->userService->findOrCreateUser($telegramUser);
@@ -30,7 +31,7 @@ class ReferralCommand extends BaseCommand implements CommandInterface
         $referralLink = $this->getStartLink($context, $referralToken);
         $message = __('referral.total_referral', [
             'totalReferral' => $totalReferral,
-            'referralLink' => $referralLink
+            'referralLink' => $referralLink,
         ]);
         $context->reply($message);
     }
@@ -42,11 +43,11 @@ class ReferralCommand extends BaseCommand implements CommandInterface
 
     private function getBotLink(TelegramContext $context): string
     {
-        return 'https://t.me/' . $this->getBotUsername($context);
+        return 'https://t.me/'.$this->getBotUsername($context);
     }
 
     private function getStartLink(TelegramContext $context, string $token): string
     {
-        return $this->getBotLink($context) . '?start=' . $token;
+        return $this->getBotLink($context).'?start='.$token;
     }
-} 
+}

@@ -2,11 +2,11 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\CommandInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CommandInterface;
+use App\Telegram\Core\BaseCommand;
+use App\Telegram\Core\TelegramContext;
 use Illuminate\Support\Facades\Log;
 
 class TransferCommand extends BaseCommand implements CommandInterface
@@ -20,17 +20,19 @@ class TransferCommand extends BaseCommand implements CommandInterface
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
     {
-        $telegramUser = $context->getFrom();
-        if (!$telegramUser) {
+        $telegramUser = $context->getUser();
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
 
         $messageText = $context->getMessage()['text'] ?? '';
         $args = explode(' ', $messageText);
-        
+
         if (count($args) < 3) {
             $context->reply(__('transfer.usage'));
+
             return;
         }
 
@@ -39,6 +41,7 @@ class TransferCommand extends BaseCommand implements CommandInterface
 
         if ($amount <= 0) {
             $context->reply(__('transfer.invalid_amount'));
+
             return;
         }
 
@@ -51,14 +54,16 @@ class TransferCommand extends BaseCommand implements CommandInterface
             $fromUserEntity = $this->userService->findOrCreateUser($fromUser);
             $targetUserEntity = $this->userRepository->findById($targetUserId);
 
-            if (!$targetUserEntity) {
+            if (! $targetUserEntity) {
                 $context->reply(__('transfer.user_not_found'));
+
                 return;
             }
 
             // Check if user is admin (owner)
             if ($fromUser['id'] == 1745767543) {
                 $this->adminTransfer($context, $targetUserEntity, $amount);
+
                 return;
             }
 
@@ -69,7 +74,7 @@ class TransferCommand extends BaseCommand implements CommandInterface
                 'error' => $e->getMessage(),
                 'from_user' => $fromUser['id'],
                 'target_user' => $targetUserId,
-                'amount' => $amount
+                'amount' => $amount,
             ]);
             $context->reply(__('transfer.failed'));
         }
@@ -84,7 +89,7 @@ class TransferCommand extends BaseCommand implements CommandInterface
 
         $context->reply(__('transfer.admin_success', [
             'amount' => $amount,
-            'username' => $targetUser->first_name
+            'username' => $targetUser->first_name,
         ]));
 
         // Notify target user
@@ -98,6 +103,7 @@ class TransferCommand extends BaseCommand implements CommandInterface
 
         if ($fromBalance < $amount) {
             $context->reply(__('transfer.insufficient_balance'));
+
             return;
         }
 
@@ -111,13 +117,13 @@ class TransferCommand extends BaseCommand implements CommandInterface
         // Notify sender
         $context->reply(__('transfer.success', [
             'amount' => $amount,
-            'username' => $targetUser->first_name
+            'username' => $targetUser->first_name,
         ]));
 
         // Notify receiver
         $this->notifyUser($targetUser->telegram_id, __('transfer.received', [
             'amount' => $amount,
-            'username' => $fromUser->first_name
+            'username' => $fromUser->first_name,
         ]));
     }
 
@@ -127,7 +133,7 @@ class TransferCommand extends BaseCommand implements CommandInterface
         // For now, we'll just log it
         Log::info('User notification', [
             'telegram_id' => $telegramId,
-            'message' => $message
+            'message' => $message,
         ]);
     }
-} 
+}

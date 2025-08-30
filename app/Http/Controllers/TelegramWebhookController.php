@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessTelegramUpdateJob;
 use App\Telegram\Services\TelegramBotService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use App\Jobs\ProcessTelegramUpdateJob;
 
 class TelegramWebhookController extends Controller
 {
@@ -32,8 +31,9 @@ class TelegramWebhookController extends Controller
                 if ($signature !== $webhookSecret) {
                     Log::warning('Invalid webhook signature', [
                         'received' => $signature,
-                        'expected' => $webhookSecret
+                        'expected' => $webhookSecret,
                     ]);
+
                     return response('Unauthorized', 401);
                 }
             }
@@ -43,6 +43,7 @@ class TelegramWebhookController extends Controller
 
             if (empty($update)) {
                 Log::warning('Empty update received from Telegram');
+
                 return response('OK', 200);
             }
 
@@ -69,7 +70,7 @@ class TelegramWebhookController extends Controller
             Log::error('Error processing Telegram webhook', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all()
+                'request_data' => $request->all(),
             ]);
 
             return response('Internal Server Error', 500);
@@ -84,7 +85,7 @@ class TelegramWebhookController extends Controller
         try {
             $url = $request->input('url');
 
-            if (!$url) {
+            if (! $url) {
                 return response()->json(['error' => 'URL is required'], 400);
             }
 
@@ -96,21 +97,24 @@ class TelegramWebhookController extends Controller
                     'edited_message',
                     'poll',
                     'poll_answer',
-                    'chat_member'
+                    'chat_member',
                 ],
-                'drop_pending_updates' => true
+                'drop_pending_updates' => true,
             ]);
 
             if ($result) {
                 Log::info('Webhook set successfully', ['url' => $url]);
+
                 return response()->json(['success' => true, 'result' => $result]);
             } else {
                 Log::error('Failed to set webhook', ['url' => $url]);
+
                 return response()->json(['error' => 'Failed to set webhook'], 500);
             }
 
         } catch (\Exception $e) {
-            Log::error('Error setting webhook: ' . $e->getMessage());
+            Log::error('Error setting webhook: '.$e->getMessage());
+
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
@@ -125,14 +129,17 @@ class TelegramWebhookController extends Controller
 
             if ($result) {
                 Log::info('Webhook deleted successfully');
+
                 return response()->json(['success' => true, 'result' => $result]);
             } else {
                 Log::error('Failed to delete webhook');
+
                 return response()->json(['error' => 'Failed to delete webhook'], 500);
             }
 
         } catch (\Exception $e) {
-            Log::error('Error deleting webhook: ' . $e->getMessage());
+            Log::error('Error deleting webhook: '.$e->getMessage());
+
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
@@ -147,17 +154,17 @@ class TelegramWebhookController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $info
+                'data' => $info,
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error getting webhook info', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -172,17 +179,17 @@ class TelegramWebhookController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $info
+                'data' => $info,
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error getting bot info', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -202,7 +209,7 @@ class TelegramWebhookController extends Controller
                     'name' => $name,
                     'description' => $command->getDescription(),
                     'usage' => $command->getUsage(),
-                    'enabled' => $command->isEnabled()
+                    'enabled' => $command->isEnabled(),
                 ];
             }
 
@@ -211,7 +218,7 @@ class TelegramWebhookController extends Controller
                 $callbackList[] = [
                     'name' => $name,
                     'description' => $callback->getDescription(),
-                    'enabled' => $callback->isEnabled()
+                    'enabled' => $callback->isEnabled(),
                 ];
             }
 
@@ -221,18 +228,18 @@ class TelegramWebhookController extends Controller
                     'commands' => $commandList,
                     'callbacks' => $callbackList,
                     'total_commands' => count($commands),
-                    'total_callbacks' => count($callbacks)
-                ]
+                    'total_callbacks' => count($callbacks),
+                ],
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error getting commands info', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -249,20 +256,21 @@ class TelegramWebhookController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Telegram bot is working correctly',
-                    'bot_info' => $botInfo
+                    'bot_info' => $botInfo,
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to get bot info'
+                    'message' => 'Failed to get bot info',
                 ], 500);
             }
 
         } catch (\Exception $e) {
-            Log::error('Error testing webhook: ' . $e->getMessage());
+            Log::error('Error testing webhook: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error testing webhook: ' . $e->getMessage()
+                'message' => 'Error testing webhook: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -283,19 +291,19 @@ class TelegramWebhookController extends Controller
                 'webhook_info' => $webhookInfo,
                 'services' => [
                     'telegram_api' => $botInfo ? 'connected' : 'disconnected',
-                    'webhook' => $webhookInfo ? 'configured' : 'not_configured'
-                ]
+                    'webhook' => $webhookInfo ? 'configured' : 'not_configured',
+                ],
             ];
 
             return response()->json($status);
 
         } catch (\Exception $e) {
-            Log::error('Health check failed: ' . $e->getMessage());
+            Log::error('Health check failed: '.$e->getMessage());
 
             return response()->json([
                 'status' => 'unhealthy',
                 'timestamp' => now()->toISOString(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -320,7 +328,7 @@ class TelegramWebhookController extends Controller
         } catch (\Exception $e) {
             Log::error('Error processing update', [
                 'error' => $e->getMessage(),
-                'update' => $request->all()
+                'update' => $request->all(),
             ]);
 
             return response()->json(['error' => 'Failed to process update'], 500);

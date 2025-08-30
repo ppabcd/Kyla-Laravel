@@ -61,6 +61,8 @@ class TelegramContext implements TelegramContextInterface
         return null;
     }
 
+    // getFrom() deprecated; use getUser() instead
+
     public function setUser($user): void
     {
         $this->userModel = $user;

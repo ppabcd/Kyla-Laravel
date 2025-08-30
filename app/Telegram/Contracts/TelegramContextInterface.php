@@ -29,6 +29,8 @@ interface TelegramContextInterface
      */
     public function getUser(): ?array;
 
+    // getFrom() removed; use getUser() instead
+
     /**
      * Get chat type
      */

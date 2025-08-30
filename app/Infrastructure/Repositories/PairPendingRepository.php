@@ -83,7 +83,9 @@ class PairPendingRepository implements PairPendingRepositoryInterface
 
     public function findPendingPairs(): Collection
     {
-        return PairPending::orderBy('created_at', 'ASC')->get();
+        return PairPending::orderBy('created_at', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
     }
 
     public function clearUserPendingPair(int $userId): bool
@@ -98,6 +100,7 @@ class PairPendingRepository implements PairPendingRepositoryInterface
     {
         return PairPending::where('user_id', '!=', $userId)
             ->orderBy('created_at', 'ASC')
+            ->orderBy('id', 'ASC')
             ->first();
     }
 
@@ -125,7 +128,9 @@ class PairPendingRepository implements PairPendingRepositoryInterface
             });
         }
 
-        return $query->orderBy('created_at', 'ASC')->first();
+        return $query->orderBy('created_at', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->first();
     }
 
     public function deleteByUserId(int $userId): bool

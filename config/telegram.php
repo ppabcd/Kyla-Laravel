@@ -171,6 +171,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Queue
+    |--------------------------------------------------------------------------
+    |
+    | Configure whether Telegram webhook updates should be processed via
+    | a queued job. When enabled, incoming updates are dispatched to the
+    | specified queue and handled asynchronously.
+    */
+    'queue' => [
+        'enabled' => env('TELEGRAM_QUEUE_ENABLED', false),
+        'name' => env('TELEGRAM_QUEUE_NAME', 'telegram'),
+        'tries' => env('TELEGRAM_QUEUE_TRIES', 3),
+        'timeout' => env('TELEGRAM_QUEUE_TIMEOUT', 60),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Database Tables
     |--------------------------------------------------------------------------
     */

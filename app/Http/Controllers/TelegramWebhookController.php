@@ -57,7 +57,7 @@ class TelegramWebhookController extends Controller
 
             // Process update asynchronously if queue is configured
             if (config('telegram.queue.enabled', false)) {
-                dispatch(new \App\Jobs\ProcessTelegramUpdateJob($update));
+                dispatch(new ProcessTelegramUpdateJob($update));
             } else {
                 // Process update synchronously
                 $this->telegramService->handleUpdate($update);

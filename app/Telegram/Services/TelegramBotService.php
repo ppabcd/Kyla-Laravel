@@ -227,11 +227,6 @@ class TelegramBotService
 
             $this->callbacks[$callbackName] = $callback;
         }
-
-        Log::debug('Telegram callback registered', [
-            'callback' => $callbackNames,
-            'description' => $callback->getDescription(),
-        ]);
     }
 
     /**

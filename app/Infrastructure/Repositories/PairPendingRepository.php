@@ -14,6 +14,29 @@ use Illuminate\Database\Eloquent\Collection;
 class PairPendingRepository implements PairPendingRepositoryInterface
 {
     /**
+     * Normalize gender/interest value to integer codes used in pair_pendings.
+     * male => 1, female => 2. Returns null if unknown or "all".
+     */
+    private function normalizeGenderValue(string|int|null $value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_int($value)) {
+            return $value;
+        }
+
+        $lower = strtolower($value);
+
+        return match ($lower) {
+            'male' => 1,
+            'female' => 2,
+            default => null,
+        };
+    }
+
+    /**
      * Basic CRUD Operations
      */
     public function findById(int $id): ?object
@@ -23,11 +46,25 @@ class PairPendingRepository implements PairPendingRepositoryInterface
 
     public function create(array $data): object
     {
+        if (array_key_exists('gender', $data)) {
+            $data['gender'] = $this->normalizeGenderValue($data['gender']);
+        }
+        if (array_key_exists('interest', $data)) {
+            $data['interest'] = $this->normalizeGenderValue($data['interest']);
+        }
+
         return PairPending::create($data);
     }
 
     public function update(object $pairPending, array $data): bool
     {
+        if (array_key_exists('gender', $data)) {
+            $data['gender'] = $this->normalizeGenderValue($data['gender']);
+        }
+        if (array_key_exists('interest', $data)) {
+            $data['interest'] = $this->normalizeGenderValue($data['interest']);
+        }
+
         return $pairPending->update($data);
     }
 
@@ -71,10 +108,24 @@ class PairPendingRepository implements PairPendingRepositoryInterface
 
     public function findAvailableMatch(string $userGender, string $targetGender): ?object
     {
-        return PairPending::where('gender', $targetGender)
-            ->where('interest', $userGender)
-            ->orderBy('created_at', 'ASC')
-            ->first();
+        $genderValue = $this->normalizeGenderValue($targetGender);
+        $interestValue = $this->normalizeGenderValue($userGender);
+
+        $query = PairPending::query();
+
+        if ($genderValue !== null) {
+            $query->where('gender', $genderValue);
+        }
+
+        // Match users who want this user's gender, or who accept all (null)
+        if ($interestValue !== null) {
+            $query->where(function ($q) use ($interestValue) {
+                $q->where('interest', $interestValue)
+                    ->orWhereNull('interest');
+            });
+        }
+
+        return $query->orderBy('created_at', 'ASC')->first();
     }
 
     public function deleteByUserId(int $userId): bool

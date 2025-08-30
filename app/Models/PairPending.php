@@ -21,6 +21,8 @@ class PairPending extends Model
     ];
 
     protected $casts = [
+        'gender' => 'integer',
+        'interest' => 'integer',
         'is_premium' => 'boolean',
         'is_safe_mode' => 'boolean',
         'platform_id' => 'integer',

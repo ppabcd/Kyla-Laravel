@@ -418,6 +418,11 @@ class MessageListener
 
             $url = "https://api.telegram.org/bot{$this->botToken}/{$method}";
 
+            // Telegram expects reply_markup as JSON string; encode if array provided
+            if (isset($messageData['reply_markup']) && is_array($messageData['reply_markup'])) {
+                $messageData['reply_markup'] = json_encode($messageData['reply_markup']);
+            }
+
             $response = Http::post($url, $messageData);
 
             if (! $response->successful()) {

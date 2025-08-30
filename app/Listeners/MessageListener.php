@@ -217,6 +217,7 @@ class MessageListener
         return [
             'chat_id' => $user->telegram_id,
             'text' => __('messages.conversation.not_exists', [], $user->language ?? 'en'),
+            // reply_markup will be JSON-encoded when sending via Telegram API
             'reply_markup' => $this->keyboardService->getSearchKeyboard(),
         ];
     }

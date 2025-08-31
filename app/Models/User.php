@@ -4,10 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -40,6 +40,10 @@ class User extends Authenticatable
         'is_safe_mode',
         'is_get_announcement',
         'soft_ban',
+        'soft_banned_until',
+        'soft_ban_reason',
+        'promotion_violation_count',
+        'last_promotion_violation_at',
         'balances',
         'next_update_balance',
         'is_new_user',
@@ -66,6 +70,13 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'soft_banned_until' => 'datetime',
+            'last_promotion_violation_at' => 'datetime',
+            'is_banned' => 'boolean',
+            'is_premium' => 'boolean',
+            'is_blocked' => 'boolean',
+            'is_safe_mode' => 'boolean',
+            'promotion_violation_count' => 'integer',
         ];
     }
 
@@ -150,6 +161,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's violations
+     */
+    public function violations(): HasMany
+    {
+        return $this->hasMany(Violation::class);
+    }
+
+    /**
      * Check if user is banned
      */
     public function isBanned(): bool
@@ -182,6 +201,57 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is currently soft banned
+     */
+    public function isSoftBanned(): bool
+    {
+        return $this->soft_banned_until && $this->soft_banned_until->isFuture();
+    }
+
+    /**
+     * Apply soft ban to user
+     */
+    public function applySoftBan(int $durationMinutes, string $reason): bool
+    {
+        $this->soft_banned_until = now()->addMinutes($durationMinutes);
+        $this->soft_ban_reason = $reason;
+
+        return $this->save();
+    }
+
+    /**
+     * Remove soft ban from user
+     */
+    public function removeSoftBan(): bool
+    {
+        $this->soft_banned_until = null;
+        $this->soft_ban_reason = null;
+
+        return $this->save();
+    }
+
+    /**
+     * Get recent violations by type
+     */
+    public function getRecentViolations(string $type, int $hours = 24): int
+    {
+        return $this->violations()
+            ->where('violation_type', $type)
+            ->where('detected_at', '>=', now()->subHours($hours))
+            ->count();
+    }
+
+    /**
+     * Check if user should be soft banned for promotion violations
+     */
+    public function shouldBeSoftBannedForPromotion(): bool
+    {
+        $recentPromotions = $this->getRecentViolations('promotion', 1); // Last hour
+
+        return $recentPromotions >= 3; // 3 strikes in 1 hour
+    }
+
+    /**
      * Check if user is new
      */
     public function isNew(): bool
@@ -195,15 +265,15 @@ class User extends Authenticatable
     public function getFullNameAttribute(): string
     {
         $parts = [];
-        
+
         if ($this->first_name) {
             $parts[] = $this->first_name;
         }
-        
+
         if ($this->last_name) {
             $parts[] = $this->last_name;
         }
-        
+
         return implode(' ', $parts) ?: 'Unknown User';
     }
 
@@ -215,7 +285,7 @@ class User extends Authenticatable
         if ($this->username) {
             return "@{$this->username}";
         }
-        
+
         return $this->full_name;
     }
 
@@ -240,11 +310,12 @@ class User extends Authenticatable
      */
     public function deductBalance(int $amount): bool
     {
-        if (!$this->hasBalance($amount)) {
+        if (! $this->hasBalance($amount)) {
             return false;
         }
 
         $this->balances = $this->current_balance - $amount;
+
         return $this->save();
     }
 
@@ -254,6 +325,7 @@ class User extends Authenticatable
     public function addBalance(int $amount): bool
     {
         $this->balances = $this->current_balance + $amount;
+
         return $this->save();
     }
 
@@ -264,9 +336,9 @@ class User extends Authenticatable
     {
         return $this->pairsAsFirst()
             ->where('active', true)
-            ->orWhere(function($query) {
+            ->orWhere(function ($query) {
                 $query->where('second_user_id', $this->id)
-                      ->where('active', true);
+                    ->where('active', true);
             })
             ->first();
     }
@@ -277,13 +349,13 @@ class User extends Authenticatable
     public function getActivePartner(): ?User
     {
         $pair = $this->getActivePair();
-        
-        if (!$pair) {
+
+        if (! $pair) {
             return null;
         }
 
-        $partnerId = $pair->first_user_id === $this->id 
-            ? $pair->second_user_id 
+        $partnerId = $pair->first_user_id === $this->id
+            ? $pair->second_user_id
             : $pair->first_user_id;
 
         return User::find($partnerId);

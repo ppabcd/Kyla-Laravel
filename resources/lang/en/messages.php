@@ -182,7 +182,8 @@ Type /search to look for more partners',
     ],
 
     'soft_banned' => [
-        'message' => 'You\'ve been blocked for sending spams/pornography/advertising for :durationInMinutes minutes.',
+        'message' => 'You\'ve been temporarily restricted for :durationInMinutes minutes due to repeated promotion violations. Please avoid sharing usernames, profile links, or promotional content.',
+        'promotion_warning' => '⚠️ Please avoid promoting usernames or profiles in chat. Continued violations may result in temporary restrictions.',
     ],
 
     'language' => [

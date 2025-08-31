@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Listeners;
 
+use App\Application\Services\ViolationService;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
 use App\Infrastructure\Repositories\UserRepository;
@@ -22,18 +23,22 @@ class MessageListener
 
     private KeyboardService $keyboardService;
 
+    private ViolationService $violationService;
+
     private string $botToken;
 
     public function __construct(
         AppMessageListener $messageListener,
         UserRepository $userRepository,
         PairRepositoryInterface $pairRepository,
-        KeyboardService $keyboardService
+        KeyboardService $keyboardService,
+        ViolationService $violationService
     ) {
         $this->messageListener = $messageListener;
         $this->userRepository = $userRepository;
         $this->pairRepository = $pairRepository;
         $this->keyboardService = $keyboardService;
+        $this->violationService = $violationService;
         $this->botToken = config('telegram.bot_token');
     }
 
@@ -211,6 +216,36 @@ class MessageListener
      */
     private function handlePrivateMessage(User $user, TelegramContextInterface $context): void
     {
+        $message = $context->getMessage();
+        $text = $message['text'] ?? '';
+
+        // Check if user is soft banned
+        if ($this->violationService->shouldBlockMessage($user)) {
+            $remainingMinutes = $this->violationService->getSoftBanRemainingMinutes($user);
+            $context->reply(__('soft_banned.message', [
+                'durationInMinutes' => $remainingMinutes,
+            ]));
+
+            return;
+        }
+
+        // Check for promotion violations
+        if ($this->violationService->detectPromotion($text)) {
+            $wasBanned = $this->violationService->checkAndApplySoftBan($user, $text);
+
+            if ($wasBanned) {
+                $duration = $this->violationService->getSoftBanRemainingMinutes($user);
+                $context->reply(__('soft_banned.message', [
+                    'durationInMinutes' => $duration,
+                ]));
+
+                return;
+            } else {
+                // Just warn the user
+                $context->reply(__('soft_banned.promotion_warning'));
+            }
+        }
+
         // Soft notice if partner appears inactive (do not end conversation)
         try {
             $pair = $this->pairRepository->findActivePairByUserId($user->id);

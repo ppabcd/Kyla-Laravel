@@ -38,7 +38,7 @@ interface PairPendingRepositoryInterface
 
     public function countPendingPairs(): int;
 
-    public function findAvailableMatch(string $userGender, string $targetGender): ?object;
+    public function findAvailableMatch(string $userGender, ?string $targetGender): ?object;
 
     public function deleteByUserId(int $userId): bool;
 }

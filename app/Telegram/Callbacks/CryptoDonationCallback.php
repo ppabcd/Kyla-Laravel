@@ -9,6 +9,6 @@ class CryptoDonationCallback extends BaseCallback implements CallbackInterface
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
 
     {
-        $context->reply(__('donation.crypto'));
+        $context->reply(__('messages.donation.crypto'), ['parse_mode' => 'Markdown']);
     }
 } 

@@ -109,23 +109,32 @@ class PairPendingRepository implements PairPendingRepositoryInterface
         return PairPending::count();
     }
 
-    public function findAvailableMatch(string $userGender, string $targetGender): ?object
+    public function findAvailableMatch(string $userGender, ?string $targetGender): ?object
     {
         $genderValue = $this->normalizeGenderValue($targetGender);
         $interestValue = $this->normalizeGenderValue($userGender);
 
         $query = PairPending::query();
 
-        if ($genderValue !== null) {
+        // If user wants random match (targetGender is null or 'all'), find any available user
+        if ($genderValue === null) {
+            // Random matching: find users who either want this user's gender OR also want random
+            if ($interestValue !== null) {
+                $query->where(function ($q) use ($interestValue) {
+                    $q->where('interest', $interestValue)
+                        ->orWhereNull('interest');
+                });
+            }
+        } else {
+            // Specific gender preference: find users of that gender who want this user's gender OR random
             $query->where('gender', $genderValue);
-        }
 
-        // Match users who want this user's gender, or who accept all (null)
-        if ($interestValue !== null) {
-            $query->where(function ($q) use ($interestValue) {
-                $q->where('interest', $interestValue)
-                    ->orWhereNull('interest');
-            });
+            if ($interestValue !== null) {
+                $query->where(function ($q) use ($interestValue) {
+                    $q->where('interest', $interestValue)
+                        ->orWhereNull('interest');
+                });
+            }
         }
 
         return $query->orderBy('created_at', 'ASC')

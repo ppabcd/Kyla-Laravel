@@ -245,7 +245,7 @@ class ConversationService
             $message = __('messages.queue.overcrowded_message', ['count' => $pendingCount], $user->language_code ?? 'en');
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
             
-            $context->sendMessage($message, ['reply_markup' => $keyboard]);
+            $context->sendMessage($message, ['reply_markup' => $keyboard, 'parse_mode' => 'Markdown']);
         } else {
             $context->sendMessage(
                 __('messages.pending_pair.created', [], $user->language_code ?? 'en'),

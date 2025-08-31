@@ -20,7 +20,7 @@ class WaitPreferredCallback extends BaseCallback implements CallbackInterface
         $message = __('messages.queue.continue_waiting');
         $keyboard = $this->keyboardService->getSearchingKeyboard();
 
-        $context->editMessageText($message, $keyboard);
+        $context->editMessageText($message, ['reply_markup' => $keyboard, 'parse_mode' => 'Markdown']);
         $context->answerCallbackQuery(__('⏳ Continuing to wait for preferred gender'));
     }
 }

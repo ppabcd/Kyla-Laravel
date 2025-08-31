@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Callbacks;
 
+use App\Application\Services\UserService;
 use App\Infrastructure\Repositories\PairPendingRepository;
 use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
@@ -13,19 +14,22 @@ class QueueStatusCallback extends BaseCallback implements CallbackInterface
     protected string|array $callbackName = 'queue_status';
 
     public function __construct(
+        private UserService $userService,
         private PairPendingRepository $pairPendingRepository,
         private KeyboardService $keyboardService
     ) {}
 
     public function handle(TelegramContextInterface $context): void
     {
-        $user = $context->getUser();
+        $telegramUser = $context->getUser();
 
-        if (! $user) {
+        if (! $telegramUser) {
             $context->answerCallbackQuery(__('User not found'));
 
             return;
         }
+
+        $user = $this->userService->findOrCreateUser($telegramUser);
 
         $totalPending = $this->pairPendingRepository->countPendingPairs();
         $userPosition = $this->getUserPosition($user->id);
@@ -36,7 +40,7 @@ class QueueStatusCallback extends BaseCallback implements CallbackInterface
             $message = __('messages.queue.overcrowded_message', ['count' => $totalPending]);
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
 
-            $context->sendMessage($message, ['reply_markup' => $keyboard, 'parse_mode' => 'Markdown']);
+            $context->sendMessage($message, array_merge($keyboard, ['parse_mode' => 'Markdown']));
         } else {
             $message = "📊 **Queue Status**\n\n";
             $message .= "👥 **Total users in queue:** {$totalPending}\n";

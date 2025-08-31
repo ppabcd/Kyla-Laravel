@@ -137,4 +137,60 @@ class PairPendingRepository implements PairPendingRepositoryInterface
     {
         return PairPending::where('user_id', $userId)->delete() > 0;
     }
+
+    /**
+     * Queue Management Operations
+     */
+    public function isQueueOvercrowded(int $threshold = 5): bool
+    {
+        return $this->countPendingPairs() > $threshold;
+    }
+
+    public function getGenderBalance(): array
+    {
+        $counts = PairPending::selectRaw('gender, COUNT(*) as count')
+            ->groupBy('gender')
+            ->pluck('count', 'gender')
+            ->toArray();
+
+        return [
+            'male_count' => $counts[1] ?? 0,
+            'female_count' => $counts[2] ?? 0,
+            'total_count' => array_sum($counts),
+            'is_balanced' => $this->isGenderBalanced($counts),
+        ];
+    }
+
+    public function isGenderBalanced(?array $counts = null): bool
+    {
+        if ($counts === null) {
+            $counts = PairPending::selectRaw('gender, COUNT(*) as count')
+                ->groupBy('gender')
+                ->pluck('count', 'gender')
+                ->toArray();
+        }
+
+        $maleCount = $counts[1] ?? 0;
+        $femaleCount = $counts[2] ?? 0;
+        $total = $maleCount + $femaleCount;
+
+        if ($total === 0) {
+            return true;
+        }
+
+        $ratio = min($maleCount, $femaleCount) / max($maleCount, $femaleCount);
+
+        return $ratio >= 0.6; // 60% balance threshold
+    }
+
+    public function getUnderrepresentedGender(): ?int
+    {
+        $balance = $this->getGenderBalance();
+
+        if ($balance['is_balanced']) {
+            return null;
+        }
+
+        return $balance['male_count'] < $balance['female_count'] ? 1 : 2;
+    }
 }

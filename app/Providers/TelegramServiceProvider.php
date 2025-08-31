@@ -23,10 +23,11 @@ use App\Telegram\Callbacks\PendingCallback;
 use App\Telegram\Callbacks\PrivacyCallback;
 use App\Telegram\Callbacks\ProfileCallback;
 use App\Telegram\Callbacks\QueueStatusCallback;
+use App\Telegram\Callbacks\RandomGenderMatchCallback;
 use App\Telegram\Callbacks\RatingCallback;
 use App\Telegram\Callbacks\RejectActionMediaCallback;
-// Admin Commands
 use App\Telegram\Callbacks\RejectActionTextCallback;
+// Admin Commands
 use App\Telegram\Callbacks\ReportCallback;
 use App\Telegram\Callbacks\RetrySubscribeCheckCallback;
 use App\Telegram\Callbacks\SafeModeCallback;
@@ -34,6 +35,7 @@ use App\Telegram\Callbacks\SearchCallback;
 use App\Telegram\Callbacks\SettingsCallback;
 use App\Telegram\Callbacks\StopCallback;
 use App\Telegram\Callbacks\TopUpCallback;
+use App\Telegram\Callbacks\WaitPreferredCallback;
 use App\Telegram\Commands\Admin\AnnouncementCommand;
 use App\Telegram\Commands\Admin\BanCommand;
 use App\Telegram\Commands\Admin\BanHistoryCommand;
@@ -161,6 +163,8 @@ class TelegramServiceProvider extends ServiceProvider
         $telegramService->registerCallbackByName('stop', StopCallback::class);
         $telegramService->registerCallbackByName('balance', BalanceCallback::class);
         $telegramService->registerCallbackByName('queue_status', QueueStatusCallback::class);
+        $telegramService->registerCallbackByName('random_gender_match', RandomGenderMatchCallback::class);
+        $telegramService->registerCallbackByName('wait_preferred', WaitPreferredCallback::class);
 
         // User Callbacks
         $telegramService->registerCallbackByName('gender', GenderCallback::class);

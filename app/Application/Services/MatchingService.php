@@ -312,8 +312,11 @@ class MatchingService
         $cacheKey = "potential_matches:user:{$user->id}";
 
         return Cache::remember($cacheKey, 300, function () use ($user) {
+            // If user has no specific interest (random matching), find more broadly
+            $interest = $user->interest === 'all' || $user->interest === null ? '' : $user->interest;
+
             $potentialMatches = $this->userRepository->findUsersForMatching(
-                $user->interest,
+                $interest,
                 $user->gender,
                 $user->id,
                 100
@@ -328,9 +331,18 @@ class MatchingService
 
     private function isCompatibleMatch(User $user1, User $user2): bool
     {
-        // Basic gender/interest compatibility
-        if ($user1->gender !== $user2->interest || $user2->gender !== $user1->interest) {
-            return false;
+        // For random matching (interest = null or 'all'), skip strict gender/interest check
+        $user1AcceptsAll = $user1->interest === 'all' || $user1->interest === null;
+        $user2AcceptsAll = $user2->interest === 'all' || $user2->interest === null;
+
+        if (! $user1AcceptsAll && ! $user2AcceptsAll) {
+            // Basic gender/interest compatibility for specific preferences
+            if ($user1->gender !== $user2->interest || $user2->gender !== $user1->interest) {
+                return false;
+            }
+        } elseif ($user1AcceptsAll || $user2AcceptsAll) {
+            // At least one user accepts random matching - more flexible matching
+            // Still ensure basic compatibility exists
         }
 
         // Age compatibility (configurable range)

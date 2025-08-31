@@ -119,6 +119,8 @@ Pick the right side if you want to chat with all sexes',
         'back_to_settings' => '« Back to Settings',
         'back' => '« Back',
         'privacy' => '🔒 Privacy Policy',
+        'random_gender' => '🎲 Chat Random Gender',
+        'wait_preferred' => '⏳ Wait for Preferred',
     ],
 
     'help' => 'For assistance, please copy and paste your ID to @KylaSupportBot state your problems clearly.
@@ -279,6 +281,9 @@ Thank you for your understanding.',
     'queue' => [
         'long_queue' => 'Currently, the queue is busy. Please wait a moment.',
         'check_queue' => 'Please wait a moment, we are checking the queue.',
+        'overcrowded_message' => '🚦 The queue is currently busy with :count users waiting!\n\n⚖️ Gender balance is not optimal right now.\n\n🎲 You can choose to chat with a random gender for much faster matching, or continue waiting for your preferred gender.',
+        'random_match_enabled' => '🎲 Great! You\'re now searching for random gender matches.\n\n⚡ This will be much faster since you\'ll match with anyone available!\n🔍 Searching for your next chat partner...',
+        'continue_waiting' => '⏳ You\'ve chosen to wait for your preferred gender. We\'ll notify you when a match is found.',
     ],
 
     'rating' => [

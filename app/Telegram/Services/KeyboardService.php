@@ -272,6 +272,17 @@ class KeyboardService
         ];
     }
 
+    public function getQueueOvercrowdedKeyboard(array $translations = []): array
+    {
+        return [
+            'inline_keyboard' => [
+                [['text' => $translations['btn.random_gender'] ?? '🎲 Chat Random Gender', 'callback_data' => 'random_gender_match']],
+                [['text' => $translations['btn.wait_preferred'] ?? '⏳ Wait for Preferred', 'callback_data' => 'wait_preferred']],
+                [['text' => $translations['btn.stop'] ?? '⏹️ Stop Search', 'callback_data' => 'stop']],
+            ],
+        ];
+    }
+
     public function getCaptchaKeyboard(array $translations, string $code): array
     {
         $keyboard = [];

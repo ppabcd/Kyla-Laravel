@@ -2,14 +2,16 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCommand;
 use Illuminate\Support\Facades\Log;
 
 class HelpCommand extends BaseCommand
 {
     protected string|array $commandName = 'help';
+
     protected string $description = 'Menampilkan bantuan dan daftar perintah';
+
     protected string $usage = '/help [kategori]';
 
     public function handle(TelegramContextInterface $context): void
@@ -36,7 +38,7 @@ class HelpCommand extends BaseCommand
         Log::info('Help command executed', [
             'user_id' => $context->getUserId(),
             'chat_id' => $context->getChatId(),
-            'category' => $category
+            'category' => $category,
         ]);
     }
 
@@ -53,17 +55,17 @@ class HelpCommand extends BaseCommand
         $helpMessage .= "• /match - Mencari pasangan\n";
         $helpMessage .= "• /chat - Mulai percakapan\n";
         $helpMessage .= "• /report - Laporkan masalah\n\n";
-        $helpMessage .= "Pilih kategori di bawah untuk informasi lebih detail:";
+        $helpMessage .= 'Pilih kategori di bawah untuk informasi lebih detail:';
 
         $keyboard = [
             [
                 ['text' => '🔹 Perintah', 'callback_data' => 'help:commands'],
-                ['text' => '🔹 Callback', 'callback_data' => 'help:callbacks']
+                ['text' => '🔹 Callback', 'callback_data' => 'help:callbacks'],
             ],
             [
                 ['text' => '🔹 Pengaturan', 'callback_data' => 'help:settings'],
-                ['text' => '🔙 Kembali', 'callback_data' => 'start:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'start:main'],
+            ],
         ];
 
         $context->sendInlineKeyboard($helpMessage, $keyboard);
@@ -80,21 +82,18 @@ class HelpCommand extends BaseCommand
         $helpMessage .= "**Fitur Matching:**\n";
         $helpMessage .= "• `/match` - Mencari pasangan\n";
         $helpMessage .= "• `/next` - Pasangan berikutnya\n";
-        $helpMessage .= "• `/like` - Menyukai pasangan\n";
-        $helpMessage .= "• `/pass` - Melewati pasangan\n\n";
         $helpMessage .= "**Fitur Chat:**\n";
         $helpMessage .= "• `/chat` - Mulai percakapan\n";
         $helpMessage .= "• `/stop` - Hentikan percakapan\n";
-        $helpMessage .= "• `/block` - Blokir pengguna\n\n";
         $helpMessage .= "**Fitur Admin:**\n";
         $helpMessage .= "• `/admin` - Panel admin\n";
         $helpMessage .= "• `/stats` - Statistik bot\n";
-        $helpMessage .= "• `/broadcast` - Kirim pesan ke semua user";
+        $helpMessage .= '• `/broadcast` - Kirim pesan ke semua user';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'help:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'help:main'],
+            ],
         ];
 
         $context->sendInlineKeyboard($helpMessage, $keyboard);
@@ -119,12 +118,12 @@ class HelpCommand extends BaseCommand
         $helpMessage .= "**Matching:**\n";
         $helpMessage .= "• `match:like` - Suka pasangan\n";
         $helpMessage .= "• `match:pass` - Lewati pasangan\n";
-        $helpMessage .= "• `match:report` - Laporkan pasangan";
+        $helpMessage .= '• `match:report` - Laporkan pasangan';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'help:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'help:main'],
+            ],
         ];
 
         $context->sendInlineKeyboard($helpMessage, $keyboard);
@@ -148,14 +147,14 @@ class HelpCommand extends BaseCommand
         $helpMessage .= "**Keamanan:**\n";
         $helpMessage .= "• Blokir pengguna\n";
         $helpMessage .= "• Laporkan penyalahgunaan\n";
-        $helpMessage .= "• Hapus akun";
+        $helpMessage .= '• Hapus akun';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'help:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'help:main'],
+            ],
         ];
 
         $context->sendInlineKeyboard($helpMessage, $keyboard);
     }
-} 
+}

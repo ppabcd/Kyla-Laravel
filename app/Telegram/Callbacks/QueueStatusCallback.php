@@ -6,13 +6,15 @@ use App\Infrastructure\Repositories\PairPendingRepository;
 use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Core\BaseCallback;
+use App\Telegram\Services\KeyboardService;
 
 class QueueStatusCallback extends BaseCallback implements CallbackInterface
 {
     protected string|array $callbackName = 'queue_status';
 
     public function __construct(
-        private PairPendingRepository $pairPendingRepository
+        private PairPendingRepository $pairPendingRepository,
+        private KeyboardService $keyboardService
     ) {}
 
     public function handle(TelegramContextInterface $context): void
@@ -20,23 +22,33 @@ class QueueStatusCallback extends BaseCallback implements CallbackInterface
         $user = $context->getUser();
 
         if (! $user) {
-            $context->answerCallbackQuery('User not found');
+            $context->answerCallbackQuery(__('User not found'));
 
             return;
         }
 
         $totalPending = $this->pairPendingRepository->countPendingPairs();
         $userPosition = $this->getUserPosition($user->id);
+        $isOvercrowded = $this->pairPendingRepository->isQueueOvercrowded();
+        $genderBalance = $this->pairPendingRepository->getGenderBalance();
 
-        $message = "📊 Queue Status:\n\n";
-        $message .= "👥 Total users in queue: {$totalPending}\n";
-        if ($userPosition > 0) {
-            $message .= "📍 Your position: #{$userPosition}\n";
+        if ($isOvercrowded && ! $genderBalance['is_balanced']) {
+            $message = __('queue.overcrowded_message', ['count' => $totalPending]);
+            $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
+
+            $context->sendMessage($message, $keyboard);
         } else {
-            $message .= "❌ You are not currently in the queue\n";
+            $message = "📊 Queue Status:\n\n";
+            $message .= "👥 Total users in queue: {$totalPending}\n";
+            if ($userPosition > 0) {
+                $message .= "📍 Your position: #{$userPosition}\n";
+            } else {
+                $message .= "❌ You are not currently in the queue\n";
+            }
+
+            $context->sendMessage($message);
         }
 
-        $context->sendMessage($message);
         $context->answerCallbackQuery();
     }
 

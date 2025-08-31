@@ -36,7 +36,7 @@ class PendingCommand extends BaseCommand implements CommandInterface
         $genderBalance = $this->pairPendingRepository->getGenderBalance();
 
         if ($isOvercrowded && ! $genderBalance['is_balanced']) {
-            $message = __('queue.overcrowded_message', ['count' => $pendingCount]);
+            $message = __('messages.queue.overcrowded_message', ['count' => $pendingCount]);
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
 
             $context->reply($message, $keyboard);

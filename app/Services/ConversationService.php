@@ -242,7 +242,7 @@ class ConversationService
         
         if ($isOvercrowded && !$isGenderBalanced) {
             $pendingCount = $this->pairPendingRepository->countPendingPairs();
-            $message = __('queue.overcrowded_message', ['count' => $pendingCount], $user->language_code ?? 'en');
+            $message = __('messages.queue.overcrowded_message', ['count' => $pendingCount], $user->language_code ?? 'en');
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
             
             $context->sendMessage($message, ['reply_markup' => $keyboard]);

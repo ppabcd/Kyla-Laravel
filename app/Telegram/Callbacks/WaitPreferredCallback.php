@@ -17,7 +17,7 @@ class WaitPreferredCallback extends BaseCallback implements CallbackInterface
 
     public function handle(TelegramContextInterface $context): void
     {
-        $message = __('queue.continue_waiting');
+        $message = __('messages.queue.continue_waiting');
         $keyboard = $this->keyboardService->getSearchingKeyboard();
 
         $context->editMessageText($message, $keyboard);

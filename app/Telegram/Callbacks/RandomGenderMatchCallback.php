@@ -36,7 +36,7 @@ class RandomGenderMatchCallback extends BaseCallback implements CallbackInterfac
                 'interest' => null,
             ]);
 
-            $message = __('queue.random_match_enabled');
+            $message = __('messages.queue.random_match_enabled');
             $keyboard = $this->keyboardService->getSearchingKeyboard();
 
             $context->editMessageText($message, $keyboard);

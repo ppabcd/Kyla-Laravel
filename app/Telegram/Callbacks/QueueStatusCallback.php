@@ -33,7 +33,7 @@ class QueueStatusCallback extends BaseCallback implements CallbackInterface
         $genderBalance = $this->pairPendingRepository->getGenderBalance();
 
         if ($isOvercrowded && ! $genderBalance['is_balanced']) {
-            $message = __('queue.overcrowded_message', ['count' => $totalPending]);
+            $message = __('messages.queue.overcrowded_message', ['count' => $totalPending]);
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
 
             $context->sendMessage($message, $keyboard);

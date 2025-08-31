@@ -193,4 +193,11 @@ Naye doston ki khoj karein kyunki ve aapka intezar kar rahe hain.',
     'subscribe' => [
         'announcement' => 'Is bot ka upyog karne se pehle, aapko pehle channel ko subscribe karna hoga. Subscribe karke, aapko bot ke sabhi visheshataon tak poorn pahunch mil jayegi. Hum niyamit roop se channel par bot ki sthiti aur naye karyakshamataon ke baare mein updates aur ghoshnaein pradaan karte hain, isliye subscribe karna sunishchit karta hai ki aap suchit rahein.',
     ],
+
+    'queue' => [
+        'long_queue' => 'Vartamaan mein kataar vyast hai. Kripaya kuch samay pratiksha karein.',
+        'check_queue' => 'Kripaya thoda intezaar karein, hum kataar ki jaanch kar rahe hain.',
+        'overcrowded_message' => '🚦 Kataar vartamaan mein :count upyogkartaon ke saath vyast hai!\n\n⚖️ Ling santulan abhi uchit nahi hai.\n\n🎲 Aap tez matching ke liye kisi bhi ling ke saath chat karne ka vikalp chun sakte hain, ya phir apne pasandida ling ka intezaar kar sakte hain.',
+        'continue_waiting' => '⏳ Aapne apne pasandida ling ka intezaar karne ka chayan kiya hai. Jab match mil jayega to hum aapko suchit kar denge.',
+    ],
 ];

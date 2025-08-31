@@ -266,6 +266,8 @@ Kamu masih bisa mengirimkan foto dan video kembali setelah bulan Ramadhan berakh
     'queue' => [
         'long_queue' => 'Saat ini antrian sedang padat. Mohon tunggu beberapa saat.',
         'check_queue' => 'Mohon tunggu sebentar, kami sedang memeriksa antrian.',
+        'overcrowded_message' => '🚦 Antrian sedang sibuk dengan :count pengguna menunggu!\n\n⚖️ Keseimbangan gender tidak optimal saat ini.\n\n🎲 Kamu bisa memilih untuk mengobrol dengan gender acak untuk pencocokan yang lebih cepat, atau terus menunggu gender yang kamu inginkan.',
+        'continue_waiting' => '⏳ Kamu memilih untuk menunggu gender yang kamu inginkan. Kami akan memberitahu kamu ketika pasangan ditemukan.',
     ],
 
     'rating' => [

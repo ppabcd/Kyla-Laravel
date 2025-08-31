@@ -191,4 +191,11 @@ Mari cari teman baru kerana mereka menunggu anda sekarang.',
     'subscribe' => [
         'announcement' => 'Sebelum menggunakan bot ini, anda mesti melanggan saluran ini dahulu. Dengan melanggan, anda akan mendapat akses penuh kepada ciri-ciri bot. Kami secara berkala menyediakan kemas kini dan pengumuman mengenai status bot dan fungsi baru pada saluran ini, jadi melanggan memastikan anda sentiasa maklum.',
     ],
+
+    'queue' => [
+        'long_queue' => 'Pada masa ini barisan sedang sibuk. Sila tunggu sebentar.',
+        'check_queue' => 'Sila tunggu sebentar, kami sedang memeriksa barisan.',
+        'overcrowded_message' => '🚦 Barisan sedang sibuk dengan :count pengguna menunggu!\n\n⚖️ Keseimbangan jantina tidak optimum sekarang.\n\n🎲 Anda boleh memilih untuk berbual dengan jantina rawak untuk padanan yang lebih pantas, atau terus menunggu jantina pilihan anda.',
+        'continue_waiting' => '⏳ Anda telah memilih untuk menunggu jantina pilihan anda. Kami akan memberitahu anda apabila padanan ditemui.',
+    ],
 ];

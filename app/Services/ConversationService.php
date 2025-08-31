@@ -236,10 +236,22 @@ class ConversationService
             'is_safe_mode' => $user->is_safe_mode ?? false,
         ]);
 
-        $context->sendMessage(
-            __('messages.pending_pair.created', [], $user->language_code ?? 'en'),
-            ['reply_markup' => $this->keyboardService->getSearchingKeyboard()]
-        );
+        // Check if queue is overcrowded and offer random gender option
+        $isOvercrowded = $this->pairPendingRepository->isQueueOvercrowded();
+        $isGenderBalanced = $this->pairPendingRepository->isGenderBalanced();
+        
+        if ($isOvercrowded && !$isGenderBalanced) {
+            $pendingCount = $this->pairPendingRepository->countPendingPairs();
+            $message = __('queue.overcrowded_message', ['count' => $pendingCount], $user->language_code ?? 'en');
+            $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
+            
+            $context->sendMessage($message, ['reply_markup' => $keyboard]);
+        } else {
+            $context->sendMessage(
+                __('messages.pending_pair.created', [], $user->language_code ?? 'en'),
+                ['reply_markup' => $this->keyboardService->getSearchingKeyboard()]
+            );
+        }
 
         return true;
     }

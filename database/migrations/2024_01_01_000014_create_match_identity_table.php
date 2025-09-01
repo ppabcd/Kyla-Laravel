@@ -33,4 +33,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('match_identity');
     }
-}; 
+};

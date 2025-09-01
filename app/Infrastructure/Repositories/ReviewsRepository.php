@@ -19,6 +19,7 @@ class ReviewsRepository
     public function update(Reviews $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class ReviewsRepository
     {
         return $entity->delete();
     }
-} 
+}

@@ -23,9 +23,9 @@ return new class extends Migration
             $table->string('invite_link')->nullable();
             $table->boolean('is_forum')->default(false);
             $table->boolean('active')->default(true);
-            
+
             $table->timestamps();
-            
+
             // Indexes
             $table->index('telegram_id');
             $table->index('type');
@@ -41,4 +41,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('chats');
     }
-}; 
+};

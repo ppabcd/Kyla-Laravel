@@ -19,6 +19,7 @@ class LevelsRepository
     public function update(Levels $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class LevelsRepository
     {
         return $entity->delete();
     }
-} 
+}

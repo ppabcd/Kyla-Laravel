@@ -56,6 +56,7 @@ abstract class BaseCallback implements CallbackInterface
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
         $this->middlewares[] = $middleware;
+
         return $this;
     }
 
@@ -87,7 +88,7 @@ abstract class BaseCallback implements CallbackInterface
             Log::error('Callback execution failed', [
                 'callback' => $this->callbackName,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -101,6 +102,7 @@ abstract class BaseCallback implements CallbackInterface
         if ($index >= count($this->middlewares)) {
             // All middleware passed, execute the callback
             $this->handle($context);
+
             return;
         }
 

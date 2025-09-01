@@ -2,17 +2,16 @@
 
 namespace App\Application\Services;
 
-use App\Domain\Entities\User;
-use App\Domain\Entities\BalanceTransaction;
-use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\Repositories\BalanceTransactionRepositoryInterface;
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Balance Service
- * 
+ *
  * Application service responsible for user balance and transaction management
  * Following Single Responsibility Principle and Clean Architecture
  */
@@ -21,19 +20,19 @@ class BalanceService
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private BalanceTransactionRepositoryInterface $transactionRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Add balance to user account
      */
-    public function addBalance(User $user, float $amount, string $description = 'Balance credit', string $referenceId = null, string $referenceType = null): bool
+    public function addBalance(User $user, float $amount, string $description = 'Balance credit', ?string $referenceId = null, ?string $referenceType = null): bool
     {
         if ($amount <= 0) {
             Log::warning('Attempted to add negative or zero balance', [
                 'user_id' => $user->id,
-                'amount' => $amount
+                'amount' => $amount,
             ]);
+
             return false;
         }
 
@@ -54,14 +53,14 @@ class BalanceService
                     'current_balance' => $newBalance,
                     'description' => $description,
                     'reference_id' => $referenceId,
-                    'reference_type' => $referenceType
+                    'reference_type' => $referenceType,
                 ]);
 
                 Log::info('Balance added successfully', [
                     'user_id' => $user->id,
                     'amount' => $amount,
                     'new_balance' => $newBalance,
-                    'transaction_id' => $transaction->id
+                    'transaction_id' => $transaction->id,
                 ]);
 
                 // Clear user cache
@@ -77,13 +76,14 @@ class BalanceService
     /**
      * Deduct balance from user account
      */
-    public function deductBalance(User $user, float $amount, string $description = 'Balance debit', string $referenceId = null, string $referenceType = null): bool
+    public function deductBalance(User $user, float $amount, string $description = 'Balance debit', ?string $referenceId = null, ?string $referenceType = null): bool
     {
         if ($amount <= 0) {
             Log::warning('Attempted to deduct negative or zero balance', [
                 'user_id' => $user->id,
-                'amount' => $amount
+                'amount' => $amount,
             ]);
+
             return false;
         }
 
@@ -91,8 +91,9 @@ class BalanceService
             Log::warning('Insufficient balance for deduction', [
                 'user_id' => $user->id,
                 'current_balance' => $user->balance,
-                'requested_amount' => $amount
+                'requested_amount' => $amount,
             ]);
+
             return false;
         }
 
@@ -113,14 +114,14 @@ class BalanceService
                     'current_balance' => $newBalance,
                     'description' => $description,
                     'reference_id' => $referenceId,
-                    'reference_type' => $referenceType
+                    'reference_type' => $referenceType,
                 ]);
 
                 Log::info('Balance deducted successfully', [
                     'user_id' => $user->id,
                     'amount' => $amount,
                     'new_balance' => $newBalance,
-                    'transaction_id' => $transaction->id
+                    'transaction_id' => $transaction->id,
                 ]);
 
                 // Clear user cache
@@ -142,8 +143,9 @@ class BalanceService
             Log::warning('Attempted to transfer negative or zero balance', [
                 'from_user_id' => $fromUser->id,
                 'to_user_id' => $toUser->id,
-                'amount' => $amount
+                'amount' => $amount,
             ]);
+
             return false;
         }
 
@@ -151,13 +153,14 @@ class BalanceService
             Log::warning('Insufficient balance for transfer', [
                 'from_user_id' => $fromUser->id,
                 'current_balance' => $fromUser->balance,
-                'transfer_amount' => $amount
+                'transfer_amount' => $amount,
             ]);
+
             return false;
         }
 
         return DB::transaction(function () use ($fromUser, $toUser, $amount, $description) {
-            $transferId = 'TRX_' . time() . '_' . $fromUser->id . '_' . $toUser->id;
+            $transferId = 'TRX_'.time().'_'.$fromUser->id.'_'.$toUser->id;
 
             // Deduct from sender
             $deducted = $this->deductBalance(
@@ -168,7 +171,7 @@ class BalanceService
                 'transfer_out'
             );
 
-            if (!$deducted) {
+            if (! $deducted) {
                 return false;
             }
 
@@ -181,7 +184,7 @@ class BalanceService
                 'transfer_in'
             );
 
-            if (!$added) {
+            if (! $added) {
                 // Rollback by adding back to sender
                 $this->addBalance(
                     $fromUser,
@@ -190,6 +193,7 @@ class BalanceService
                     $transferId,
                     'transfer_rollback'
                 );
+
                 return false;
             }
 
@@ -197,7 +201,7 @@ class BalanceService
                 'from_user_id' => $fromUser->id,
                 'to_user_id' => $toUser->id,
                 'amount' => $amount,
-                'transfer_id' => $transferId
+                'transfer_id' => $transferId,
             ]);
 
             return true;
@@ -221,8 +225,8 @@ class BalanceService
                 'created_at' => $transaction->created_at,
                 'reference' => [
                     'id' => $transaction->reference_id,
-                    'type' => $transaction->reference_type
-                ]
+                    'type' => $transaction->reference_type,
+                ],
             ];
         })->toArray();
     }
@@ -246,7 +250,7 @@ class BalanceService
                     ? $transactions->avg('amount')
                     : 0,
                 'last_transaction' => $transactions->first()?->created_at,
-                'monthly_summary' => $this->getMonthlyTransactionSummary($user)
+                'monthly_summary' => $this->getMonthlyTransactionSummary($user),
             ];
         });
     }
@@ -274,7 +278,7 @@ class BalanceService
                     'transaction_id' => $transaction->id,
                     'expected_balance' => $calculatedBalance,
                     'recorded_balance' => $transaction->current_balance,
-                    'difference' => $transaction->current_balance - $calculatedBalance
+                    'difference' => $transaction->current_balance - $calculatedBalance,
                 ];
             }
         }
@@ -285,7 +289,7 @@ class BalanceService
             'recorded_balance' => $user->balance,
             'difference' => $user->balance - $calculatedBalance,
             'discrepancies' => $discrepancies,
-            'total_transactions' => $transactions->count()
+            'total_transactions' => $transactions->count(),
         ];
     }
 
@@ -304,7 +308,7 @@ class BalanceService
             $user,
             $rewardAmount,
             'Daily login reward',
-            'daily_reward_' . now()->format('Y-m-d'),
+            'daily_reward_'.now()->format('Y-m-d'),
             'daily_reward'
         );
     }
@@ -320,10 +324,10 @@ class BalanceService
         $amount = $transactionData['amount'] ?? 0;
         $description = $transactionData['description'] ?? 'No description';
 
-        return "👤 User: *{$userId}*\n" .
-            "👝 Previous Balance: {$previousBalance}\n" .
-            "💼 Current Balance: *{$currentBalance}*\n" .
-            "💰 Amount: *{$amount}*\n" .
+        return "👤 User: *{$userId}*\n".
+            "👝 Previous Balance: {$previousBalance}\n".
+            "💼 Current Balance: *{$currentBalance}*\n".
+            "💰 Amount: *{$amount}*\n".
             "📝 Description: *{$description}*";
     }
 
@@ -349,7 +353,7 @@ class BalanceService
             'total_debits' => $debits->sum('amount'),
             'credit_count' => $credits->count(),
             'debit_count' => $debits->count(),
-            'net_change' => $credits->sum('amount') - $debits->sum('amount')
+            'net_change' => $credits->sum('amount') - $debits->sum('amount'),
         ];
     }
 

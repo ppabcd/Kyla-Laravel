@@ -12,10 +12,10 @@ class BalanceService
         $amount = $data['amount'] ?? 0;
         $description = $data['description'] ?? '';
 
-        return "👤 User: *{$userId}*\n" .
-            "👝 Previous Balance: {$previousBalance}\n" .
-            "💼 Current Balance: *{$currentBalance}*\n" .
-            "💰 Amount: *{$amount}*\n" .
+        return "👤 User: *{$userId}*\n".
+            "👝 Previous Balance: {$previousBalance}\n".
+            "💼 Current Balance: *{$currentBalance}*\n".
+            "💰 Amount: *{$amount}*\n".
             "📝 Description: *{$description}*";
     }
 

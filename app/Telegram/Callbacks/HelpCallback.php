@@ -2,13 +2,14 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCallback;
 use Illuminate\Support\Facades\Log;
 
 class HelpCallback extends BaseCallback
 {
     protected string|array $callbackName = 'help';
+
     protected string $description = 'Callback untuk menampilkan bantuan';
 
     public function handle(TelegramContextInterface $context): void
@@ -38,7 +39,7 @@ class HelpCallback extends BaseCallback
         Log::info('Help callback executed', [
             'user_id' => $context->getUserId(),
             'chat_id' => $context->getChatId(),
-            'action' => $action
+            'action' => $action,
         ]);
     }
 
@@ -55,22 +56,22 @@ class HelpCallback extends BaseCallback
         $helpMessage .= "• /match - Mencari pasangan\n";
         $helpMessage .= "• /chat - Mulai percakapan\n";
         $helpMessage .= "• /report - Laporkan masalah\n\n";
-        $helpMessage .= "Pilih kategori di bawah untuk informasi lebih detail:";
+        $helpMessage .= 'Pilih kategori di bawah untuk informasi lebih detail:';
 
         $keyboard = [
             [
                 ['text' => '🔹 Perintah', 'callback_data' => 'help:commands'],
-                ['text' => '🔹 Callback', 'callback_data' => 'help:callbacks']
+                ['text' => '🔹 Callback', 'callback_data' => 'help:callbacks'],
             ],
             [
                 ['text' => '🔹 Pengaturan', 'callback_data' => 'help:settings'],
-                ['text' => '🔙 Kembali', 'callback_data' => 'start:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'start:main'],
+            ],
         ];
 
         $context->editMessageText($helpMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -94,17 +95,17 @@ class HelpCallback extends BaseCallback
         $helpMessage .= "**Fitur Admin:**\n";
         $helpMessage .= "• `/admin` - Panel admin\n";
         $helpMessage .= "• `/stats` - Statistik bot\n";
-        $helpMessage .= "• `/broadcast` - Kirim pesan ke semua user";
+        $helpMessage .= '• `/broadcast` - Kirim pesan ke semua user';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'help:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'help:main'],
+            ],
         ];
 
         $context->editMessageText($helpMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -127,17 +128,17 @@ class HelpCallback extends BaseCallback
         $helpMessage .= "**Matching:**\n";
         $helpMessage .= "• `match:like` - Suka pasangan\n";
         $helpMessage .= "• `match:pass` - Lewati pasangan\n";
-        $helpMessage .= "• `match:report` - Laporkan pasangan";
+        $helpMessage .= '• `match:report` - Laporkan pasangan';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'help:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'help:main'],
+            ],
         ];
 
         $context->editMessageText($helpMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -159,17 +160,17 @@ class HelpCallback extends BaseCallback
         $helpMessage .= "**Keamanan:**\n";
         $helpMessage .= "• Blokir pengguna\n";
         $helpMessage .= "• Laporkan penyalahgunaan\n";
-        $helpMessage .= "• Hapus akun";
+        $helpMessage .= '• Hapus akun';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'help:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'help:main'],
+            ],
         ];
 
         $context->editMessageText($helpMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
-} 
+}

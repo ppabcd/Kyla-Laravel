@@ -2,11 +2,10 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
-use App\Telegram\Contracts\CallbackInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CallbackInterface;
+use App\Telegram\Core\BaseCallback;
 
 class PrivacyCallback extends BaseCallback implements CallbackInterface
 {
@@ -18,15 +17,15 @@ class PrivacyCallback extends BaseCallback implements CallbackInterface
     ) {}
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
-
     {
         $telegramUser = $context->getUser();
-        if (!$telegramUser) {
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
         $lang = $telegramUser['language_code'] ?? 'en';
         $message = __('privacy.policy', [], $lang);
         $context->reply($message, ['parse_mode' => 'Markdown']);
     }
-} 
+}

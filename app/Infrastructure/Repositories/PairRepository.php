@@ -2,9 +2,9 @@
 
 namespace App\Infrastructure\Repositories;
 
-use App\Domain\Entities\Pair;
-use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
+use App\Models\Pair;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;

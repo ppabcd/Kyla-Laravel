@@ -10,7 +10,7 @@ test('user can authenticate with valid credentials', function () {
     $user = User::factory()->create([
         'telegram_id' => 123456789,
         'first_name' => 'Test',
-        'username' => 'testuser'
+        'username' => 'testuser',
     ]);
 
     Sanctum::actingAs($user);
@@ -22,7 +22,7 @@ test('user can authenticate with valid credentials', function () {
             'id' => $user->id,
             'telegram_id' => $user->telegram_id,
             'first_name' => $user->first_name,
-            'username' => $user->username
+            'username' => $user->username,
         ]);
 });
 
@@ -46,14 +46,14 @@ test('user can access telegram webhook without authentication', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'chat' => [
                 'id' => 123456,
-                'type' => 'private'
+                'type' => 'private',
             ],
-            'text' => 'Hello'
-        ]
+            'text' => 'Hello',
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $update);
@@ -84,7 +84,7 @@ test('authenticated user can access their own data', function () {
         'age' => 25,
         'premium' => false,
         'banned' => false,
-        'balances' => 100
+        'balances' => 100,
     ]);
 
     Sanctum::actingAs($user);
@@ -104,7 +104,7 @@ test('authenticated user can access their own data', function () {
             'age' => $user->age,
             'premium' => $user->premium,
             'banned' => $user->banned,
-            'balances' => $user->balances
+            'balances' => $user->balances,
         ]);
 });
 
@@ -125,7 +125,7 @@ test('user cannot access other user data', function () {
 test('banned user cannot access protected routes', function () {
     $bannedUser = User::factory()->create([
         'telegram_id' => 123456789,
-        'banned' => 1
+        'banned' => 1,
     ]);
 
     Sanctum::actingAs($bannedUser);
@@ -139,7 +139,7 @@ test('banned user cannot access protected routes', function () {
 test('blocked user cannot access protected routes', function () {
     $blockedUser = User::factory()->create([
         'telegram_id' => 123456789,
-        'is_blocked' => 1
+        'is_blocked' => 1,
     ]);
 
     Sanctum::actingAs($blockedUser);
@@ -154,7 +154,7 @@ test('user session persists across requests', function () {
     $user = User::factory()->create([
         'telegram_id' => 123456789,
         'first_name' => 'Test',
-        'username' => 'testuser'
+        'username' => 'testuser',
     ]);
 
     Sanctum::actingAs($user);
@@ -176,7 +176,7 @@ test('user can access routes with different user agents', function () {
     $user = User::factory()->create([
         'telegram_id' => 123456789,
         'first_name' => 'Test',
-        'username' => 'testuser'
+        'username' => 'testuser',
     ]);
 
     Sanctum::actingAs($user);
@@ -186,12 +186,12 @@ test('user can access routes with different user agents', function () {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
         'TelegramBot/1.0',
-        'PostmanRuntime/7.29.0'
+        'PostmanRuntime/7.29.0',
     ];
 
     foreach ($userAgents as $userAgent) {
         $response = $this->withHeaders([
-            'User-Agent' => $userAgent
+            'User-Agent' => $userAgent,
         ])->getJson('/api/user');
 
         $response->assertStatus(200);
@@ -202,7 +202,7 @@ test('user can access routes with different content types', function () {
     $user = User::factory()->create([
         'telegram_id' => 123456789,
         'first_name' => 'Test',
-        'username' => 'testuser'
+        'username' => 'testuser',
     ]);
 
     Sanctum::actingAs($user);
@@ -210,13 +210,13 @@ test('user can access routes with different content types', function () {
     $contentTypes = [
         'application/json',
         'application/x-www-form-urlencoded',
-        'multipart/form-data'
+        'multipart/form-data',
     ];
 
     foreach ($contentTypes as $contentType) {
         $response = $this->withHeaders([
             'Content-Type' => $contentType,
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ])->getJson('/api/user');
 
         $response->assertStatus(200);
@@ -227,7 +227,7 @@ test('user authentication works with different HTTP methods', function () {
     $user = User::factory()->create([
         'telegram_id' => 123456789,
         'first_name' => 'Test',
-        'username' => 'testuser'
+        'username' => 'testuser',
     ]);
 
     Sanctum::actingAs($user);
@@ -254,14 +254,14 @@ test('user authentication handles expired tokens gracefully', function () {
     $user = User::factory()->create([
         'telegram_id' => 123456789,
         'first_name' => 'Test',
-        'username' => 'testuser'
+        'username' => 'testuser',
     ]);
 
     // Create a token that expires immediately
     $token = $user->createToken('test-token', ['*'], now()->subMinute());
 
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer ' . $token->plainTextToken
+        'Authorization' => 'Bearer '.$token->plainTextToken,
     ])->getJson('/api/user');
 
     // Should return 401 for expired token
@@ -270,7 +270,7 @@ test('user authentication handles expired tokens gracefully', function () {
 
 test('user authentication handles invalid tokens gracefully', function () {
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer invalid-token'
+        'Authorization' => 'Bearer invalid-token',
     ])->getJson('/api/user');
 
     $response->assertStatus(401);
@@ -284,7 +284,7 @@ test('user authentication handles missing authorization header gracefully', func
 
 test('user authentication handles malformed authorization header gracefully', function () {
     $response = $this->withHeaders([
-        'Authorization' => 'InvalidFormat token'
+        'Authorization' => 'InvalidFormat token',
     ])->getJson('/api/user');
 
     $response->assertStatus(401);

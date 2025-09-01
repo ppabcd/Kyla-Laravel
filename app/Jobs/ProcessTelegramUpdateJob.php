@@ -36,14 +36,14 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             Log::info('Processing Telegram update job', [
                 'update_id' => $this->update['update_id'] ?? null,
                 'job_id' => $this->job->getJobId(),
-                'attempt' => $this->attempts()
+                'attempt' => $this->attempts(),
             ]);
 
             $telegramService->handleUpdate($this->update);
 
             Log::info('Telegram update job completed successfully', [
                 'update_id' => $this->update['update_id'] ?? null,
-                'job_id' => $this->job->getJobId()
+                'job_id' => $this->job->getJobId(),
             ]);
 
         } catch (\Exception $e) {
@@ -52,7 +52,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
                 'job_id' => $this->job->getJobId(),
                 'attempt' => $this->attempts(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             // Re-throw the exception to trigger retry
@@ -69,7 +69,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
             'update_id' => $this->update['update_id'] ?? null,
             'job_id' => $this->job->getJobId(),
             'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString()
+            'trace' => $exception->getTraceAsString(),
         ]);
     }
 
@@ -81,7 +81,7 @@ class ProcessTelegramUpdateJob implements ShouldQueue
         return [
             'telegram',
             'update',
-            'update_id:' . ($this->update['update_id'] ?? 'unknown')
+            'update_id:'.($this->update['update_id'] ?? 'unknown'),
         ];
     }
-} 
+}

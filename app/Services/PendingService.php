@@ -10,8 +10,7 @@ class PendingService
 {
     public function __construct(
         private PairPendingRepositoryInterface $pairPendingRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Get pending count for user
@@ -20,12 +19,14 @@ class PendingService
     {
         try {
             $pendingPairs = $this->pairPendingRepository->findByUserId($user->id);
+
             return count($pendingPairs);
         } catch (\Exception $e) {
             Log::error('Failed to get pending count', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }

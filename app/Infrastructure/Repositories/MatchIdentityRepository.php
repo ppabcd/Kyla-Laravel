@@ -19,6 +19,7 @@ class MatchIdentityRepository
     public function update(MatchIdentity $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class MatchIdentityRepository
     {
         return $entity->delete();
     }
-} 
+}

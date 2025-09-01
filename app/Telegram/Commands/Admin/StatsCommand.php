@@ -2,15 +2,17 @@
 
 namespace App\Telegram\Commands\Admin;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\TelegramContextInterface;
-use App\Domain\Repositories\UserRepositoryInterface;
 use App\Application\Services\BannedService;
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCommand;
 
 class StatsCommand extends BaseCommand
 {
     protected string $name = 'stats';
+
     protected string $description = 'Show bot statistics';
+
     protected bool $adminOnly = true;
 
     public function __construct(
@@ -24,8 +26,9 @@ class StatsCommand extends BaseCommand
         $chatId = $message['chat']['id'] ?? null;
 
         // Check if user is admin
-        if (!$this->isAdmin($chatId)) {
+        if (! $this->isAdmin($chatId)) {
             $context->reply(__('errors.permission_denied'));
+
             return;
         }
 
@@ -44,7 +47,7 @@ class StatsCommand extends BaseCommand
         $stats .= "📅 **Today:** {$todayUsers}\n";
         $stats .= "📅 **This Week:** {$weekUsers}\n";
         $stats .= "📅 **This Month:** {$monthUsers}\n\n";
-        $stats .= "🔄 **Last Updated:** " . now()->format('Y-m-d H:i:s');
+        $stats .= '🔄 **Last Updated:** '.now()->format('Y-m-d H:i:s');
 
         $context->reply($stats);
     }
@@ -52,6 +55,7 @@ class StatsCommand extends BaseCommand
     private function isAdmin(int $chatId): bool
     {
         $adminIds = config('telegram.admin_ids', []);
+
         return in_array($chatId, $adminIds);
     }
-} 
+}

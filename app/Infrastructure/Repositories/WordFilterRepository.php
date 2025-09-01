@@ -18,11 +18,11 @@ class WordFilterRepository implements WordFilterRepositoryInterface
         $query = WordFilter::query();
 
         // Apply filters
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->search($filters['search']);
         }
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->byType($filters['type']);
         }
 
@@ -52,6 +52,7 @@ class WordFilterRepository implements WordFilterRepositoryInterface
     {
         $wordFilter = WordFilter::create($data);
         $this->clearCache();
+
         return $wordFilter;
     }
 
@@ -64,6 +65,7 @@ class WordFilterRepository implements WordFilterRepositoryInterface
         if ($result) {
             $this->clearCache();
         }
+
         return $result;
     }
 
@@ -76,6 +78,7 @@ class WordFilterRepository implements WordFilterRepositoryInterface
         if ($result) {
             $this->clearCache();
         }
+
         return $result;
     }
 
@@ -129,7 +132,7 @@ class WordFilterRepository implements WordFilterRepositoryInterface
 
         foreach ($words as $word) {
             $word = trim(strtolower($word));
-            if (!empty($word) && !in_array($word, $existingWords)) {
+            if (! empty($word) && ! in_array($word, $existingWords)) {
                 WordFilter::create([
                     'word' => $word,
                     'word_type' => $type,

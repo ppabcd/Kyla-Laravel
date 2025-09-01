@@ -19,6 +19,7 @@ class MatchReportRepository
     public function update(MatchReport $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class MatchReportRepository
     {
         return $entity->delete();
     }
-} 
+}

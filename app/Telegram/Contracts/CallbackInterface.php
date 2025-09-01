@@ -40,4 +40,4 @@ interface CallbackInterface
      * Execute callback with middleware
      */
     public function execute(TelegramContextInterface $context): void;
-} 
+}

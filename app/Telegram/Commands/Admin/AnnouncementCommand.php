@@ -2,14 +2,16 @@
 
 namespace App\Telegram\Commands\Admin;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\TelegramContextInterface;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCommand;
 
 class AnnouncementCommand extends BaseCommand
 {
     protected string $name = 'announcement';
+
     protected string $description = 'Make an announcement to all users';
+
     protected bool $adminOnly = true;
 
     public function __construct(
@@ -23,8 +25,9 @@ class AnnouncementCommand extends BaseCommand
         $text = $message['text'] ?? '' ?? '';
 
         // Check if user is admin
-        if (!$this->isAdmin($chatId)) {
+        if (! $this->isAdmin($chatId)) {
             $context->reply(__('errors.permission_denied'));
+
             return;
         }
 
@@ -33,6 +36,7 @@ class AnnouncementCommand extends BaseCommand
 
         if (empty($announcementText)) {
             $context->reply("📢 **Pengumuman**\n\nGunakan format:\n/announcement <teks pengumuman>\n\nContoh:\n/announcement Server akan maintenance pada pukul 02:00 WIB");
+
             return;
         }
 
@@ -47,7 +51,7 @@ class AnnouncementCommand extends BaseCommand
                 $context->getBot()->sendMessage([
                     'chat_id' => $user->telegram_id,
                     'text' => "📢 **PENGUMUMAN**\n\n{$announcementText}\n\n— Tim Kyla Bot",
-                    'parse_mode' => 'Markdown'
+                    'parse_mode' => 'Markdown',
                 ]);
                 $successCount++;
             } catch (\Exception $e) {
@@ -55,13 +59,14 @@ class AnnouncementCommand extends BaseCommand
             }
         }
 
-        $context->reply("📢 **Pengumuman Terkirim**\n\n✅ Berhasil: {$successCount} pengguna\n❌ Gagal: {$failedCount} pengguna\n\nTotal: " . count($users) . " pengguna");
+        $context->reply("📢 **Pengumuman Terkirim**\n\n✅ Berhasil: {$successCount} pengguna\n❌ Gagal: {$failedCount} pengguna\n\nTotal: ".count($users).' pengguna');
     }
 
     private function isAdmin(int $chatId): bool
     {
         // Get admin IDs from config
         $adminIds = config('telegram.admin_ids', []);
+
         return in_array($chatId, $adminIds);
     }
-} 
+}

@@ -2,17 +2,18 @@
 
 namespace App\Telegram\Commands;
 
-use App\Telegram\Core\BaseCommand;
-use App\Telegram\Contracts\TelegramContextInterface;
 use App\Services\ConversationService;
 use App\Services\MixpanelService;
-use App\Telegram\Middleware\CheckBannedUserMiddleware;
+use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCommand;
 use Illuminate\Support\Facades\Log;
 
 class StopCommand extends BaseCommand
 {
     protected string|array $commandName = 'stop';
+
     protected string $description = 'Stop current conversation';
+
     protected string $usage = '/stop';
 
     // Middleware handled by TelegramBotService
@@ -20,16 +21,16 @@ class StopCommand extends BaseCommand
     public function __construct(
         private ConversationService $conversationService,
         private MixpanelService $mixpanelService
-    ) {
-    }
+    ) {}
 
     public function handle(TelegramContextInterface $context): void
     {
         try {
             $user = $context->getUserModel();
 
-            if (!$user) {
+            if (! $user) {
                 $context->sendMessage('❌ User not found');
+
                 return;
             }
 
@@ -39,19 +40,19 @@ class StopCommand extends BaseCommand
             // Track analytics
             $this->mixpanelService->trackEvent('Conversation action', [
                 'action' => 'stop',
-                'distinct_id' => $user->id
+                'distinct_id' => $user->id,
             ]);
 
             Log::info('Stop command executed', [
                 'user_id' => $user->id,
-                'telegram_id' => $user->telegram_id
+                'telegram_id' => $user->telegram_id,
             ]);
 
         } catch (\Exception $e) {
             Log::error('StopCommand error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'user_id' => $context->getUserId()
+                'user_id' => $context->getUserId(),
             ]);
 
             $context->sendMessage('❌ An error occurred. Please try again.');

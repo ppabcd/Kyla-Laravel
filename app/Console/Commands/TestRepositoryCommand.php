@@ -2,16 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Repositories\PairRepositoryInterface;
-use App\Application\Services\UserService;
 use App\Application\Services\MatchingService;
-use App\Domain\Entities\User;
+use App\Application\Services\UserService;
+use App\Domain\Repositories\PairRepositoryInterface;
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Models\User;
+use Illuminate\Console\Command;
 
 class TestRepositoryCommand extends Command
 {
     protected $signature = 'telegram:test-repository';
+
     protected $description = 'Test repository pattern implementation';
 
     public function handle(
@@ -44,6 +45,7 @@ class TestRepositoryCommand extends Command
         $this->newLine();
 
         $this->info('✅ Repository Pattern tests completed!');
+
         return 0;
     }
 
@@ -53,13 +55,13 @@ class TestRepositoryCommand extends Command
         $user = User::first();
         if ($user) {
             $foundUser = $userRepository->findById($user->id);
-            $this->info("   ✅ findById: " . ($foundUser ? "User found (ID: {$foundUser->id})" : "User not found"));
+            $this->info('   ✅ findById: '.($foundUser ? "User found (ID: {$foundUser->id})" : 'User not found'));
         }
 
         // Test findByTelegramId
         if ($user) {
             $foundUser = $userRepository->findByTelegramId($user->telegram_id);
-            $this->info("   ✅ findByTelegramId: " . ($foundUser ? "User found (Telegram ID: {$foundUser->telegram_id})" : "User not found"));
+            $this->info('   ✅ findByTelegramId: '.($foundUser ? "User found (Telegram ID: {$foundUser->telegram_id})" : 'User not found'));
         }
 
         // Test counts
@@ -69,7 +71,7 @@ class TestRepositoryCommand extends Command
 
         // Test findActiveUsers
         $activeUsersList = $userRepository->findActiveUsers();
-        $this->info("   ✅ findActiveUsers: Found " . $activeUsersList->count() . " active users");
+        $this->info('   ✅ findActiveUsers: Found '.$activeUsersList->count().' active users');
     }
 
     private function testPairRepository(PairRepositoryInterface $pairRepository): void
@@ -80,15 +82,15 @@ class TestRepositoryCommand extends Command
 
         // Test findActivePairs
         $activePairsList = $pairRepository->findActivePairs();
-        $this->info("   ✅ findActivePairs: Found " . $activePairsList->count() . " active pairs");
+        $this->info('   ✅ findActivePairs: Found '.$activePairsList->count().' active pairs');
 
         // Test findRecentPairs
         $recentPairs = $pairRepository->findRecentPairs(5);
-        $this->info("   ✅ findRecentPairs: Found " . $recentPairs->count() . " recent pairs");
+        $this->info('   ✅ findRecentPairs: Found '.$recentPairs->count().' recent pairs');
 
         // Test findPairsByStatus
         $endedPairs = $pairRepository->findPairsByStatus('ended');
-        $this->info("   ✅ findPairsByStatus: Found " . $endedPairs->count() . " ended pairs");
+        $this->info('   ✅ findPairsByStatus: Found '.$endedPairs->count().' ended pairs');
     }
 
     private function testUserService(UserService $userService): void
@@ -105,9 +107,9 @@ class TestRepositoryCommand extends Command
         $user = User::first();
         if ($user && $user->canMatch()) {
             $matchableUsers = $userService->findMatchableUsers($user);
-            $this->info("   ✅ findMatchableUsers: Found " . count($matchableUsers) . " matchable users for user {$user->id}");
+            $this->info('   ✅ findMatchableUsers: Found '.count($matchableUsers)." matchable users for user {$user->id}");
         } else {
-            $this->info("   ⚠️ findMatchableUsers: User cannot match (incomplete profile or no users)");
+            $this->info('   ⚠️ findMatchableUsers: User cannot match (incomplete profile or no users)');
         }
     }
 
@@ -115,7 +117,7 @@ class TestRepositoryCommand extends Command
     {
         // Test getMatchStats
         $stats = $matchingService->getMatchStats();
-        $this->info("   ✅ getMatchStats:");
+        $this->info('   ✅ getMatchStats:');
         $this->info("      - Active pairs: {$stats['active_pairs']}");
         $this->info("      - Total users: {$stats['total_users']}");
         $this->info("      - Premium users: {$stats['premium_users']}");
@@ -131,7 +133,7 @@ class TestRepositoryCommand extends Command
                 $this->info("   ⚠️ findMatch: No suitable match found for user {$user->id}");
             }
         } else {
-            $this->info("   ⚠️ findMatch: User cannot match (incomplete profile or no users)");
+            $this->info('   ⚠️ findMatch: User cannot match (incomplete profile or no users)');
         }
     }
-} 
+}

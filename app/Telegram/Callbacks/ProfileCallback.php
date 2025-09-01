@@ -2,13 +2,14 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCallback;
 use Illuminate\Support\Facades\Log;
 
 class ProfileCallback extends BaseCallback
 {
     protected string|array $callbackName = 'profile';
+
     protected string $description = 'Callback untuk mengatur profil pengguna';
 
     public function handle(TelegramContextInterface $context): void
@@ -71,7 +72,7 @@ class ProfileCallback extends BaseCallback
         Log::info('Profile callback executed', [
             'user_id' => $context->getUserId(),
             'chat_id' => $context->getChatId(),
-            'action' => $action
+            'action' => $action,
         ]);
     }
 
@@ -82,26 +83,26 @@ class ProfileCallback extends BaseCallback
 
         $profileMessage = "👤 **Profil Pengguna**\n\n";
         $profileMessage .= "**Nama:** {$userName}\n";
-        $profileMessage .= "**Username:** @" . ($user->username ?? 'tidak ada') . "\n";
-        $profileMessage .= "**Bahasa:** " . ($user->language_code ?? 'en') . "\n";
-        $profileMessage .= "**Status:** " . ($user->is_bot ? 'Bot' : 'User') . "\n";
-        $profileMessage .= "**Bergabung:** " . ($user->created_at?->format('d/m/Y H:i') ?? 'N/A') . "\n\n";
-        $profileMessage .= "Pilih opsi di bawah untuk mengatur profil:";
+        $profileMessage .= '**Username:** @'.($user->username ?? 'tidak ada')."\n";
+        $profileMessage .= '**Bahasa:** '.($user->language_code ?? 'en')."\n";
+        $profileMessage .= '**Status:** '.($user->is_bot ? 'Bot' : 'User')."\n";
+        $profileMessage .= '**Bergabung:** '.($user->created_at?->format('d/m/Y H:i') ?? 'N/A')."\n\n";
+        $profileMessage .= 'Pilih opsi di bawah untuk mengatur profil:';
 
         $keyboard = [
             [
                 ['text' => '✏️ Edit Profil', 'callback_data' => 'profile:edit'],
-                ['text' => '📷 Upload Foto', 'callback_data' => 'profile:photo']
+                ['text' => '📷 Upload Foto', 'callback_data' => 'profile:photo'],
             ],
             [
                 ['text' => '⚙️ Pengaturan', 'callback_data' => 'profile:settings'],
-                ['text' => '🔙 Kembali', 'callback_data' => 'start:main']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'start:main'],
+            ],
         ];
 
         $context->editMessageText($profileMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -113,26 +114,26 @@ class ProfileCallback extends BaseCallback
         $editMessage .= "• **Bio** - Tambahkan deskripsi tentang diri Anda\n";
         $editMessage .= "• **Lokasi** - Set lokasi Anda\n";
         $editMessage .= "• **Minat** - Pilih minat dan hobi\n";
-        $editMessage .= "• **Bahasa** - Ubah bahasa preferensi";
+        $editMessage .= '• **Bahasa** - Ubah bahasa preferensi';
 
         $keyboard = [
             [
                 ['text' => '👤 Nama', 'callback_data' => 'profile:edit_name'],
-                ['text' => '📝 Bio', 'callback_data' => 'profile:edit_bio']
+                ['text' => '📝 Bio', 'callback_data' => 'profile:edit_bio'],
             ],
             [
                 ['text' => '📍 Lokasi', 'callback_data' => 'profile:edit_location'],
-                ['text' => '🎯 Minat', 'callback_data' => 'profile:edit_interests']
+                ['text' => '🎯 Minat', 'callback_data' => 'profile:edit_interests'],
             ],
             [
                 ['text' => '🌐 Bahasa', 'callback_data' => 'profile:edit_language'],
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:view']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:view'],
+            ],
         ];
 
         $context->editMessageText($editMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -146,21 +147,21 @@ class ProfileCallback extends BaseCallback
         $photoMessage .= "**Tips:**\n";
         $photoMessage .= "• Gunakan foto yang jelas dan berkualitas baik\n";
         $photoMessage .= "• Pastikan foto menampilkan wajah Anda dengan jelas\n";
-        $photoMessage .= "• Hindari foto yang terlalu gelap atau blur";
+        $photoMessage .= '• Hindari foto yang terlalu gelap atau blur';
 
         $keyboard = [
             [
                 ['text' => '📤 Upload Sekarang', 'callback_data' => 'profile:upload_photo'],
-                ['text' => '🖼️ Lihat Foto Saat Ini', 'callback_data' => 'profile:view_photo']
+                ['text' => '🖼️ Lihat Foto Saat Ini', 'callback_data' => 'profile:view_photo'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:view']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:view'],
+            ],
         ];
 
         $context->editMessageText($photoMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -177,22 +178,22 @@ class ProfileCallback extends BaseCallback
         $settingsMessage .= "• Notifikasi sistem\n\n";
         $settingsMessage .= "🌍 **Lokasi**\n";
         $settingsMessage .= "• Radius pencarian\n";
-        $settingsMessage .= "• Tampilkan lokasi di profil";
+        $settingsMessage .= '• Tampilkan lokasi di profil';
 
         $keyboard = [
             [
                 ['text' => '🔒 Privasi', 'callback_data' => 'profile:settings_privacy'],
-                ['text' => '🔔 Notifikasi', 'callback_data' => 'profile:settings_notifications']
+                ['text' => '🔔 Notifikasi', 'callback_data' => 'profile:settings_notifications'],
             ],
             [
                 ['text' => '🌍 Lokasi', 'callback_data' => 'profile:settings_location'],
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:view']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:view'],
+            ],
         ];
 
         $context->editMessageText($settingsMessage, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -201,17 +202,17 @@ class ProfileCallback extends BaseCallback
         $message = "👤 **Edit Nama**\n\n";
         $message .= "Silakan kirim nama baru Anda dalam format:\n";
         $message .= "`Nama Depan Nama Belakang`\n\n";
-        $message .= "Contoh: `John Doe` atau `Jane Smith`";
+        $message .= 'Contoh: `John Doe` atau `Jane Smith`';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -223,17 +224,17 @@ class ProfileCallback extends BaseCallback
         $message .= "**Tips:**\n";
         $message .= "• Tulis sesuatu yang menarik tentang diri Anda\n";
         $message .= "• Maksimal 500 karakter\n";
-        $message .= "• Hindari informasi pribadi yang sensitif";
+        $message .= '• Hindari informasi pribadi yang sensitif';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -244,20 +245,20 @@ class ProfileCallback extends BaseCallback
         $message .= "1. 📍 Klik tombol 'Kirim Lokasi' di bawah\n";
         $message .= "2. 🗺️ Pilih lokasi Anda di peta\n";
         $message .= "3. ✅ Lokasi akan disimpan otomatis\n\n";
-        $message .= "Atau ketik nama kota/kabupaten Anda.";
+        $message .= 'Atau ketik nama kota/kabupaten Anda.';
 
         $keyboard = [
             [
-                ['text' => '📍 Kirim Lokasi', 'callback_data' => 'profile:send_location']
+                ['text' => '📍 Kirim Lokasi', 'callback_data' => 'profile:send_location'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -265,33 +266,33 @@ class ProfileCallback extends BaseCallback
     {
         $message = "🎯 **Edit Minat**\n\n";
         $message .= "Pilih minat yang sesuai dengan Anda:\n\n";
-        $message .= "Minat yang dipilih akan membantu menemukan pasangan yang cocok.";
+        $message .= 'Minat yang dipilih akan membantu menemukan pasangan yang cocok.';
 
         $keyboard = [
             [
                 ['text' => '🎵 Musik', 'callback_data' => 'profile:interest_music'],
-                ['text' => '🎬 Film', 'callback_data' => 'profile:interest_movie']
+                ['text' => '🎬 Film', 'callback_data' => 'profile:interest_movie'],
             ],
             [
                 ['text' => '📚 Buku', 'callback_data' => 'profile:interest_book'],
-                ['text' => '🏃 Olahraga', 'callback_data' => 'profile:interest_sport']
+                ['text' => '🏃 Olahraga', 'callback_data' => 'profile:interest_sport'],
             ],
             [
                 ['text' => '🍳 Memasak', 'callback_data' => 'profile:interest_cooking'],
-                ['text' => '✈️ Travel', 'callback_data' => 'profile:interest_travel']
+                ['text' => '✈️ Travel', 'callback_data' => 'profile:interest_travel'],
             ],
             [
                 ['text' => '🎨 Seni', 'callback_data' => 'profile:interest_art'],
-                ['text' => '💻 Teknologi', 'callback_data' => 'profile:interest_tech']
+                ['text' => '💻 Teknologi', 'callback_data' => 'profile:interest_tech'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -299,25 +300,25 @@ class ProfileCallback extends BaseCallback
     {
         $message = "🌐 **Edit Bahasa**\n\n";
         $message .= "Pilih bahasa yang Anda inginkan:\n\n";
-        $message .= "Bahasa ini akan digunakan untuk semua pesan bot.";
+        $message .= 'Bahasa ini akan digunakan untuk semua pesan bot.';
 
         $keyboard = [
             [
                 ['text' => '🇮🇩 Indonesia', 'callback_data' => 'profile:language_id'],
-                ['text' => '🇺🇸 English', 'callback_data' => 'profile:language_en']
+                ['text' => '🇺🇸 English', 'callback_data' => 'profile:language_en'],
             ],
             [
                 ['text' => '🇲🇾 Malaysia', 'callback_data' => 'profile:language_ms'],
-                ['text' => '🇮🇳 Hindi', 'callback_data' => 'profile:language_in']
+                ['text' => '🇮🇳 Hindi', 'callback_data' => 'profile:language_in'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:edit'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -328,17 +329,17 @@ class ProfileCallback extends BaseCallback
         $message .= "**Persyaratan:**\n";
         $message .= "• Format: JPG, PNG, atau GIF\n";
         $message .= "• Ukuran maksimal: 10MB\n";
-        $message .= "• Rasio aspek: 1:1 (persegi) direkomendasikan";
+        $message .= '• Rasio aspek: 1:1 (persegi) direkomendasikan';
 
         $keyboard = [
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:photo']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:photo'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -346,20 +347,20 @@ class ProfileCallback extends BaseCallback
     {
         $message = "🖼️ **Foto Profil Saat Ini**\n\n";
         $message .= "Anda belum mengupload foto profil.\n\n";
-        $message .= "Klik tombol di bawah untuk mengupload foto pertama Anda.";
+        $message .= 'Klik tombol di bawah untuk mengupload foto pertama Anda.';
 
         $keyboard = [
             [
-                ['text' => '📤 Upload Foto', 'callback_data' => 'profile:upload_photo']
+                ['text' => '📤 Upload Foto', 'callback_data' => 'profile:upload_photo'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:photo']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:photo'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -374,21 +375,21 @@ class ProfileCallback extends BaseCallback
         $message .= "**Pesan:**\n";
         $message .= "• Terima pesan dari semua orang\n";
         $message .= "• Hanya dari pengguna yang sudah match\n";
-        $message .= "• Blokir semua pesan";
+        $message .= '• Blokir semua pesan';
 
         $keyboard = [
             [
                 ['text' => '👥 Visibilitas', 'callback_data' => 'profile:privacy_visibility'],
-                ['text' => '💬 Pesan', 'callback_data' => 'profile:privacy_messages']
+                ['text' => '💬 Pesan', 'callback_data' => 'profile:privacy_messages'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:settings']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:settings'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -401,25 +402,25 @@ class ProfileCallback extends BaseCallback
         $message .= "✅ Pesan baru\n";
         $message .= "✅ Like dari pengguna lain\n";
         $message .= "❌ Notifikasi sistem\n";
-        $message .= "❌ Promosi dan iklan";
+        $message .= '❌ Promosi dan iklan';
 
         $keyboard = [
             [
                 ['text' => '✅ Match Baru', 'callback_data' => 'profile:notif_match'],
-                ['text' => '✅ Pesan Baru', 'callback_data' => 'profile:notif_message']
+                ['text' => '✅ Pesan Baru', 'callback_data' => 'profile:notif_message'],
             ],
             [
                 ['text' => '✅ Like', 'callback_data' => 'profile:notif_like'],
-                ['text' => '❌ Sistem', 'callback_data' => 'profile:notif_system']
+                ['text' => '❌ Sistem', 'callback_data' => 'profile:notif_system'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:settings']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:settings'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
 
@@ -434,25 +435,25 @@ class ProfileCallback extends BaseCallback
         $message .= "• Seluruh dunia\n\n";
         $message .= "**Tampilkan Lokasi:**\n";
         $message .= "• Tampilkan di profil\n";
-        $message .= "• Sembunyikan dari profil";
+        $message .= '• Sembunyikan dari profil';
 
         $keyboard = [
             [
                 ['text' => '5 km', 'callback_data' => 'profile:location_5km'],
-                ['text' => '25 km', 'callback_data' => 'profile:location_25km']
+                ['text' => '25 km', 'callback_data' => 'profile:location_25km'],
             ],
             [
                 ['text' => '100 km', 'callback_data' => 'profile:location_100km'],
-                ['text' => '🌍 Dunia', 'callback_data' => 'profile:location_world']
+                ['text' => '🌍 Dunia', 'callback_data' => 'profile:location_world'],
             ],
             [
-                ['text' => '🔙 Kembali', 'callback_data' => 'profile:settings']
-            ]
+                ['text' => '🔙 Kembali', 'callback_data' => 'profile:settings'],
+            ],
         ];
 
         $context->editMessageText($message, [
             'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ]);
     }
-} 
+}

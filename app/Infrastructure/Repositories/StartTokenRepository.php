@@ -19,6 +19,7 @@ class StartTokenRepository
     public function update(StartToken $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class StartTokenRepository
     {
         return $entity->delete();
     }
-} 
+}

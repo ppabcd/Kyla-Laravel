@@ -21,7 +21,7 @@ Route::get('/health', function () {
     return response()->json([
         'status' => 'ok',
         'timestamp' => now()->toISOString(),
-        'service' => 'telegram-bot'
+        'service' => 'telegram-bot',
     ]);
 })->name('telegram.health');
 

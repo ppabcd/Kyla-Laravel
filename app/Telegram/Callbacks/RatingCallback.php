@@ -2,18 +2,18 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
-use App\Telegram\Contracts\CallbackInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CallbackInterface;
+use App\Telegram\Core\BaseCallback;
+use App\Telegram\Core\TelegramContext;
 
 class RatingCallback extends BaseCallback implements CallbackInterface
 {
     protected string|array $callbackName = [
         'thumbs-up',
         'thumbs-down',
-        'my-rating'
+        'my-rating',
     ];
 
     public function __construct(
@@ -22,11 +22,11 @@ class RatingCallback extends BaseCallback implements CallbackInterface
     ) {}
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
-
     {
         $telegramUser = $context->getUser();
-        if (!$telegramUser) {
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
         $callbackData = $context->getCallbackQuery()['data'] ?? '';
@@ -58,8 +58,8 @@ class RatingCallback extends BaseCallback implements CallbackInterface
         $message = __('rating.my_rating', [
             'starRating' => $starRating,
             'rating' => $rating,
-            'totalRating' => $totalRating
+            'totalRating' => $totalRating,
         ]);
         $context->reply($message);
     }
-} 
+}

@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\TelegramWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TelegramWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,4 +25,4 @@ Route::prefix('telegram')->group(function () {
     Route::get('/webhook/info', [TelegramWebhookController::class, 'info'])->name('telegram.webhook.info');
     Route::get('/bot/info', [TelegramWebhookController::class, 'botInfo'])->name('telegram.bot.info');
     Route::get('/commands', [TelegramWebhookController::class, 'commands'])->name('telegram.commands');
-}); 
+});

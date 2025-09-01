@@ -2,19 +2,17 @@
 
 namespace App\Infrastructure\Repositories;
 
-use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-
-use App\Exceptions\CacheException;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * User Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of UserRepositoryInterface
  * Following Repository pattern and Single Responsibility Principle
  */
@@ -195,7 +193,7 @@ class UserRepository implements UserRepositoryInterface
             if ($type === 'credit') {
                 $user->incrementBalance($amount, $description);
             } elseif ($type === 'debit') {
-                if (!$user->decrementBalance($amount, $description)) {
+                if (! $user->decrementBalance($amount, $description)) {
                     return false;
                 }
             }
@@ -229,12 +227,14 @@ class UserRepository implements UserRepositoryInterface
     public function unbanUser(User $user): bool
     {
         $user->unban();
+
         return true;
     }
 
     public function softBanUser(User $user, int $minutes): bool
     {
         $user->softBan($minutes);
+
         return true;
     }
 
@@ -385,7 +385,7 @@ class UserRepository implements UserRepositoryInterface
     {
         return $this->update($user, [
             'location_latitude' => $latitude,
-            'location_longitude' => $longitude
+            'location_longitude' => $longitude,
         ]);
     }
 
@@ -412,7 +412,8 @@ class UserRepository implements UserRepositoryInterface
                 return User::count();
             });
         } catch (\Exception $e) {
-            logger('Cache error in getTotalUsers: ' . $e->getMessage());
+            logger('Cache error in getTotalUsers: '.$e->getMessage());
+
             return User::count();
         }
     }
@@ -426,7 +427,8 @@ class UserRepository implements UserRepositoryInterface
                     ->count();
             });
         } catch (\Exception $e) {
-            logger('Cache error in getActiveUsersCount: ' . $e->getMessage());
+            logger('Cache error in getActiveUsersCount: '.$e->getMessage());
+
             return User::where('last_activity_at', '>=', now()->subDays($days))
                 ->where('is_banned', false)
                 ->count();
@@ -440,7 +442,8 @@ class UserRepository implements UserRepositoryInterface
                 return User::where('created_at', '>=', now()->subDays($days))->count();
             });
         } catch (\Exception $e) {
-            logger('Cache error in getNewUsersCount: ' . $e->getMessage());
+            logger('Cache error in getNewUsersCount: '.$e->getMessage());
+
             return User::where('created_at', '>=', now()->subDays($days))->count();
         }
     }
@@ -448,20 +451,22 @@ class UserRepository implements UserRepositoryInterface
     public function getBannedUsersCount(?int $days = null): int
     {
         try {
-            return Cache::remember("users:banned_count:" . ($days ?? 'all'), 300, function () use ($days) {
+            return Cache::remember('users:banned_count:'.($days ?? 'all'), 300, function () use ($days) {
                 $query = User::where('is_banned', true);
                 if ($days) {
                     $query->where('banned_at', '>=', now()->subDays($days));
                 }
+
                 return $query->count();
             });
         } catch (\Exception $e) {
-            logger('Cache error in getBannedUsersCount: ' . $e->getMessage());
+            logger('Cache error in getBannedUsersCount: '.$e->getMessage());
             // Fallback to direct database query
             $query = User::where('is_banned', true);
             if ($days) {
                 $query->where('banned_at', '>=', now()->subDays($days));
             }
+
             return $query->count();
         }
     }
@@ -494,7 +499,7 @@ class UserRepository implements UserRepositoryInterface
     {
         $query = User::query();
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
@@ -504,7 +509,7 @@ class UserRepository implements UserRepositoryInterface
             });
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             switch ($filters['status']) {
                 case 'active':
                     $query->where('is_banned', false);
@@ -518,7 +523,7 @@ class UserRepository implements UserRepositoryInterface
             }
         }
 
-        if (!empty($filters['gender'])) {
+        if (! empty($filters['gender'])) {
             $query->where('gender', $filters['gender']);
         }
 

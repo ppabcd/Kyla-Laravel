@@ -4,10 +4,6 @@ namespace App\Services;
 
 use App\Telegram\Services\KeyboardService;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class CaptchaService
 {
@@ -26,7 +22,7 @@ class CaptchaService
         $session['captcha'] = [
             'image' => $imageData,
             'code' => $code,
-            'expiredAt' => time() + 60 // 60 seconds
+            'expiredAt' => time() + 60, // 60 seconds
         ];
     }
 
@@ -38,7 +34,7 @@ class CaptchaService
 
     public function verifyCaptcha(array $session, string $userCode): bool
     {
-        if (!$this->checkCaptchaAvailable($session)) {
+        if (! $this->checkCaptchaAvailable($session)) {
             return false;
         }
 
@@ -114,10 +110,10 @@ class CaptchaService
 
         return [
             'type' => 'photo',
-            'photo' => 'data:image/png;base64,' . $imageData,
+            'photo' => 'data:image/png;base64,'.$imageData,
             'caption' => $context['translations']['captcha.message'] ?? 'Please solve the captcha below:',
             'reply_markup' => $this->getCaptchaKeyboard($context['translations'] ?? [], $code),
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'Markdown',
         ];
     }
 
@@ -159,18 +155,18 @@ class CaptchaService
         $keyboard = [
             'inline_keyboard' => [
                 [
-                    ['text' => $captcha['options'][0], 'callback_data' => 'captcha:' . $captcha['options'][0]],
-                    ['text' => $captcha['options'][1], 'callback_data' => 'captcha:' . $captcha['options'][1]]
+                    ['text' => $captcha['options'][0], 'callback_data' => 'captcha:'.$captcha['options'][0]],
+                    ['text' => $captcha['options'][1], 'callback_data' => 'captcha:'.$captcha['options'][1]],
                 ],
                 [
-                    ['text' => $captcha['options'][2], 'callback_data' => 'captcha:' . $captcha['options'][2]],
-                    ['text' => $captcha['options'][3], 'callback_data' => 'captcha:' . $captcha['options'][3]]
-                ]
-            ]
+                    ['text' => $captcha['options'][2], 'callback_data' => 'captcha:'.$captcha['options'][2]],
+                    ['text' => $captcha['options'][3], 'callback_data' => 'captcha:'.$captcha['options'][3]],
+                ],
+            ],
         ];
 
         $message = __('messages.captcha.solve', [
-            'question' => $captcha['question']
+            'question' => $captcha['question'],
         ], $user->language_code ?? 'en');
 
         $context->sendMessage($message, ['reply_markup' => $keyboard]);
@@ -189,7 +185,7 @@ class CaptchaService
         $options = [$correctAnswer];
         while (count($options) < 4) {
             $wrongAnswer = $correctAnswer + rand(-5, 5);
-            if ($wrongAnswer != $correctAnswer && $wrongAnswer > 0 && !in_array($wrongAnswer, $options)) {
+            if ($wrongAnswer != $correctAnswer && $wrongAnswer > 0 && ! in_array($wrongAnswer, $options)) {
                 $options[] = $wrongAnswer;
             }
         }
@@ -199,7 +195,7 @@ class CaptchaService
         return [
             'question' => "{$num1} + {$num2} = ?",
             'answer' => $correctAnswer,
-            'options' => $options
+            'options' => $options,
         ];
     }
 }

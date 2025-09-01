@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\User;
+use App\Models\ConversationLog;
+use App\Models\Media;
+use App\Models\Message;
 use App\Models\Pair;
 use App\Models\PairPending;
-use App\Models\Message;
-use App\Models\Media;
-use App\Models\Session;
-use App\Models\UserLocation;
 use App\Models\Rating;
-use App\Models\ConversationLog;
+use App\Models\Session;
+use App\Models\User;
+use App\Models\UserLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -26,7 +26,7 @@ test('user can be created with required fields', function () {
         'age' => 25,
         'premium' => false,
         'banned' => false,
-        'balances' => 100
+        'balances' => 100,
     ]);
 
     expect($user->telegram_id)->toBe(123456789);
@@ -46,7 +46,7 @@ test('user can be created with required fields', function () {
 test('user full name attribute returns correct format', function () {
     $user = User::factory()->create([
         'first_name' => 'John',
-        'last_name' => 'Doe'
+        'last_name' => 'Doe',
     ]);
 
     expect($user->full_name)->toBe('John Doe');
@@ -55,7 +55,7 @@ test('user full name attribute returns correct format', function () {
 test('user full name works with only first name', function () {
     $user = User::factory()->create([
         'first_name' => 'John',
-        'last_name' => null
+        'last_name' => null,
     ]);
 
     expect($user->full_name)->toBe('John');
@@ -65,7 +65,7 @@ test('user display name returns username or full name', function () {
     $user = User::factory()->create([
         'first_name' => 'John',
         'last_name' => 'Doe',
-        'username' => 'johndoe'
+        'username' => 'johndoe',
     ]);
 
     expect($user->display_name)->toBe('@johndoe');
@@ -75,7 +75,7 @@ test('user display name falls back to full name when no username', function () {
     $user = User::factory()->create([
         'first_name' => 'John',
         'last_name' => 'Doe',
-        'username' => null
+        'username' => null,
     ]);
 
     expect($user->display_name)->toBe('John Doe');

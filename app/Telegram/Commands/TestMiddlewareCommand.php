@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class TestMiddlewareCommand extends BaseCommand implements CommandInterface
 {
     protected string|array $commandName = 'testmiddleware';
+
     protected string $description = 'Test middleware functionality';
 
     public function handle(TelegramContextInterface $context): void
@@ -23,11 +24,11 @@ class TestMiddlewareCommand extends BaseCommand implements CommandInterface
         $message .= "**Info:**\n";
         $message .= "• Chat ID: `{$chatId}`\n";
         $message .= "• User ID: `{$userId}`\n";
-        $message .= "• User Model: " . ($user ? "✅ Ada" : "❌ Tidak ada") . "\n";
-        
+        $message .= '• User Model: '.($user ? '✅ Ada' : '❌ Tidak ada')."\n";
+
         if ($user) {
             $message .= "• User Language: `{$user->language_code}`\n";
-            $message .= "• User Banned: " . ($user->is_banned ? "❌ Ya" : "✅ Tidak") . "\n";
+            $message .= '• User Banned: '.($user->is_banned ? '❌ Ya' : '✅ Tidak')."\n";
         }
 
         $message .= "\n🎉 Semua middleware berfungsi dengan baik!";
@@ -37,7 +38,7 @@ class TestMiddlewareCommand extends BaseCommand implements CommandInterface
         Log::info('Test middleware command executed', [
             'chat_id' => $chatId,
             'user_id' => $userId,
-            'user_exists' => $user !== null
+            'user_exists' => $user !== null,
         ]);
     }
 
@@ -45,4 +46,4 @@ class TestMiddlewareCommand extends BaseCommand implements CommandInterface
     {
         return true;
     }
-} 
+}

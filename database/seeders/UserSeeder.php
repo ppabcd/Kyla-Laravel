@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Domain\Entities\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
@@ -28,8 +27,8 @@ class UserSeeder extends Seeder
                 'settings' => [
                     'notifications' => true,
                     'privacy' => 'public',
-                    'safe_mode' => true
-                ]
+                    'safe_mode' => true,
+                ],
             ],
             [
                 'telegram_id' => 987654321,
@@ -48,8 +47,8 @@ class UserSeeder extends Seeder
                 'settings' => [
                     'notifications' => true,
                     'privacy' => 'public',
-                    'safe_mode' => true
-                ]
+                    'safe_mode' => true,
+                ],
             ],
             [
                 'telegram_id' => 555666777,
@@ -67,8 +66,8 @@ class UserSeeder extends Seeder
                 'settings' => [
                     'notifications' => true,
                     'privacy' => 'public',
-                    'safe_mode' => true
-                ]
+                    'safe_mode' => true,
+                ],
             ],
             [
                 'telegram_id' => 111222333,
@@ -86,9 +85,9 @@ class UserSeeder extends Seeder
                 'settings' => [
                     'notifications' => true,
                     'privacy' => 'public',
-                    'safe_mode' => true
-                ]
-            ]
+                    'safe_mode' => true,
+                ],
+            ],
         ];
 
         foreach ($users as $userData) {
@@ -98,4 +97,4 @@ class UserSeeder extends Seeder
             );
         }
     }
-} 
+}

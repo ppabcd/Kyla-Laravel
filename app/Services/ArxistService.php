@@ -7,7 +7,9 @@ use App\Helpers\CodeHelper;
 class ArxistService
 {
     private string $url = 'https://arxist.id';
+
     private bool $disabled = true;
+
     private EncryptionService $encryptionService;
 
     public function __construct(EncryptionService $encryptionService)
@@ -30,11 +32,12 @@ class ArxistService
     {
         $urlData = [
             'unit' => $data['unit'],
-            'description' => "ID: {$data['userId']}\nSign: " . $this->encryptionService->encrypt((string) $data['userId']),
+            'description' => "ID: {$data['userId']}\nSign: ".$this->encryptionService->encrypt((string) $data['userId']),
             'disableDescription' => $this->disabled,
         ];
 
         $url = CodeHelper::objectToUrlEncoded($urlData);
+
         return "{$this->url}/kyla/tip?{$url}";
     }
 

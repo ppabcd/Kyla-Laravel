@@ -61,6 +61,7 @@ abstract class BaseCommand implements CommandInterface
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
         $this->middlewares[] = $middleware;
+
         return $this;
     }
 
@@ -100,7 +101,7 @@ abstract class BaseCommand implements CommandInterface
             Log::error('Command execution failed', [
                 'command' => $this->commandName,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -114,6 +115,7 @@ abstract class BaseCommand implements CommandInterface
         if ($index >= count($this->middlewares)) {
             // All middleware passed, execute the command
             $this->handle($context);
+
             return;
         }
 

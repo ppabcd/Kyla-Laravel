@@ -58,6 +58,20 @@ class Pair extends Model
     }
 
     /**
+     * Get the other user in the pair
+     */
+    public function getOtherUser(int $userId): ?User
+    {
+        if ($this->user_id === $userId) {
+            return $this->partner;
+        } elseif ($this->partner_id === $userId) {
+            return $this->user;
+        }
+
+        return null;
+    }
+
+    /**
      * Check if the pair is active
      */
     public function isActive(): bool

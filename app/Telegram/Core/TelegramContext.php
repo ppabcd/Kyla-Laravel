@@ -5,6 +5,7 @@ namespace App\Telegram\Core;
 use App\Telegram\Contracts\TelegramContextInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TelegramContext implements TelegramContextInterface
 {
@@ -135,6 +136,7 @@ class TelegramContext implements TelegramContextInterface
 
     public function sendMessage(string $text, array $options = []): array
     {
+        $text = Str::replace('\n', "\n", $text);
         $data = array_merge([
             'chat_id' => $this->getChatId(),
             'text' => $text,

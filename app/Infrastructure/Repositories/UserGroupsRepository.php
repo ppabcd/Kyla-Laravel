@@ -19,6 +19,7 @@ class UserGroupsRepository
     public function update(UserGroups $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class UserGroupsRepository
     {
         return $entity->delete();
     }
-} 
+}

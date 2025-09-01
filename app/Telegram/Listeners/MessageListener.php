@@ -3,10 +3,10 @@
 namespace App\Telegram\Listeners;
 
 use App\Application\Services\ViolationService;
-use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
 use App\Infrastructure\Repositories\UserRepository;
 use App\Listeners\MessageListener as AppMessageListener;
+use App\Models\User;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Services\KeyboardService;
 use Illuminate\Support\Facades\Cache;

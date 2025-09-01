@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MixpanelService
 {
     private string $token;
+
     private string $apiSecret;
+
     private bool $enabled;
 
     public function __construct()
@@ -23,7 +25,7 @@ class MixpanelService
      */
     public function trackEvent(string $eventName, array $properties = []): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -33,7 +35,7 @@ class MixpanelService
             Log::error('Mixpanel tracking failed', [
                 'event' => $eventName,
                 'properties' => $properties,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -43,14 +45,14 @@ class MixpanelService
      */
     public function trackEventWithProfile(string $eventName, array $properties = [], array $profileProperties = []): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
         try {
             $this->sendEvent($eventName, $properties);
 
-            if (!empty($profileProperties)) {
+            if (! empty($profileProperties)) {
                 $this->updateProfile($profileProperties);
             }
         } catch (\Exception $e) {
@@ -58,7 +60,7 @@ class MixpanelService
                 'event' => $eventName,
                 'properties' => $properties,
                 'profile_properties' => $profileProperties,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -68,30 +70,30 @@ class MixpanelService
      */
     public function updateProfile(array $properties): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
         try {
             $distinctId = $properties['distinct_id'] ?? null;
-            if (!$distinctId) {
+            if (! $distinctId) {
                 throw new \InvalidArgumentException('distinct_id is required for profile update');
             }
 
             $data = [
                 '$token' => $this->token,
                 '$distinct_id' => $distinctId,
-                '$set' => $properties
+                '$set' => $properties,
             ];
 
             Http::post('https://api.mixpanel.com/engage', [
-                'data' => base64_encode(json_encode($data))
+                'data' => base64_encode(json_encode($data)),
             ]);
 
         } catch (\Exception $e) {
             Log::error('Mixpanel profile update failed', [
                 'properties' => $properties,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -106,16 +108,16 @@ class MixpanelService
             'properties' => array_merge([
                 'token' => $this->token,
                 'time' => time(),
-            ], $properties)
+            ], $properties),
         ];
 
         Http::post('https://api.mixpanel.com/track', [
-            'data' => base64_encode(json_encode($data))
+            'data' => base64_encode(json_encode($data)),
         ]);
 
         Log::info('Mixpanel event tracked', [
             'event' => $eventName,
-            'distinct_id' => $properties['distinct_id'] ?? null
+            'distinct_id' => $properties['distinct_id'] ?? null,
         ]);
     }
 }

@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Domain\Entities\User;
 use App\Domain\Repositories\ConversationLogRepositoryInterface;
 use App\Domain\Repositories\PairPendingRepositoryInterface;
 use App\Domain\Repositories\PairRepositoryInterface;
 use App\Domain\Repositories\RatingRepositoryInterface;
+use App\Models\User;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Core\TelegramContext;
 use App\Telegram\Services\KeyboardService;

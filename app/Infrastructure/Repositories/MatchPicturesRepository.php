@@ -19,6 +19,7 @@ class MatchPicturesRepository
     public function update(MatchPictures $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class MatchPicturesRepository
     {
         return $entity->delete();
     }
-} 
+}

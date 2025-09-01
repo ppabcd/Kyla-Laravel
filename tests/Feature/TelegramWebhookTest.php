@@ -1,11 +1,9 @@
 <?php
 
-use App\Http\Controllers\TelegramWebhookController;
 use App\Jobs\ProcessTelegramUpdateJob;
 use App\Telegram\Services\TelegramBotService;
-use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Queue;
 
 beforeEach(function () {
     $this->telegramService = Mockery::mock(TelegramBotService::class);
@@ -24,14 +22,14 @@ test('webhook returns 200 for valid update', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'chat' => [
                 'id' => 123456,
-                'type' => 'private'
+                'type' => 'private',
             ],
-            'text' => 'Hello'
-        ]
+            'text' => 'Hello',
+        ],
     ];
 
     $this->telegramService->shouldReceive('handleUpdate')
@@ -48,7 +46,7 @@ test('webhook returns 401 for invalid signature', function () {
     Config::set('telegram.webhook_secret', 'test-secret');
 
     $response = $this->postJson('/api/telegram/webhook', [], [
-        'X-Telegram-Bot-Api-Secret-Token' => 'wrong-secret'
+        'X-Telegram-Bot-Api-Secret-Token' => 'wrong-secret',
     ]);
 
     $response->assertStatus(401);
@@ -71,8 +69,8 @@ test('webhook processes update asynchronously when queue is enabled', function (
             'message_id' => 1,
             'from' => ['id' => 123456],
             'chat' => ['id' => 123456],
-            'text' => 'Hello'
-        ]
+            'text' => 'Hello',
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $update);
@@ -89,7 +87,7 @@ test('webhook info endpoint returns bot information', function () {
         'last_error_date' => null,
         'last_error_message' => null,
         'max_connections' => 40,
-        'allowed_updates' => ['message', 'callback_query']
+        'allowed_updates' => ['message', 'callback_query'],
     ];
 
     $this->telegramService->shouldReceive('getWebhookInfo')
@@ -101,7 +99,7 @@ test('webhook info endpoint returns bot information', function () {
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
-            'data' => $webhookInfo
+            'data' => $webhookInfo,
         ]);
 });
 
@@ -113,7 +111,7 @@ test('bot info endpoint returns bot details', function () {
         'username' => 'test_bot',
         'can_join_groups' => true,
         'can_read_all_group_messages' => false,
-        'supports_inline_queries' => false
+        'supports_inline_queries' => false,
     ];
 
     $this->telegramService->shouldReceive('getMe')
@@ -125,19 +123,19 @@ test('bot info endpoint returns bot details', function () {
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
-            'data' => $botInfo
+            'data' => $botInfo,
         ]);
 });
 
 test('commands endpoint returns registered commands and callbacks', function () {
     $commands = [
         'start' => 'Start command',
-        'help' => 'Help command'
+        'help' => 'Help command',
     ];
 
     $callbacks = [
         'age_callback' => 'Age callback',
-        'location_callback' => 'Location callback'
+        'location_callback' => 'Location callback',
     ];
 
     $this->telegramService->shouldReceive('getCommands')
@@ -154,7 +152,7 @@ test('commands endpoint returns registered commands and callbacks', function () 
         ->assertJson([
             'success' => true,
             'commands' => $commands,
-            'callbacks' => $callbacks
+            'callbacks' => $callbacks,
         ]);
 });
 
@@ -179,9 +177,9 @@ test('set webhook endpoint sets webhook successfully', function () {
                 'edited_message',
                 'poll',
                 'poll_answer',
-                'chat_member'
+                'chat_member',
             ],
-            'drop_pending_updates' => true
+            'drop_pending_updates' => true,
         ])
         ->andReturn($result);
 
@@ -190,7 +188,7 @@ test('set webhook endpoint sets webhook successfully', function () {
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
-            'result' => $result
+            'result' => $result,
         ]);
 });
 
@@ -207,6 +205,6 @@ test('delete webhook endpoint deletes webhook successfully', function () {
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
-            'result' => $result
+            'result' => $result,
         ]);
 });

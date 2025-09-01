@@ -2,17 +2,16 @@
 
 namespace App\Application\Services;
 
-use App\Domain\Entities\User;
-use App\Domain\Entities\Report;
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Repositories\ReportRepositoryInterface;
 use App\Domain\Repositories\PairRepositoryInterface;
-use Illuminate\Support\Facades\Log;
+use App\Domain\Repositories\ReportRepositoryInterface;
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Banned Service
- * 
+ *
  * Application service responsible for user moderation and banning logic
  * Following Single Responsibility Principle and Clean Architecture
  */
@@ -22,8 +21,7 @@ class BannedService
         private UserRepositoryInterface $userRepository,
         private ReportRepositoryInterface $reportRepository,
         private PairRepositoryInterface $pairRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Check if a user is banned
@@ -40,6 +38,7 @@ class BannedService
     {
         if ($user->isBanned()) {
             Log::warning('Attempted to ban already banned user', ['user_id' => $user->id]);
+
             return false;
         }
 
@@ -59,7 +58,7 @@ class BannedService
             Log::info('User banned successfully', [
                 'user_id' => $user->id,
                 'banned_by' => $bannedBy,
-                'reason' => $reason
+                'reason' => $reason,
             ]);
         }
 
@@ -71,8 +70,9 @@ class BannedService
      */
     public function unbanUser(User $user, int $unbannedBy, ?string $reason = null): bool
     {
-        if (!$user->isBanned()) {
+        if (! $user->isBanned()) {
             Log::warning('Attempted to unban non-banned user', ['user_id' => $user->id]);
+
             return false;
         }
 
@@ -85,7 +85,7 @@ class BannedService
                 ->causedBy($unbannedBy)
                 ->withProperties([
                     'reason' => $reason ?? 'User unbanned',
-                    'previous_ban_reason' => $user->banned_reason
+                    'previous_ban_reason' => $user->banned_reason,
                 ])
                 ->log('user_unbanned');
 
@@ -95,7 +95,7 @@ class BannedService
             Log::info('User unbanned successfully', [
                 'user_id' => $user->id,
                 'unbanned_by' => $unbannedBy,
-                'reason' => $reason
+                'reason' => $reason,
             ]);
         }
 
@@ -109,6 +109,7 @@ class BannedService
     {
         if ($user->isBanned()) {
             Log::warning('Attempted to soft ban permanently banned user', ['user_id' => $user->id]);
+
             return false;
         }
 
@@ -122,7 +123,7 @@ class BannedService
                 ->withProperties([
                     'reason' => $reason,
                     'duration_minutes' => $minutes,
-                    'expires_at' => now()->addMinutes($minutes)
+                    'expires_at' => now()->addMinutes($minutes),
                 ])
                 ->log('user_soft_banned');
 
@@ -130,7 +131,7 @@ class BannedService
                 'user_id' => $user->id,
                 'banned_by' => $bannedBy,
                 'reason' => $reason,
-                'duration_minutes' => $minutes
+                'duration_minutes' => $minutes,
             ]);
         }
 
@@ -160,6 +161,7 @@ class BannedService
         } elseif ($reportCount >= $softBanThreshold) {
             // Auto soft ban for escalating duration
             $duration = $this->calculateSoftBanDuration($reportCount);
+
             return $this->softBanUser(
                 $user,
                 $duration,
@@ -188,7 +190,7 @@ class BannedService
             'total_reports' => $reports->count(),
             'recent_reports_30_days' => $recentReports->count(),
             'ban_risk_level' => $this->calculateBanRiskLevel($user),
-            'ban_history' => $this->getBanHistory($user)
+            'ban_history' => $this->getBanHistory($user),
         ];
     }
 
@@ -208,7 +210,7 @@ class BannedService
                 'ban_rate' => $totalUsers > 0 ? ($bannedUsers->count() / $totalUsers) * 100 : 0,
                 'recent_bans_7_days' => $bannedUsers->where('banned_at', '>=', now()->subDays(7))->count(),
                 'ban_reasons' => $this->getBanReasonStatistics(),
-                'most_reported_users' => $this->reportRepository->findMostReportedUsers(10)
+                'most_reported_users' => $this->reportRepository->findMostReportedUsers(10),
             ];
         });
     }
@@ -241,7 +243,7 @@ class BannedService
         $expiredSoftBans = $this->userRepository->searchUsers(['is_soft_banned' => true], 1, 1000)
             ->getCollection()
             ->filter(function ($user) {
-                return !$user->isSoftBanned(); // Soft ban has expired
+                return ! $user->isSoftBanned(); // Soft ban has expired
             });
 
         $cleanedCount = 0;
@@ -278,8 +280,8 @@ class BannedService
                 'user_stats' => [
                     'total_reports' => $this->reportRepository->countReportsAgainstUser($user->id, 365),
                     'total_matches' => $user->total_matches,
-                    'account_age_days' => $user->created_at->diffInDays(now())
-                ]
+                    'account_age_days' => $user->created_at->diffInDays(now()),
+                ],
             ])
             ->log('user_banned');
     }
@@ -315,9 +317,9 @@ class BannedService
             'total_bans' => $user->banned_at ? 1 : 0,
             'current_ban' => $user->isBanned() ? [
                 'reason' => $user->banned_reason,
-                'banned_at' => $user->banned_at
+                'banned_at' => $user->banned_at,
             ] : null,
-            'soft_ban_count' => 0 // Would need separate tracking
+            'soft_ban_count' => 0, // Would need separate tracking
         ];
     }
 
@@ -333,11 +335,11 @@ class BannedService
         });
     }
 
-    private function shouldAutoProcess(Report $report): bool
+    private function shouldAutoProcess(mixed $report): bool
     {
         // Simple auto-processing rules
         $reportedUser = $report->reportedUser;
-        if (!$reportedUser) {
+        if (! $reportedUser) {
             return false;
         }
 
@@ -347,10 +349,10 @@ class BannedService
         return $recentReports >= 3;
     }
 
-    private function processReport(Report $report): void
+    private function processReport(mixed $report): void
     {
         $reportedUser = $report->reportedUser;
-        if (!$reportedUser) {
+        if (! $reportedUser) {
             return;
         }
 

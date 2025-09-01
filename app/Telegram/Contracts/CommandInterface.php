@@ -45,4 +45,4 @@ interface CommandInterface
      * Execute command with middleware
      */
     public function execute(TelegramContextInterface $context): void;
-} 
+}

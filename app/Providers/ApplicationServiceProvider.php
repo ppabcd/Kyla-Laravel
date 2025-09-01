@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Application\Services\UserService;
 use App\Application\Services\BannedService;
 use App\Application\Services\MatchingService;
-use App\Domain\Repositories\UserRepositoryInterface;
+use App\Application\Services\UserService;
 use App\Domain\Repositories\PairRepositoryInterface;
-use App\Infrastructure\Repositories\UserRepository;
+use App\Domain\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Repositories\PairRepository;
+use App\Infrastructure\Repositories\UserRepository;
+use Illuminate\Support\ServiceProvider;
 
 class ApplicationServiceProvider extends ServiceProvider
 {
@@ -35,4 +35,4 @@ class ApplicationServiceProvider extends ServiceProvider
     {
         //
     }
-} 
+}

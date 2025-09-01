@@ -2,31 +2,29 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
-// Domain Repository Interfaces
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Repositories\PairRepositoryInterface;
-use App\Domain\Repositories\ConversationLogRepositoryInterface;
 use App\Domain\Repositories\BalanceTransactionRepositoryInterface;
-use App\Domain\Repositories\ReportRepositoryInterface;
-use App\Domain\Repositories\WordFilterRepositoryInterface;
+// Domain Repository Interfaces
+use App\Domain\Repositories\ConversationLogRepositoryInterface;
 use App\Domain\Repositories\PairPendingRepositoryInterface;
+use App\Domain\Repositories\PairRepositoryInterface;
 use App\Domain\Repositories\RatingRepositoryInterface;
-
-// Infrastructure Repository Implementations
-use App\Infrastructure\Repositories\UserRepository;
-use App\Infrastructure\Repositories\PairRepository;
-use App\Infrastructure\Repositories\ConversationLogRepository;
+use App\Domain\Repositories\ReportRepositoryInterface;
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\Repositories\WordFilterRepositoryInterface;
 use App\Infrastructure\Repositories\BalanceTransactionRepository;
-use App\Infrastructure\Repositories\ReportRepository;
-use App\Infrastructure\Repositories\WordFilterRepository;
+// Infrastructure Repository Implementations
+use App\Infrastructure\Repositories\ConversationLogRepository;
 use App\Infrastructure\Repositories\PairPendingRepository;
+use App\Infrastructure\Repositories\PairRepository;
 use App\Infrastructure\Repositories\RatingRepository;
+use App\Infrastructure\Repositories\ReportRepository;
+use App\Infrastructure\Repositories\UserRepository;
+use App\Infrastructure\Repositories\WordFilterRepository;
+use Illuminate\Support\ServiceProvider;
 
 /**
  * Repository Service Provider
- * 
+ *
  * Binds repository interfaces to their implementations
  * Following Dependency Inversion Principle and Clean Architecture
  */

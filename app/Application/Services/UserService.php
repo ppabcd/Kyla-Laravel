@@ -2,9 +2,9 @@
 
 namespace App\Application\Services;
 
-use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 

@@ -11,7 +11,7 @@ class EncryptionService
     public function __construct()
     {
         $appKey = config('app.key');
-        if (!$appKey) {
+        if (! $appKey) {
             throw new \Exception('APP_KEY is not set');
         }
 
@@ -32,7 +32,7 @@ class EncryptionService
             throw new \Exception('Encryption failed');
         }
 
-        return base64_encode($iv . $encrypted);
+        return base64_encode($iv.$encrypted);
     }
 
     public function decrypt(string $encryptedText): string

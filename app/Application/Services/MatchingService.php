@@ -2,10 +2,10 @@
 
 namespace App\Application\Services;
 
-use App\Domain\Entities\Pair;
-use App\Domain\Entities\User;
 use App\Domain\Repositories\PairRepositoryInterface;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Models\Pair;
+use App\Models\User;
 use App\Telegram\Services\TelegramBotService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;

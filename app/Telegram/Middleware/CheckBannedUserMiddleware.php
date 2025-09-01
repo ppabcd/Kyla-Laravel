@@ -2,30 +2,30 @@
 
 namespace App\Telegram\Middleware;
 
-use App\Telegram\Contracts\TelegramContextInterface;
 use App\Domain\Repositories\UserRepositoryInterface;
-use Illuminate\Support\Facades\Log;
+use App\Telegram\Contracts\TelegramContextInterface;
 
 class CheckBannedUserMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private UserRepositoryInterface $userRepository
-    ) {
-    }
+    ) {}
 
     public function handle(TelegramContextInterface $context, callable $next): void
     {
         $message = $context->getMessage();
 
-        if (!$message) {
+        if (! $message) {
             $next($context);
+
             return;
         }
 
         $chatId = $message['chat']['id'] ?? null;
 
-        if (!$chatId) {
+        if (! $chatId) {
             $next($context);
+
             return;
         }
 
@@ -34,6 +34,7 @@ class CheckBannedUserMiddleware implements MiddlewareInterface
 
         if ($user && $user->is_banned) {
             $context->reply(__('errors.user_banned'));
+
             return;
         }
 

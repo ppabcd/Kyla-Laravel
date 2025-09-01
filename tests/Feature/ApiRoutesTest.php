@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
@@ -30,14 +28,14 @@ test('telegram webhook route accepts post requests', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'chat' => [
                 'id' => 123456,
-                'type' => 'private'
+                'type' => 'private',
             ],
-            'text' => 'Hello'
-        ]
+            'text' => 'Hello',
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $update);
@@ -92,13 +90,13 @@ test('telegram webhook route accepts json content type', function () {
             'message_id' => 1,
             'from' => ['id' => 123456],
             'chat' => ['id' => 123456],
-            'text' => 'Hello'
-        ]
+            'text' => 'Hello',
+        ],
     ];
 
     $response = $this->withHeaders([
         'Content-Type' => 'application/json',
-        'Accept' => 'application/json'
+        'Accept' => 'application/json',
     ])->postJson('/api/telegram/webhook', $update);
 
     $response->assertStatus(200);
@@ -107,10 +105,10 @@ test('telegram webhook route accepts json content type', function () {
 test('telegram webhook route handles malformed json gracefully', function () {
     $response = $this->withHeaders([
         'Content-Type' => 'application/json',
-        'Accept' => 'application/json'
+        'Accept' => 'application/json',
     ])->post('/api/telegram/webhook', 'invalid json', [
-                'Content-Type' => 'application/json'
-            ]);
+        'Content-Type' => 'application/json',
+    ]);
 
     // Should handle gracefully, might return 400 or 200 depending on implementation
     expect($response->getStatusCode())->toBeIn([200, 400, 422]);
@@ -124,14 +122,14 @@ test('telegram webhook route handles large payloads', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => str_repeat('A', 1000), // Large first name
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'chat' => [
                 'id' => 123456,
-                'type' => 'private'
+                'type' => 'private',
             ],
-            'text' => str_repeat('Hello ', 100) // Large text
-        ]
+            'text' => str_repeat('Hello ', 100), // Large text
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $largeUpdate);
@@ -146,17 +144,17 @@ test('telegram webhook route handles callback queries', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'message' => [
                 'message_id' => 1,
                 'chat' => [
                     'id' => 123456,
-                    'type' => 'private'
-                ]
+                    'type' => 'private',
+                ],
             ],
-            'data' => 'test_callback_data'
-        ]
+            'data' => 'test_callback_data',
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $callbackUpdate);
@@ -171,12 +169,12 @@ test('telegram webhook route handles pre checkout queries', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'currency' => 'USD',
             'total_amount' => 1000,
-            'invoice_payload' => 'test_payload'
-        ]
+            'invoice_payload' => 'test_payload',
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $preCheckoutUpdate);
@@ -191,15 +189,15 @@ test('telegram webhook route handles edited messages', function () {
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'chat' => [
                 'id' => 123456,
-                'type' => 'private'
+                'type' => 'private',
             ],
             'text' => 'Edited message',
-            'edit_date' => time()
-        ]
+            'edit_date' => time(),
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $editedMessageUpdate);
@@ -214,14 +212,14 @@ test('telegram webhook route handles polls', function () {
             'question' => 'Test question?',
             'options' => [
                 ['text' => 'Option 1', 'voter_count' => 0],
-                ['text' => 'Option 2', 'voter_count' => 0]
+                ['text' => 'Option 2', 'voter_count' => 0],
             ],
             'total_voter_count' => 0,
             'is_closed' => false,
             'is_anonymous' => true,
             'type' => 'quiz',
-            'allows_multiple_answers' => false
-        ]
+            'allows_multiple_answers' => false,
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $pollUpdate);
@@ -236,10 +234,10 @@ test('telegram webhook route handles poll answers', function () {
             'user' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
-            'option_ids' => [0]
-        ]
+            'option_ids' => [0],
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $pollAnswerUpdate);
@@ -253,31 +251,31 @@ test('telegram webhook route handles chat member updates', function () {
             'chat' => [
                 'id' => -100123456789,
                 'title' => 'Test Group',
-                'type' => 'supergroup'
+                'type' => 'supergroup',
             ],
             'from' => [
                 'id' => 123456,
                 'first_name' => 'Test',
-                'username' => 'testuser'
+                'username' => 'testuser',
             ],
             'date' => time(),
             'old_chat_member' => [
                 'user' => [
                     'id' => 123456,
                     'first_name' => 'Test',
-                    'username' => 'testuser'
+                    'username' => 'testuser',
                 ],
-                'status' => 'member'
+                'status' => 'member',
             ],
             'new_chat_member' => [
                 'user' => [
                     'id' => 123456,
                     'first_name' => 'Test',
-                    'username' => 'testuser'
+                    'username' => 'testuser',
                 ],
-                'status' => 'administrator'
-            ]
-        ]
+                'status' => 'administrator',
+            ],
+        ],
     ];
 
     $response = $this->postJson('/api/telegram/webhook', $chatMemberUpdate);

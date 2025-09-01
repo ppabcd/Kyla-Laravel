@@ -5,14 +5,14 @@ namespace App\Infrastructure\Repositories;
 use App\Domain\Entities\Report;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\ReportRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Report Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of ReportRepositoryInterface
  */
 class ReportRepository implements ReportRepositoryInterface
@@ -107,7 +107,7 @@ class ReportRepository implements ReportRepositoryInterface
     {
         return $this->update($report, [
             'reviewed_by' => $reviewerId,
-            'status' => 'under_review'
+            'status' => 'under_review',
         ]);
     }
 
@@ -121,14 +121,14 @@ class ReportRepository implements ReportRepositoryInterface
             'reviewed_by' => $reviewerId,
             'reviewed_at' => now(),
             'action_taken' => $actionTaken,
-            'admin_notes' => $notes
+            'admin_notes' => $notes,
         ]);
     }
 
     public function resolve(Report $report): bool
     {
         return $this->update($report, [
-            'status' => 'resolved'
+            'status' => 'resolved',
         ]);
     }
 
@@ -136,7 +136,7 @@ class ReportRepository implements ReportRepositoryInterface
     {
         return $this->update($report, [
             'status' => 'dismissed',
-            'admin_notes' => $reason
+            'admin_notes' => $reason,
         ]);
     }
 
@@ -259,22 +259,24 @@ class ReportRepository implements ReportRepositoryInterface
 
     public function getTotalReportsCount(?int $days = null): int
     {
-        return Cache::remember("reports:total_count:" . ($days ?? 'all'), 300, function () use ($days) {
+        return Cache::remember('reports:total_count:'.($days ?? 'all'), 300, function () use ($days) {
             $query = Report::query();
             if ($days) {
                 $query->where('created_at', '>=', now()->subDays($days));
             }
+
             return $query->count();
         });
     }
 
     public function getResolvedReportsCount(?int $days = null): int
     {
-        return Cache::remember("reports:resolved_count:" . ($days ?? 'all'), 300, function () use ($days) {
+        return Cache::remember('reports:resolved_count:'.($days ?? 'all'), 300, function () use ($days) {
             $query = Report::where('status', 'resolved');
             if ($days) {
                 $query->where('created_at', '>=', now()->subDays($days));
             }
+
             return $query->count();
         });
     }

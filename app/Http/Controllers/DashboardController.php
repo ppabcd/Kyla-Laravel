@@ -2,31 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Application\Services\UserService;
-use App\Application\Services\MatchingService;
 use App\Application\Services\BalanceService;
 use App\Application\Services\BannedService;
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Repositories\PairRepositoryInterface;
+use App\Application\Services\MatchingService;
+use App\Application\Services\UserService;
 use App\Domain\Repositories\BalanceTransactionRepositoryInterface;
+use App\Domain\Repositories\PairRepositoryInterface;
 use App\Domain\Repositories\ReportRepositoryInterface;
+use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\Repositories\WordFilterRepositoryInterface;
-use App\Domain\Entities\WordFilter;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     private UserService $userService;
+
     private MatchingService $matchingService;
+
     private BalanceService $balanceService;
+
     private BannedService $bannedService;
+
     private UserRepositoryInterface $userRepository;
+
     private PairRepositoryInterface $pairRepository;
+
     private BalanceTransactionRepositoryInterface $balanceTransactionRepository;
+
     private ReportRepositoryInterface $reportRepository;
+
     private WordFilterRepositoryInterface $wordFilterRepository;
 
     public function __construct(
@@ -177,6 +184,7 @@ class DashboardController extends Controller
         return Cache::remember('dashboard_charts', 600, function () {
             $last30Days = collect(range(0, 29))->map(function ($day) {
                 $date = Carbon::now()->subDays($day);
+
                 return [
                     'date' => $date->format('Y-m-d'),
                     'users' => $this->userRepository->getNewUsersCountByDate($date),
@@ -290,6 +298,7 @@ class DashboardController extends Controller
     {
         return collect(range(0, 29))->map(function ($day) {
             $date = Carbon::now()->subDays($day);
+
             return [
                 'date' => $date->format('M d'),
                 'revenue' => $this->balanceTransactionRepository->getRevenueByDate($date),
@@ -315,6 +324,7 @@ class DashboardController extends Controller
     {
         try {
             \DB::connection()->getPdo();
+
             return 'healthy';
         } catch (\Exception $e) {
             return 'error';
@@ -325,6 +335,7 @@ class DashboardController extends Controller
     {
         try {
             Cache::put('health_check', 'ok', 1);
+
             return Cache::get('health_check') === 'ok' ? 'healthy' : 'error';
         } catch (\Exception $e) {
             return 'error';
@@ -341,6 +352,7 @@ class DashboardController extends Controller
     {
         $start = microtime(true);
         $this->userRepository->getTotalUsers();
+
         return round((microtime(true) - $start) * 1000, 2);
     }
 
@@ -375,7 +387,7 @@ class DashboardController extends Controller
     {
         $user = $this->userRepository->findById($userId);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'User not found'], 404);
         }
 
@@ -390,7 +402,7 @@ class DashboardController extends Controller
         try {
             $user = $this->userRepository->findById($userId);
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['success' => false, 'message' => 'User not found'], 404);
             }
 
@@ -410,7 +422,7 @@ class DashboardController extends Controller
         try {
             $user = $this->userRepository->findById($userId);
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['success' => false, 'message' => 'User not found'], 404);
             }
 
@@ -437,7 +449,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -447,7 +459,7 @@ class DashboardController extends Controller
         if ($this->wordFilterRepository->wordExists($word, $request->word_type)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Word already exists in this category'
+                'message' => 'Word already exists in this category',
             ], 422);
         }
 
@@ -461,12 +473,12 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Word filter added successfully',
-                'data' => $wordFilter
+                'data' => $wordFilter,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error adding word filter'
+                'message' => 'Error adding word filter',
             ], 500);
         }
     }
@@ -486,7 +498,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -500,18 +512,18 @@ class DashboardController extends Controller
             if ($updated) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Word filter updated successfully'
+                    'message' => 'Word filter updated successfully',
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Word filter not found'
+                'message' => 'Word filter not found',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating word filter'
+                'message' => 'Error updating word filter',
             ], 500);
         }
     }
@@ -527,18 +539,18 @@ class DashboardController extends Controller
             if ($deleted) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Word filter deleted successfully'
+                    'message' => 'Word filter deleted successfully',
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Word filter not found'
+                'message' => 'Word filter not found',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error deleting word filter'
+                'message' => 'Error deleting word filter',
             ], 500);
         }
     }
@@ -557,7 +569,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -571,12 +583,12 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "Successfully imported {$imported} words",
-                'imported_count' => $imported
+                'imported_count' => $imported,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error importing words'
+                'message' => 'Error importing words',
             ], 500);
         }
     }
@@ -588,11 +600,12 @@ class DashboardController extends Controller
     {
         try {
             $stats = $this->wordFilterRepository->getStatistics();
+
             return response()->json(['success' => true, 'data' => $stats]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching statistics'
+                'message' => 'Error fetching statistics',
             ], 500);
         }
     }

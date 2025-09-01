@@ -2,9 +2,9 @@
 
 use App\Application\Services\MatchingService;
 use App\Application\Services\UserService;
-use App\Domain\Entities\User;
 use App\Infrastructure\Repositories\ConversationLogRepository;
 use App\Listeners\MessageListener;
+use App\Models\User;
 use App\Telegram\Services\KeyboardService;
 use Illuminate\Support\Facades\Cache;
 

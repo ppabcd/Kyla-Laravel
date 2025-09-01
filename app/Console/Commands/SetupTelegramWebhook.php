@@ -28,10 +28,11 @@ class SetupTelegramWebhook extends Command
     public function handle()
     {
         $token = config('telegram.bot_token');
-        $webhookUrl = $this->argument('url') ?? config('app.url') . '/api/telegram/webhook';
+        $webhookUrl = $this->argument('url') ?? config('app.url').'/api/telegram/webhook';
 
-        if (!$token) {
+        if (! $token) {
             $this->error('Telegram bot token not configured!');
+
             return 1;
         }
 
@@ -47,8 +48,8 @@ class SetupTelegramWebhook extends Command
                     'edited_message',
                     'poll',
                     'poll_answer',
-                    'chat_member'
-                ]
+                    'chat_member',
+                ],
             ]);
 
             if ($response->successful()) {
@@ -56,22 +57,26 @@ class SetupTelegramWebhook extends Command
                 if ($result['ok']) {
                     $this->info('Webhook setup successful!');
                     $this->info("Webhook URL: {$webhookUrl}");
+
                     return 0;
                 } else {
-                    $this->error('Webhook setup failed: ' . ($result['description'] ?? 'Unknown error'));
+                    $this->error('Webhook setup failed: '.($result['description'] ?? 'Unknown error'));
+
                     return 1;
                 }
             } else {
                 $this->error('Failed to communicate with Telegram API');
+
                 return 1;
             }
         } catch (\Exception $e) {
-            $this->error('Exception occurred: ' . $e->getMessage());
+            $this->error('Exception occurred: '.$e->getMessage());
             Log::error('Telegram webhook setup failed', [
                 'error' => $e->getMessage(),
-                'webhook_url' => $webhookUrl
+                'webhook_url' => $webhookUrl,
             ]);
+
             return 1;
         }
     }
-} 
+}

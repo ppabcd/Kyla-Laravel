@@ -2,11 +2,11 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
-use App\Telegram\Contracts\CallbackInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CallbackInterface;
+use App\Telegram\Core\BaseCallback;
+use App\Telegram\Core\TelegramContext;
 
 class SafeModeCallback extends BaseCallback implements CallbackInterface
 {
@@ -18,11 +18,11 @@ class SafeModeCallback extends BaseCallback implements CallbackInterface
     ) {}
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
-
     {
         $telegramUser = $context->getUser();
-        if (!$telegramUser) {
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
         $user = $this->userService->findOrCreateUser($telegramUser);
@@ -39,7 +39,7 @@ class SafeModeCallback extends BaseCallback implements CallbackInterface
 
     private function toggleSafeMode(TelegramContext $context, $user): void
     {
-        $newSafeMode = !($user->safe_mode ?? true);
+        $newSafeMode = ! ($user->safe_mode ?? true);
         $this->userService->updateUserProfile($user, ['safe_mode' => $newSafeMode]);
         $context->reply(__('safe_mode.change_success'));
     }
@@ -50,16 +50,16 @@ class SafeModeCallback extends BaseCallback implements CallbackInterface
         $message = __('safe_mode.message', ['mode' => $modeText]);
         $keyboard = [
             [
-                ['text' => __('safe_mode.toggle'), 'callback_data' => 'toggle_safe_mode']
+                ['text' => __('safe_mode.toggle'), 'callback_data' => 'toggle_safe_mode'],
             ],
             [
-                ['text' => '🔙 Back', 'callback_data' => 'settings-back']
-            ]
+                ['text' => '🔙 Back', 'callback_data' => 'settings-back'],
+            ],
         ];
         $context->reply($message, [
             'reply_markup' => [
-                'inline_keyboard' => $keyboard
-            ]
+                'inline_keyboard' => $keyboard,
+            ],
         ]);
     }
-} 
+}

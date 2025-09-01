@@ -2,11 +2,11 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
-use App\Telegram\Contracts\CallbackInterface;
-use App\Telegram\Core\TelegramContext;
 use App\Application\Services\UserService;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Telegram\Contracts\CallbackInterface;
+use App\Telegram\Core\BaseCallback;
+use App\Telegram\Core\TelegramContext;
 
 class ReportCallback extends BaseCallback implements CallbackInterface
 {
@@ -14,7 +14,7 @@ class ReportCallback extends BaseCallback implements CallbackInterface
         'report-action',
         'report-action-porn',
         'report-action-ads',
-        'report-action-cancel'
+        'report-action-cancel',
     ];
 
     public function __construct(
@@ -23,11 +23,11 @@ class ReportCallback extends BaseCallback implements CallbackInterface
     ) {}
 
     public function handle(\App\Telegram\Contracts\TelegramContextInterface $context): void
-
     {
         $telegramUser = $context->getUser();
-        if (!$telegramUser) {
+        if (! $telegramUser) {
             $context->reply('❌ Unable to identify user');
+
             return;
         }
         $callbackData = $context->getCallbackQuery()['data'] ?? '';
@@ -53,16 +53,16 @@ class ReportCallback extends BaseCallback implements CallbackInterface
         $keyboard = [
             [
                 ['text' => __('report.reason_porn'), 'callback_data' => 'report-action-porn'],
-                ['text' => __('report.reason_ads'), 'callback_data' => 'report-action-ads']
+                ['text' => __('report.reason_ads'), 'callback_data' => 'report-action-ads'],
             ],
             [
-                ['text' => __('report.cancel'), 'callback_data' => 'report-action-cancel']
-            ]
+                ['text' => __('report.cancel'), 'callback_data' => 'report-action-cancel'],
+            ],
         ];
         $context->reply($message, [
             'reply_markup' => [
-                'inline_keyboard' => $keyboard
-            ]
+                'inline_keyboard' => $keyboard,
+            ],
         ]);
     }
 
@@ -75,4 +75,4 @@ class ReportCallback extends BaseCallback implements CallbackInterface
     {
         $context->reply(__('report.thank_you'));
     }
-} 
+}

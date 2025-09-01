@@ -19,6 +19,7 @@ class ReferralsRepository
     public function update(Referrals $entity, array $data)
     {
         $entity->update($data);
+
         return $entity;
     }
 
@@ -26,4 +27,4 @@ class ReferralsRepository
     {
         return $entity->delete();
     }
-} 
+}

@@ -4,13 +4,12 @@
  * Comprehensive Test Suite for All Telegram Commands and Callbacks
  * Tests all available commands and callbacks via webhook endpoint
  */
-
 $baseUrl = 'http://127.0.0.1:8000/api/telegram/webhook';
 $testUserId = 123456789;
 $testChatId = 123456789;
 
 echo "🚀 Starting Telegram Bot Comprehensive Test Suite\n";
-echo "=" . str_repeat("=", 60) . "\n\n";
+echo '='.str_repeat('=', 60)."\n\n";
 
 // Start server
 echo "Starting test server...\n";
@@ -34,7 +33,7 @@ function testWebhook($url, $data, $testName)
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Accept: application/json'
+        'Accept: application/json',
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -46,10 +45,12 @@ function testWebhook($url, $data, $testName)
     if ($httpCode === 200 && $response === 'OK') {
         echo "✅ PASS\n";
         $testResults[$testName] = 'PASS';
+
         return true;
     } else {
         echo "❌ FAIL (HTTP: {$httpCode}, Response: {$response})\n";
         $testResults[$testName] = 'FAIL';
+
         return false;
     }
 }
@@ -69,28 +70,28 @@ function generateCommandMessage($command, $userId = null, $chatId = null)
         'message' => [
             'message_id' => rand(600, 999),
             'from' => [
-                'username' => 'testuser' . rand(1, 1000),
+                'username' => 'testuser'.rand(1, 1000),
                 'id' => $userId,
                 'is_bot' => false,
-                'first_name' => 'Test User ' . rand(1, 1000),
-                'language_code' => 'en'
+                'first_name' => 'Test User '.rand(1, 1000),
+                'language_code' => 'en',
             ],
             'date' => time(),
             'chat' => [
-                'username' => 'testuser' . rand(1, 1000),
-                'first_name' => 'Test User ' . rand(1, 1000),
+                'username' => 'testuser'.rand(1, 1000),
+                'first_name' => 'Test User '.rand(1, 1000),
                 'type' => 'private',
-                'id' => $chatId
+                'id' => $chatId,
             ],
             'text' => "/{$command}",
             'entities' => [
                 [
                     'type' => 'bot_command',
                     'offset' => 0,
-                    'length' => strlen($command) + 1
-                ]
-            ]
-        ]
+                    'length' => strlen($command) + 1,
+                ],
+            ],
+        ],
     ];
 }
 
@@ -107,26 +108,26 @@ function generateCallbackQuery($callbackData, $userId = null, $chatId = null)
     return [
         'update_id' => rand(100000, 999999),
         'callback_query' => [
-            'id' => 'callback' . rand(100, 999),
+            'id' => 'callback'.rand(100, 999),
             'from' => [
-                'username' => 'testuser' . rand(1, 1000),
+                'username' => 'testuser'.rand(1, 1000),
                 'id' => $userId,
                 'is_bot' => false,
-                'first_name' => 'Test User ' . rand(1, 1000),
-                'language_code' => 'en'
+                'first_name' => 'Test User '.rand(1, 1000),
+                'language_code' => 'en',
             ],
             'message' => [
                 'message_id' => rand(600, 999),
                 'date' => time(),
                 'chat' => [
                     'id' => $chatId,
-                    'first_name' => 'Test User ' . rand(1, 1000),
-                    'username' => 'testuser' . rand(1, 1000),
-                    'type' => 'private'
-                ]
+                    'first_name' => 'Test User '.rand(1, 1000),
+                    'username' => 'testuser'.rand(1, 1000),
+                    'type' => 'private',
+                ],
             ],
-            'data' => $callbackData
-        ]
+            'data' => $callbackData,
+        ],
     ];
 }
 
@@ -134,7 +135,7 @@ function generateCallbackQuery($callbackData, $userId = null, $chatId = null)
 // TEST COMMANDS
 // ====================
 echo "🔧 TESTING COMMANDS\n";
-echo "-" . str_repeat("-", 30) . "\n";
+echo '-'.str_repeat('-', 30)."\n";
 
 $commands = [
     'start' => 'Start conversation command',
@@ -158,7 +159,7 @@ $commands = [
     'transfer' => 'Transfer balance',
     'pending' => 'Show pending requests',
     'invalidate_session' => 'Invalidate user session',
-    'test_middleware' => 'Test middleware functionality'
+    'test_middleware' => 'Test middleware functionality',
 ];
 
 foreach ($commands as $command => $description) {
@@ -171,7 +172,7 @@ foreach ($commands as $command => $description) {
 // TEST CALLBACKS
 // ====================
 echo "\n📞 TESTING CALLBACKS\n";
-echo "-" . str_repeat("-", 30) . "\n";
+echo '-'.str_repeat('-', 30)."\n";
 
 $callbacks = [
     // Language callbacks
@@ -222,7 +223,7 @@ $callbacks = [
     'report' => 'Report callback',
     'rating' => 'Rating callback',
     'toggle_safe_mode' => 'Toggle safe mode',
-    'mode' => 'Mode callback'
+    'mode' => 'Mode callback',
 ];
 
 foreach ($callbacks as $callbackData => $description) {
@@ -235,7 +236,7 @@ foreach ($callbacks as $callbackData => $description) {
 // PROFILE SPECIFIC CALLBACKS
 // ====================
 echo "\n👤 TESTING PROFILE CALLBACKS\n";
-echo "-" . str_repeat("-", 30) . "\n";
+echo '-'.str_repeat('-', 30)."\n";
 
 $profileCallbacks = [
     'profile-back' => 'Profile back button',
@@ -258,7 +259,7 @@ foreach ($profileCallbacks as $callbackData => $description) {
 // HELP SPECIFIC CALLBACKS
 // ====================
 echo "\n❓ TESTING HELP CALLBACKS\n";
-echo "-" . str_repeat("-", 30) . "\n";
+echo '-'.str_repeat('-', 30)."\n";
 
 $helpCallbacks = [
     'help-commands' => 'Help commands',
@@ -279,7 +280,7 @@ foreach ($helpCallbacks as $callbackData => $description) {
 // ADMIN COMMANDS (if available)
 // ====================
 echo "\n👑 TESTING ADMIN COMMANDS\n";
-echo "-" . str_repeat("-", 30) . "\n";
+echo '-'.str_repeat('-', 30)."\n";
 
 $adminCommands = [
     'ban' => 'Ban user command',
@@ -296,7 +297,7 @@ $adminCommands = [
     'ban_history' => 'Show ban history',
     'reset_account' => 'Reset user account',
     'commands' => 'Show all commands',
-    'encrypt_decrypt' => 'Encryption test'
+    'encrypt_decrypt' => 'Encryption test',
 ];
 
 foreach ($adminCommands as $command => $description) {
@@ -312,22 +313,22 @@ exec('pkill -f "php artisan serve"');
 // ====================
 // TEST RESULTS SUMMARY
 // ====================
-echo "\n" . str_repeat("=", 60) . "\n";
+echo "\n".str_repeat('=', 60)."\n";
 echo "📊 TEST RESULTS SUMMARY\n";
-echo str_repeat("=", 60) . "\n";
+echo str_repeat('=', 60)."\n";
 
 $totalTests = count($testResults);
-$passedTests = count(array_filter($testResults, fn($result) => $result === 'PASS'));
+$passedTests = count(array_filter($testResults, fn ($result) => $result === 'PASS'));
 $failedTests = $totalTests - $passedTests;
 
 echo "Total Tests: {$totalTests}\n";
 echo "✅ Passed: {$passedTests}\n";
 echo "❌ Failed: {$failedTests}\n";
-echo "Success Rate: " . round(($passedTests / $totalTests) * 100, 2) . "%\n\n";
+echo 'Success Rate: '.round(($passedTests / $totalTests) * 100, 2)."%\n\n";
 
 if ($failedTests > 0) {
     echo "❌ FAILED TESTS:\n";
-    echo "-" . str_repeat("-", 30) . "\n";
+    echo '-'.str_repeat('-', 30)."\n";
     foreach ($testResults as $testName => $result) {
         if ($result === 'FAIL') {
             echo "• {$testName}\n";

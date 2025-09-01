@@ -4,7 +4,6 @@
  * Quick Test Script for Main Telegram Commands and Callbacks
  * For rapid testing of core bot functionality
  */
-
 $baseUrl = 'http://127.0.0.1:8000/api/telegram/webhook';
 
 echo "🚀 Quick Telegram Bot Test\n";
@@ -33,9 +32,11 @@ function quickTest($url, $data, $testName)
 
     if ($httpCode === 200 && $response === 'OK') {
         echo "✅\n";
+
         return true;
     } else {
         echo "❌ (HTTP: {$httpCode})\n";
+
         return false;
     }
 }
@@ -50,7 +51,7 @@ $commands = [
     '/balance' => 'Show balance',
     '/profile' => 'Show profile',
     '/settings' => 'Show settings',
-    '/language' => 'Language selection'
+    '/language' => 'Language selection',
 ];
 
 foreach ($commands as $cmd => $desc) {
@@ -62,8 +63,8 @@ foreach ($commands as $cmd => $desc) {
             'date' => time(),
             'chat' => ['username' => 'testuser', 'first_name' => 'Test User', 'type' => 'private', 'id' => rand(100000, 999999)],
             'text' => $cmd,
-            'entities' => [['type' => 'bot_command', 'offset' => 0, 'length' => strlen($cmd)]]
-        ]
+            'entities' => [['type' => 'bot_command', 'offset' => 0, 'length' => strlen($cmd)]],
+        ],
     ];
     quickTest($baseUrl, $data, $cmd);
 }
@@ -76,18 +77,18 @@ $callbacks = [
     'gender-male' => 'Male gender',
     'gender-female' => 'Female gender',
     'profile-back' => 'Profile back button',
-    'help-commands' => 'Help commands'
+    'help-commands' => 'Help commands',
 ];
 
 foreach ($callbacks as $callback => $desc) {
     $data = [
         'update_id' => rand(100000, 999999),
         'callback_query' => [
-            'id' => 'callback' . rand(100, 999),
+            'id' => 'callback'.rand(100, 999),
             'from' => ['username' => 'testuser', 'id' => rand(100000, 999999), 'is_bot' => false, 'first_name' => 'Test User', 'language_code' => 'en'],
             'message' => ['message_id' => rand(600, 999), 'date' => time(), 'chat' => ['id' => rand(100000, 999999), 'first_name' => 'Test User', 'username' => 'testuser', 'type' => 'private']],
-            'data' => $callback
-        ]
+            'data' => $callback,
+        ],
     ];
     quickTest($baseUrl, $data, $callback);
 }

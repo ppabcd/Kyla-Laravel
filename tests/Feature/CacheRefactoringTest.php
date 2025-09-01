@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Support\Facades\Cache;
+use App\Infrastructure\Repositories\UserRepository;
 use App\Services\CaptchaService;
 use App\Services\ConversationService;
-use App\Telegram\Middleware\CheckPromotionMiddleware;
 use App\Telegram\Middleware\CheckAnnouncementMiddleware;
-use App\Infrastructure\Repositories\UserRepository;
+use App\Telegram\Middleware\CheckPromotionMiddleware;
+use Illuminate\Support\Facades\Cache;
+use Tests\TestCase;
 
 class CacheRefactoringTest extends TestCase
 {
@@ -44,19 +44,19 @@ class CacheRefactoringTest extends TestCase
 
     public function test_promotion_middleware_can_be_instantiated()
     {
-        $middleware = new CheckPromotionMiddleware();
+        $middleware = new CheckPromotionMiddleware;
         $this->assertInstanceOf(CheckPromotionMiddleware::class, $middleware);
     }
 
     public function test_announcement_middleware_can_be_instantiated()
     {
-        $middleware = new CheckAnnouncementMiddleware();
+        $middleware = new CheckAnnouncementMiddleware;
         $this->assertInstanceOf(CheckAnnouncementMiddleware::class, $middleware);
     }
 
     public function test_user_repository_can_be_instantiated()
     {
-        $repository = new UserRepository();
+        $repository = new UserRepository;
         $this->assertInstanceOf(UserRepository::class, $repository);
     }
 
@@ -86,14 +86,14 @@ class CacheRefactoringTest extends TestCase
         // Run migrations for test database
         $this->artisan('migrate');
 
-        $repository = new UserRepository();
+        $repository = new UserRepository;
 
         // This should not throw an exception even without Redis
         try {
             $totalUsers = $repository->getTotalUsers();
             $this->assertIsInt($totalUsers);
         } catch (\Exception $e) {
-            $this->fail('UserRepository cache operations should work without Redis: ' . $e->getMessage());
+            $this->fail('UserRepository cache operations should work without Redis: '.$e->getMessage());
         }
     }
 

@@ -5,15 +5,15 @@ namespace App\Infrastructure\Repositories;
 use App\Domain\Entities\BalanceTransaction;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\BalanceTransactionRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Balance Transaction Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of BalanceTransactionRepositoryInterface
  */
 class BalanceTransactionRepository implements BalanceTransactionRepositoryInterface
@@ -42,7 +42,7 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
     }
 
     /**
-     * User Transaction Operations  
+     * User Transaction Operations
      */
     public function findByUserId(int $userId): Collection
     {
@@ -163,7 +163,7 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
                     'max_amount' => $stats->get('debit')->max_amount ?? 0,
                 ],
                 'total_transactions' => BalanceTransaction::count(),
-                'total_amount' => $this->getTotalTransactionAmount()
+                'total_amount' => $this->getTotalTransactionAmount(),
             ];
         });
     }
@@ -196,7 +196,7 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
     {
         return $this->update($transaction, [
             'reference_id' => $referenceId,
-            'reference_type' => $referenceType
+            'reference_type' => $referenceType,
         ]);
     }
 
@@ -276,9 +276,9 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
         });
     }
 
-    public function getTotalRevenue(int $days = null): float
+    public function getTotalRevenue(?int $days = null): float
     {
-        return Cache::remember("transactions:revenue:" . ($days ?? 'all'), 600, function () use ($days) {
+        return Cache::remember('transactions:revenue:'.($days ?? 'all'), 600, function () use ($days) {
             $query = BalanceTransaction::where('type', 'credit')
                 ->whereIn('description', ['Premium Purchase', 'Top Up', 'Gift Purchase']);
 
@@ -303,13 +303,14 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
         return $this->getTotalRevenue($days);
     }
 
-    public function getTransactionsCount(int $days = null): int
+    public function getTransactionsCount(?int $days = null): int
     {
-        return Cache::remember("transactions:count:" . ($days ?? 'all'), 300, function () use ($days) {
+        return Cache::remember('transactions:count:'.($days ?? 'all'), 300, function () use ($days) {
             $query = BalanceTransaction::query();
             if ($days) {
                 $query->where('created_at', '>=', now()->subDays($days));
             }
+
             return $query->count();
         });
     }
@@ -337,8 +338,8 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
                     return [
                         $item->type => [
                             'count' => $item->count,
-                            'total' => $item->total
-                        ]
+                            'total' => $item->total,
+                        ],
                     ];
                 })
                 ->toArray();
@@ -410,8 +411,8 @@ class BalanceTransactionRepository implements BalanceTransactionRepositoryInterf
                     return [
                         $item->date => [
                             'count' => $item->count,
-                            'total' => $item->total
-                        ]
+                            'total' => $item->total,
+                        ],
                     ];
                 })
                 ->toArray();

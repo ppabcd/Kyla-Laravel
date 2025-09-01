@@ -2,9 +2,8 @@
 
 namespace App\Telegram\Callbacks;
 
-use App\Telegram\Core\BaseCallback;
-
 use App\Telegram\Contracts\TelegramContextInterface;
+use App\Telegram\Core\BaseCallback;
 
 class BannedActionMediaCallback extends BaseCallback
 {
@@ -15,7 +14,7 @@ class BannedActionMediaCallback extends BaseCallback
         $callbackData = $context->getCallbackData();
         $parts = explode(':', $callbackData, 2);
         $action = $parts[1] ?? 'default';
-        
+
         switch ($action) {
             case 'confirm':
                 $context->reply(__('callbacks.media.banned_user'));
@@ -27,7 +26,7 @@ class BannedActionMediaCallback extends BaseCallback
                 $context->reply('Aksi tidak valid.');
                 break;
         }
-        
+
         $context->answerCallbackQuery();
     }
-} 
+}

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Domain\Entities\User;
+use App\Models\User;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Services\KeyboardService;
 

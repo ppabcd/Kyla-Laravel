@@ -19,6 +19,7 @@ class MediaRepository
     public function update(Media $media, array $data)
     {
         $media->update($data);
+
         return $media;
     }
 
@@ -26,4 +27,4 @@ class MediaRepository
     {
         return $media->delete();
     }
-} 
+}

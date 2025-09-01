@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Conversation Log Repository Implementation
- * 
+ *
  * Infrastructure layer implementation of ConversationLogRepositoryInterface
  */
 class ConversationLogRepository implements ConversationLogRepositoryInterface
@@ -44,7 +44,7 @@ class ConversationLogRepository implements ConversationLogRepositoryInterface
             [
                 'user_id' => $data['user_id'],
                 'chat_id' => $data['chat_id'],
-                'message_id' => $data['message_id']
+                'message_id' => $data['message_id'],
             ],
             $data
         );

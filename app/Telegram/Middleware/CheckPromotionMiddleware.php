@@ -7,27 +7,27 @@ use Illuminate\Support\Facades\Cache;
 
 class CheckPromotionMiddleware implements MiddlewareInterface
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function handle(TelegramContextInterface $context, callable $next): void
     {
         $user = $context->getUserModel();
 
-        if (!$user) {
+        if (! $user) {
             $context->sendMessage('❌ User not found');
+
             return;
         }
 
         // Check if user has seen promotion message
         $promotionKey = "promotion_shown:{$user->id}";
-        if (!Cache::has($promotionKey)) {
+        if (! Cache::has($promotionKey)) {
             // Show promotion message
             $this->sendPromotionMessage($context, $user);
 
             // Mark promotion as shown (cache for 24 hours)
             Cache::put($promotionKey, true, 86400);
+
             return;
         }
 

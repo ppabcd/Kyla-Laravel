@@ -14,7 +14,7 @@ class CodeHelper
      */
     public static function parseCommand(?string $command): array
     {
-        if (!$command) {
+        if (! $command) {
             return [];
         }
 
@@ -41,19 +41,21 @@ class CodeHelper
     {
         $parts = [];
         foreach ($obj as $key => $value) {
-            $parts[] = urlencode($key) . '=' . urlencode($value);
+            $parts[] = urlencode($key).'='.urlencode($value);
         }
+
         return implode('&', $parts);
     }
 
     /**
      * Ensure value is not null or throw exception
      */
-    public static function ensureNotNull($value, string $errorMessage = "The data null or undefined")
+    public static function ensureNotNull($value, string $errorMessage = 'The data null or undefined')
     {
         if ($value === null) {
             throw new NullPointerException($errorMessage);
         }
+
         return $value;
     }
 
@@ -74,6 +76,7 @@ class CodeHelper
                 throw new InvalidJsonStringException($params);
             }
         }
+
         return $result;
     }
 
@@ -87,6 +90,7 @@ class CodeHelper
                 return $key;
             }
         }
+
         return null;
     }
 
@@ -100,6 +104,7 @@ class CodeHelper
                 return $enumValue;
             }
         }
+
         return null;
     }
 
@@ -124,11 +129,11 @@ class CodeHelper
      */
     public static function extractSignature(?string $text, ?array $entities): ?string
     {
-        if (!$text || !$entities) {
+        if (! $text || ! $entities) {
             return null;
         }
 
-        $signaturePrefix = "SIGN:";
+        $signaturePrefix = 'SIGN:';
 
         foreach ($entities as $entity) {
             if (
@@ -178,14 +183,14 @@ class CodeHelper
      */
     public static function createRandomBoldStringMarkdown(string $boldData): string
     {
-        $characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        $result = "";
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $result = '';
 
         for ($i = 0; $i < strlen($boldData); $i++) {
             // Add random character
             $result .= $characters[rand(0, strlen($characters) - 1)];
             // Add bold character in Markdown format
-            $result .= '*' . $boldData[$i] . '*';
+            $result .= '*'.$boldData[$i].'*';
         }
 
         // Add final random character

@@ -317,4 +317,8 @@ Di sini kamu bisa menemukan pasangan berdasarkan profil yang kamu sukai.',
         'ask_name' => 'Siapa nama kamu?',
         'ask_age' => 'Berapa usia kamu?',
     ],
+
+    'error' => [
+        'general' => 'Terjadi kesalahan saat memproses pesan Anda. Silakan coba lagi.',
+    ],
 ];

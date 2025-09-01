@@ -337,4 +337,8 @@ Here you can find a partner based on your love profile.',
 
 You can now start searching for conversations.',
     ],
+
+    'error' => [
+        'general' => 'An error occurred while processing your message. Please try again.',
+    ],
 ];

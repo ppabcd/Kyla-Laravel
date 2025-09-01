@@ -6,6 +6,7 @@ use App\Telegram\Commands\StartCommand;
 use App\Telegram\Contracts\CallbackInterface;
 use App\Telegram\Contracts\TelegramContextInterface;
 use App\Telegram\Core\BaseCallback;
+use Illuminate\Support\Facades\Log;
 
 class SearchCallback extends BaseCallback implements CallbackInterface
 {
@@ -22,7 +23,7 @@ class SearchCallback extends BaseCallback implements CallbackInterface
             $this->startCommand->handle($context);
         } catch (\Exception $e) {
             // Log the error for debugging
-            \Illuminate\Support\Facades\Log::error('SearchCallback error: '.$e->getMessage(), [
+            Log::error('SearchCallback error: '.$e->getMessage(), [
                 'user_id' => $context->getUserId(),
                 'trace' => $e->getTraceAsString(),
             ]);

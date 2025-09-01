@@ -256,7 +256,7 @@ class User extends Authenticatable
      */
     public function isNew(): bool
     {
-        return $this->is_new_user;
+        return (bool) $this->is_new_user;
     }
 
     /**

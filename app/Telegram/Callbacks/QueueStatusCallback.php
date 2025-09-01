@@ -40,7 +40,7 @@ class QueueStatusCallback extends BaseCallback implements CallbackInterface
             $message = __('messages.queue.overcrowded_message', ['count' => $totalPending]);
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
 
-            $context->sendMessage($message, array_merge($keyboard, ['parse_mode' => 'Markdown']));
+            $context->sendMessage($message, ['reply_markup' => $keyboard, 'parse_mode' => 'Markdown']);
         } else {
             $message = "📊 **Queue Status**\n\n";
             $message .= "👥 **Total users in queue:** {$totalPending}\n";

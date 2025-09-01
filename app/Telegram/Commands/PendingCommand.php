@@ -39,7 +39,7 @@ class PendingCommand extends BaseCommand implements CommandInterface
             $message = __('messages.queue.overcrowded_message', ['count' => $pendingCount]);
             $keyboard = $this->keyboardService->getQueueOvercrowdedKeyboard();
 
-            $context->reply($message, array_merge($keyboard, ['parse_mode' => 'Markdown']));
+            $context->reply($message, ['reply_markup' => $keyboard, 'parse_mode' => 'Markdown']);
         } else {
             $message = "📊 **Queue Status**\n\n";
             $message .= "👥 **Total users in queue:** {$pendingCount}\n";

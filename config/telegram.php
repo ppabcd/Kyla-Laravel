@@ -70,6 +70,7 @@ return [
         'min_age' => env('TELEGRAM_MIN_AGE', 18),
         'max_age' => env('TELEGRAM_MAX_AGE', 65),
         'auto_match' => env('TELEGRAM_AUTO_MATCH', true),
+        'random_matching' => env('TELEGRAM_RANDOM_MATCHING', false),
     ],
 
     // Security Settings

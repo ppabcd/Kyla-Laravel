@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -25,29 +27,27 @@ class User extends Authenticatable
         'last_name',
         'username',
         'language_code',
-        'is_bot',
         'gender',
         'gender_icon',
         'interest',
         'age',
-        'premium',
-        'banned',
-        'ban_type',
-        'ban_x_times',
-        'is_auto',
-        'platform_id',
-        'is_blocked',
-        'is_safe_mode',
-        'is_get_announcement',
-        'soft_ban',
+        'location',
+        'is_premium',
+        'is_banned',
+        'is_searching',
+        'banned_reason',
+        'premium_expires_at',
+        'last_activity_at',
+        'banned_at',
+        'settings',
+        'metadata',
+        'balance',
+        'safe_mode',
+        'last_message_at',
         'soft_banned_until',
         'soft_ban_reason',
         'promotion_violation_count',
         'last_promotion_violation_at',
-        'balances',
-        'next_update_balance',
-        'is_new_user',
-        'checked_at',
     ];
 
     /**
@@ -74,34 +74,9 @@ class User extends Authenticatable
             'last_promotion_violation_at' => 'datetime',
             'is_banned' => 'boolean',
             'is_premium' => 'boolean',
-            'is_blocked' => 'boolean',
-            'is_safe_mode' => 'boolean',
+            'safe_mode' => 'boolean',
             'promotion_violation_count' => 'integer',
         ];
-    }
-
-    /**
-     * Get user's pairs as first user
-     */
-    public function pairsAsFirst(): HasMany
-    {
-        return $this->hasMany(Pair::class, 'first_user_id');
-    }
-
-    /**
-     * Get user's pairs as second user
-     */
-    public function pairsAsSecond(): HasMany
-    {
-        return $this->hasMany(Pair::class, 'second_user_id');
-    }
-
-    /**
-     * Get all user's pairs
-     */
-    public function pairs()
-    {
-        return $this->pairsAsFirst()->union($this->pairsAsSecond());
     }
 
     /**
@@ -113,33 +88,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Get user's messages
+     * Get user's location record
      */
-    public function messages(): HasMany
-    {
-        return $this->hasMany(Message::class);
-    }
-
-    /**
-     * Get user's media
-     */
-    public function media(): HasMany
-    {
-        return $this->hasMany(Media::class);
-    }
-
-    /**
-     * Get user's session
-     */
-    public function session(): HasOne
-    {
-        return $this->hasOne(Session::class);
-    }
-
-    /**
-     * Get user's location
-     */
-    public function location(): HasOne
+    public function userLocation(): HasOne
     {
         return $this->hasOne(UserLocation::class);
     }
@@ -157,7 +108,71 @@ class User extends Authenticatable
      */
     public function conversationLogs(): HasMany
     {
-        return $this->hasMany(ConversationLog::class);
+        return $this->hasMany(ConversationLog::class, 'user_id');
+    }
+
+    /**
+     * Get user's balance transactions
+     */
+    public function balanceTransactions(): HasMany
+    {
+        return $this->hasMany(BalanceTransaction::class, 'user_id');
+    }
+
+    /**
+     * Get user's pairs as first user
+     */
+    public function pairs(): HasMany
+    {
+        return $this->hasMany(Pair::class, 'user_id');
+    }
+
+    /**
+     * Get user's pairs as partner
+     */
+    public function partnerPairs(): HasMany
+    {
+        return $this->hasMany(Pair::class, 'partner_id');
+    }
+
+    /**
+     * Get all user's pairs (as user or partner)
+     */
+    public function allPairs()
+    {
+        return $this->pairs()->union($this->partnerPairs());
+    }
+
+    /**
+     * Get user's reports (reports about this user)
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reported_user_id');
+    }
+
+    /**
+     * Get user's submitted reports
+     */
+    public function submittedReports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reporter_user_id');
+    }
+
+    /**
+     * Get users referred by this user
+     */
+    public function referredUsers(): HasMany
+    {
+        return $this->hasMany(User::class, 'referred_by');
+    }
+
+    /**
+     * Get the user who referred this user
+     */
+    public function referrer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_by');
     }
 
     /**
@@ -173,31 +188,7 @@ class User extends Authenticatable
      */
     public function isBanned(): bool
     {
-        return $this->banned === 1;
-    }
-
-    /**
-     * Check if user is premium
-     */
-    public function isPremium(): bool
-    {
-        return $this->premium === 1;
-    }
-
-    /**
-     * Check if user is blocked
-     */
-    public function isBlocked(): bool
-    {
-        return $this->is_blocked === 1;
-    }
-
-    /**
-     * Check if user is in safe mode
-     */
-    public function isInSafeMode(): bool
-    {
-        return $this->is_safe_mode === 1;
+        return $this->is_banned;
     }
 
     /**
@@ -205,7 +196,278 @@ class User extends Authenticatable
      */
     public function isSoftBanned(): bool
     {
-        return $this->soft_banned_until && $this->soft_banned_until->isFuture();
+        return $this->soft_banned_until !== null && $this->soft_banned_until->isFuture();
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->last_activity_at &&
+            $this->last_activity_at->diffInMinutes(now()) <= 30;
+    }
+
+    /**
+     * Check if user can be matched
+     */
+    public function canMatch(): bool
+    {
+        return ! $this->isBanned() &&
+            ! $this->isSoftBanned() &&
+            $this->gender &&
+            $this->interest &&
+            ! $this->is_searching; // Not currently searching for another match
+    }
+
+    /**
+     * Get average rating
+     */
+    public function getAverageRating(): float
+    {
+        if ($this->rating_count === 0) {
+            return 0.0;
+        }
+
+        return round($this->rating_sum / $this->rating_count, 2);
+    }
+
+    /**
+     * Get average rating attribute
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        $ratings = $this->hasMany(Rating::class, 'rated_user_id')->get();
+
+        if ($ratings->isEmpty()) {
+            return 0.0;
+        }
+
+        return round($ratings->avg('rating'), 1);
+    }
+
+    /**
+     * Get total ratings attribute
+     */
+    public function getTotalRatingsAttribute(): int
+    {
+        return $this->hasMany(Rating::class, 'rated_user_id')->count();
+    }
+
+    /**
+     * Check if user is in conversation
+     */
+    public function isInConversation(): bool
+    {
+        // Consider pairs where this user is either `user_id` or `partner_id`
+        return Pair::where('status', 'active')
+            ->where(function ($query) {
+                $query->where('user_id', $this->id)
+                    ->orWhere('partner_id', $this->id);
+            })
+            ->exists();
+    }
+
+    /**
+     * Add rating to user
+     */
+    public function addRating(float $rating): void
+    {
+        $this->rating_sum += $rating;
+        $this->rating_count += 1;
+        $this->save();
+    }
+
+    /**
+     * Increment user balance
+     */
+    public function incrementBalance(float $amount, ?string $reason = null): void
+    {
+        $this->balance += $amount;
+        $this->save();
+
+        // Log transaction
+        $this->balanceTransactions()->create([
+            'type' => 'credit',
+            'amount' => $amount,
+            'current_balance' => $this->balance,
+            'description' => $reason ?? 'Balance increment',
+        ]);
+    }
+
+    /**
+     * Decrement user balance
+     */
+    public function decrementBalance(float $amount, ?string $reason = null): bool
+    {
+        if ($this->balance < $amount) {
+            return false;
+        }
+
+        $previousBalance = $this->balance;
+        $this->balance -= $amount;
+        $this->save();
+
+        // Log transaction
+        $this->balanceTransactions()->create([
+            'type' => 'debit',
+            'amount' => $amount,
+            'current_balance' => $this->balance,
+            'description' => $reason ?? 'Balance decrement',
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Ban user
+     */
+    public function ban(string $reason): void
+    {
+        $this->is_banned = true;
+        $this->banned_reason = $reason;
+        $this->banned_at = now();
+        $this->save();
+    }
+
+    /**
+     * Unban user
+     */
+    public function unban(): void
+    {
+        $this->is_banned = false;
+        $this->banned_reason = null;
+        $this->banned_at = null;
+        $this->save();
+    }
+
+    /**
+     * Soft ban user
+     */
+    public function softBan(int $minutes): void
+    {
+        $this->soft_banned_until = now()->addMinutes($minutes);
+        $this->save();
+    }
+
+    /**
+     * Upgrade user to premium
+     */
+    public function upgradeToPremium(int $days = 30): void
+    {
+        $this->is_premium = true;
+        $this->premium_expires_at = $this->isPremium()
+            ? $this->premium_expires_at->addDays($days)
+            : now()->addDays($days);
+        $this->save();
+    }
+
+    /**
+     * Update user activity
+     */
+    public function updateActivity(): void
+    {
+        $this->last_activity_at = now();
+        $this->save();
+    }
+
+    /**
+     * Get full name
+     */
+    public function getFullName(): string
+    {
+        return trim($this->first_name.' '.$this->last_name);
+    }
+
+    /**
+     * Get full name attribute
+     */
+    public function getFullNameAttribute(): string
+    {
+        return $this->getFullName();
+    }
+
+    /**
+     * Get display name
+     */
+    public function getDisplayName(): string
+    {
+        return $this->username
+            ? '@'.$this->username
+            : $this->getFullName();
+    }
+
+    /**
+     * Get display name attribute
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->getDisplayName();
+    }
+
+    /**
+     * Check if user has location
+     */
+    public function hasLocation(): bool
+    {
+        return $this->location_latitude !== null && $this->location_longitude !== null;
+    }
+
+    /**
+     * Calculate distance to another user
+     */
+    public function distanceTo(User $otherUser): ?float
+    {
+        if (! $this->hasLocation() || ! $otherUser->hasLocation()) {
+            return null;
+        }
+
+        // Haversine formula to calculate distance
+        $earthRadius = 6371; // Earth's radius in kilometers
+
+        $lat1 = deg2rad($this->location_latitude);
+        $lon1 = deg2rad($this->location_longitude);
+        $lat2 = deg2rad($otherUser->location_latitude);
+        $lon2 = deg2rad($otherUser->location_longitude);
+
+        $deltaLat = $lat2 - $lat1;
+        $deltaLon = $lon2 - $lon1;
+
+        $a = sin($deltaLat / 2) * sin($deltaLat / 2) +
+            cos($lat1) * cos($lat2) *
+            sin($deltaLon / 2) * sin($deltaLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
+    }
+
+    /**
+     * Check if user is premium
+     */
+    public function isPremium(): bool
+    {
+        return $this->is_premium;
+    }
+
+
+    /**
+     * Check if user is in safe mode
+     */
+    public function isInSafeMode(): bool
+    {
+        return (bool) $this->safe_mode;
+    }
+
+    /**
+     * Get recent violations by type
+     */
+    public function getRecentViolations(string $type, int $hours = 24): int
+    {
+        return $this->violations()
+            ->where('violation_type', $type)
+            ->where('detected_at', '>=', now()->subHours($hours))
+            ->count();
     }
 
     /**
@@ -231,17 +493,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get recent violations by type
-     */
-    public function getRecentViolations(string $type, int $hours = 24): int
-    {
-        return $this->violations()
-            ->where('violation_type', $type)
-            ->where('detected_at', '>=', now()->subHours($hours))
-            ->count();
-    }
-
-    /**
      * Check if user should be soft banned for promotion violations
      */
     public function shouldBeSoftBannedForPromotion(): bool
@@ -252,153 +503,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is new
-     */
-    public function isNew(): bool
-    {
-        return (bool) $this->is_new_user;
-    }
-
-    /**
-     * Get user's full name
-     */
-    public function getFullNameAttribute(): string
-    {
-        $parts = [];
-
-        if ($this->first_name) {
-            $parts[] = $this->first_name;
-        }
-
-        if ($this->last_name) {
-            $parts[] = $this->last_name;
-        }
-
-        return implode(' ', $parts) ?: 'Unknown User';
-    }
-
-    /**
-     * Get user's display name
-     */
-    public function getDisplayNameAttribute(): string
-    {
-        if ($this->username) {
-            return "@{$this->username}";
-        }
-
-        return $this->full_name;
-    }
-
-    /**
-     * Get user's current balance
-     */
-    public function getCurrentBalanceAttribute(): int
-    {
-        return $this->balances ?? 0;
-    }
-
-    /**
-     * Check if user has sufficient balance
-     */
-    public function hasBalance(int $amount): bool
-    {
-        return $this->current_balance >= $amount;
-    }
-
-    /**
-     * Deduct balance from user
-     */
-    public function deductBalance(int $amount): bool
-    {
-        if (! $this->hasBalance($amount)) {
-            return false;
-        }
-
-        $this->balances = $this->current_balance - $amount;
-
-        return $this->save();
-    }
-
-    /**
-     * Add balance to user
-     */
-    public function addBalance(int $amount): bool
-    {
-        $this->balances = $this->current_balance + $amount;
-
-        return $this->save();
-    }
-
-    /**
-     * Get user's active pair
-     */
-    public function getActivePair(): ?Pair
-    {
-        return $this->pairsAsFirst()
-            ->where('active', true)
-            ->orWhere(function ($query) {
-                $query->where('second_user_id', $this->id)
-                    ->where('active', true);
-            })
-            ->first();
-    }
-
-    /**
-     * Get user's partner in active pair
-     */
-    public function getActivePartner(): ?User
-    {
-        $pair = $this->getActivePair();
-
-        if (! $pair) {
-            return null;
-        }
-
-        $partnerId = $pair->first_user_id === $this->id
-            ? $pair->second_user_id
-            : $pair->first_user_id;
-
-        return User::find($partnerId);
-    }
-
-    /**
-     * Check if user has active pair
-     */
-    public function hasActivePair(): bool
-    {
-        return $this->getActivePair() !== null;
-    }
-
-    /**
-     * Check if user has pending pair
-     */
-    public function hasPendingPair(): bool
-    {
-        return $this->pendingPairs()->where('active', true)->exists();
-    }
-
-    /**
-     * Get user's average rating
-     */
-    public function getAverageRatingAttribute(): float
-    {
-        return $this->rating?->avg_rating ?? 0.0;
-    }
-
-    /**
-     * Get user's total ratings
-     */
-    public function getTotalRatingsAttribute(): int
-    {
-        return $this->rating?->total_rating ?? 0;
-    }
-
-    /**
      * Scope to get banned users
      */
     public function scopeBanned($query)
     {
-        return $query->where('banned', 1);
+        return $query->where('is_banned', 1);
     }
 
     /**
@@ -406,7 +515,7 @@ class User extends Authenticatable
      */
     public function scopePremium($query)
     {
-        return $query->where('premium', 1);
+        return $query->where('is_premium', 1);
     }
 
     /**
@@ -414,13 +523,13 @@ class User extends Authenticatable
      */
     public function scopeActive($query)
     {
-        return $query->where('banned', 0)->where('is_blocked', 0);
+        return $query->where('is_banned', 0);
     }
 
     /**
      * Scope to get users by gender
      */
-    public function scopeByGender($query, int $gender)
+    public function scopeByGender($query, string $gender)
     {
         return $query->where('gender', $gender);
     }
@@ -428,7 +537,7 @@ class User extends Authenticatable
     /**
      * Scope to get users by interest
      */
-    public function scopeByInterest($query, int $interest)
+    public function scopeByInterest($query, string $interest)
     {
         return $query->where('interest', $interest);
     }

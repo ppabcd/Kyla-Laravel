@@ -312,15 +312,28 @@ class MatchingService
         $cacheKey = "potential_matches:user:{$user->id}";
 
         return Cache::remember($cacheKey, 300, function () use ($user) {
-            // If user has no specific interest (random matching), find more broadly
-            $interest = $user->interest === 'all' || $user->interest === null ? '' : $user->interest;
+            // Check if random matching is enabled
+            $randomMatching = config('telegram.matching.random_matching', false);
 
-            $potentialMatches = $this->userRepository->findUsersForMatching(
-                $interest,
-                $user->gender,
-                $user->id,
-                100
-            );
+            if ($randomMatching) {
+                // For random matching, ignore interest and gender completely
+                $potentialMatches = $this->userRepository->findUsersForMatching(
+                    '', // No interest filter
+                    '', // No gender filter
+                    $user->id,
+                    100
+                );
+            } else {
+                // If user has no specific interest (random matching), find more broadly
+                $interest = $user->interest === 'all' || $user->interest === null ? '' : $user->interest;
+
+                $potentialMatches = $this->userRepository->findUsersForMatching(
+                    $interest,
+                    $user->gender,
+                    $user->id,
+                    100
+                );
+            }
 
             // Additional filtering
             return $potentialMatches->filter(function ($potentialMatch) use ($user) {
@@ -331,19 +344,25 @@ class MatchingService
 
     private function isCompatibleMatch(User $user1, User $user2): bool
     {
-        // For random matching (interest = null or 'all'), skip strict gender/interest check
-        $user1AcceptsAll = $user1->interest === 'all' || $user1->interest === null;
-        $user2AcceptsAll = $user2->interest === 'all' || $user2->interest === null;
+        // Check if random matching is enabled globally
+        $randomMatching = config('telegram.matching.random_matching', false);
 
-        if (! $user1AcceptsAll && ! $user2AcceptsAll) {
-            // Basic gender/interest compatibility for specific preferences
-            if ($user1->gender !== $user2->interest || $user2->gender !== $user1->interest) {
-                return false;
+        if (! $randomMatching) {
+            // Normal matching logic - check gender/interest compatibility
+            $user1AcceptsAll = $user1->interest === 'all' || $user1->interest === null;
+            $user2AcceptsAll = $user2->interest === 'all' || $user2->interest === null;
+
+            if (! $user1AcceptsAll && ! $user2AcceptsAll) {
+                // Basic gender/interest compatibility for specific preferences
+                if ($user1->gender !== $user2->interest || $user2->gender !== $user1->interest) {
+                    return false;
+                }
+            } elseif ($user1AcceptsAll || $user2AcceptsAll) {
+                // At least one user accepts random matching - more flexible matching
+                // Still ensure basic compatibility exists
             }
-        } elseif ($user1AcceptsAll || $user2AcceptsAll) {
-            // At least one user accepts random matching - more flexible matching
-            // Still ensure basic compatibility exists
         }
+        // If random matching is enabled, skip gender/interest checks entirely
 
         // Age compatibility (configurable range)
         if ($user1->age && $user2->age) {

@@ -193,57 +193,6 @@ class TelegramWebhookController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Get registered commands
-     */
-    public function commands(): JsonResponse
-    {
-        try {
-            $commands = $this->telegramService->getCommands();
-            $callbacks = $this->telegramService->getCallbacks();
-
-            $commandList = [];
-            foreach ($commands as $name => $command) {
-                $commandList[] = [
-                    'name' => $name,
-                    'description' => $command->getDescription(),
-                    'usage' => $command->getUsage(),
-                    'enabled' => $command->isEnabled(),
-                ];
-            }
-
-            $callbackList = [];
-            foreach ($callbacks as $name => $callback) {
-                $callbackList[] = [
-                    'name' => $name,
-                    'description' => $callback->getDescription(),
-                    'enabled' => $callback->isEnabled(),
-                ];
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'commands' => $commandList,
-                    'callbacks' => $callbackList,
-                    'total_commands' => count($commands),
-                    'total_callbacks' => count($callbacks),
-                ],
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error getting commands info', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
     /**
      * Test webhook endpoint
      */

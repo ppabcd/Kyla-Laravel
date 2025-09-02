@@ -127,34 +127,6 @@ test('bot info endpoint returns bot details', function () {
         ]);
 });
 
-test('commands endpoint returns registered commands and callbacks', function () {
-    $commands = [
-        'start' => 'Start command',
-        'help' => 'Help command',
-    ];
-
-    $callbacks = [
-        'age_callback' => 'Age callback',
-        'location_callback' => 'Location callback',
-    ];
-
-    $this->telegramService->shouldReceive('getCommands')
-        ->once()
-        ->andReturn($commands);
-
-    $this->telegramService->shouldReceive('getCallbacks')
-        ->once()
-        ->andReturn($callbacks);
-
-    $response = $this->getJson('/api/telegram/commands');
-
-    $response->assertStatus(200)
-        ->assertJson([
-            'success' => true,
-            'commands' => $commands,
-            'callbacks' => $callbacks,
-        ]);
-});
 
 test('set webhook endpoint requires url parameter', function () {
     $response = $this->postJson('/api/telegram/webhook/set');

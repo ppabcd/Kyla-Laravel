@@ -126,13 +126,11 @@ describe('Random Gender Matching', function () {
             'is_premium' => false,
             'is_safe_mode' => false,
         ]);
-        // Force update the timestamps to make it older
-        \DB::table('pair_pendings')
-            ->where('id', $olderPending->id)
-            ->update([
-                'created_at' => $olderTime,
-                'updated_at' => $olderTime,
-            ]);
+        // Force update the timestamps to make it older without using the DB facade
+        $olderPending->timestamps = false;
+        $olderPending->created_at = $olderTime;
+        $olderPending->updated_at = $olderTime;
+        $olderPending->saveQuietly();
 
         // Create newer pending entry
         $newerPending = PairPending::create([

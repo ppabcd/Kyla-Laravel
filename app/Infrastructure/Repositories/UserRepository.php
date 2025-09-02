@@ -87,18 +87,35 @@ class UserRepository implements UserRepositoryInterface
 
     public function findUsersForMatching(string $interest, string $gender, int $excludeUserId, int $limit = 50): Collection
     {
-        return User::where('visibility', true)
-            ->where('gender', $interest)
-            ->where('interest', $gender)
-            ->where('id', '!=', $excludeUserId)
+        $query = User::where('id', '!=', $excludeUserId)
             ->where('is_banned', false)
-            ->where('verification_status', 'verified')
-            ->whereNull('soft_ban')
-            ->orWhere('soft_ban', '<', now())
-            ->whereDoesntHave('pairs', function ($query) {
-                $query->where('status', 'active');
-            })
-            ->inRandomOrder()
+            ->where('is_searching', true);
+
+        // Apply gender filter only if specified
+        if ($gender !== '') {
+            $query->where('interest', $gender);
+        }
+
+        // Apply interest filter only if specified
+        if ($interest !== '') {
+            $query->where('gender', $interest);
+        }
+
+        // Check for soft ban
+        $query->where(function ($q) {
+            $q->whereNull('soft_banned_until')
+                ->orWhere('soft_banned_until', '<', now());
+        });
+
+        // Exclude users who already have active pairs
+        $query->whereDoesntHave('pairsAsFirst', function ($subQuery) {
+            $subQuery->where('active', true);
+        })
+            ->whereDoesntHave('pairsAsSecond', function ($subQuery) {
+                $subQuery->where('active', true);
+            });
+
+        return $query->inRandomOrder()
             ->limit($limit)
             ->get();
     }

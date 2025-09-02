@@ -24,7 +24,7 @@ class PairRepository implements PairRepositoryInterface
     private function normalizeBooleans(array $data): array
     {
         if (array_key_exists('active', $data)) {
-            $data['active'] = $data['active'] ? DB::raw('true') : DB::raw('false');
+            $data['active'] = $data['active'] ? 1 : 0;
         }
 
         return $data;
@@ -135,8 +135,7 @@ class PairRepository implements PairRepositoryInterface
     {
         return $this->update($pair, [
             'status' => 'ended',
-            // Ensure PostgreSQL receives a boolean literal, not an integer
-            'active' => DB::raw('false'),
+            'active' => false,
             'ended_at' => now(),
             'ended_by_user_id' => $endedBy,
             'ended_reason' => $reason,
